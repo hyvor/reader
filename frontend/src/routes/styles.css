@@ -1,12 +1,14 @@
 @import '@fontsource/mulish/500.css';
 @import '@fontsource/mulish/700.css';
 
+@import url(https://fonts.bunny.net/css?family=readex-pro:400,600);
+
 
 :root {
 
-	font-family: Avenir, Inter, Helvetica, Arial, sans-serif;
+	font-family: 'Readex Pro', Avenir, Inter, Helvetica, Arial, sans-serif;
 	font-size: 14px;
-    font-weight: 500;
+    font-weight: 400;
     font-synthesis: none;
     text-rendering: optimizeLegibility;
     -webkit-font-smoothing: antialiased;
@@ -19,6 +21,7 @@
 	--color-accent: #354f52;
 	--color-accent-light: #bdc5c6;
 	--color-accent-lightest: #eaebe9;
+	--color-border: #e1e1e1;
 
 	--color-link: #1d85d2;
 }

@@ -15,12 +15,12 @@
         </div>
 
 		<div class="nav-right">
-			<a href="/app?login">
+			<a href="/?login">
 				<Button>
 					Log in
 				</Button>
 			</a>
-			<a href="/app?signup">
+			<a href="/?signup">
 				<Button accent>
 					Sign up for FREE
 				</Button>
@@ -39,6 +39,7 @@
 		width: 100%;
 		z-index: 100;
 		background-color: var(--color-accent-lightest);
+		border-bottom: 1px solid var(--color-border);
 	}
 	nav {
 		display: flex;
