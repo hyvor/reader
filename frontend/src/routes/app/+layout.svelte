@@ -1,4 +1,0 @@
-Wonderful!
-<main>
-    <slot />
-</main>

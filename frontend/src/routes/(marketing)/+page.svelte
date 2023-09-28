@@ -16,7 +16,7 @@
 
 	<div class="button-wrap">
 
-		<a href="/app" target="_blank">
+		<a href="/app">
 			<Button accent large>Open App</Button>
 		</a>
 	</div>
