@@ -1,8 +1,17 @@
-<script>
+<script lang="ts">
 	import Callout from "$lib/components/Callout/Callout.svelte";
 	import CodeBlock from "$lib/components/Docs/Content/CodeBlock.svelte";
-	import { Rss, RssFill } from "svelte-bootstrap-icons";
+	import { onMount } from "svelte";
+	import { RssFill } from "svelte-bootstrap-icons";
+
+    onMount(() => {
+        if ((window as any).Tally) {
+            (window as any).Tally.loadEmbeds();
+        }
+    })
 </script>
+
+
 <h1>
     Learn RSS
 </h1>
@@ -52,7 +61,7 @@
 
 <ul>
     <li>
-        <b>Method 1:</b> Look for the RSS icon <RssFill style="color: #f26522;vertical-align:middle;" /> on the website. This is usually a link to the RSS feed. Don't be frighted by the XML code you see when you click on the link. Copy the feed URL from the address bar of your browser and paste it into your RSS reader.
+        <b>Method 1:</b> Look for the RSS icon <RssFill style="color: #f26522;vertical-align:middle;" /> on the website. This is usually a link to the RSS feed. Don't be frightened by the XML code you see when you click on the link. Copy the feed URL from the address bar of your browser and paste it into your RSS reader.
     </li>
     <li>
         <b>Method 2:</b> Look into the source code of the website and search for an <code>{`<link>`}</code> element with <code>type="application/rss+xml"</code> or <code>type="application/atom+xml"</code>. The <code>href</code> attribute of the element will be the URL of the RSS feed.
@@ -171,3 +180,27 @@
         If you are developing a RSS reader, see the <a href="opml">OPML</a> guide to learn how to import and export feed subscriptions between RSS readers.
     </li>
 </ul>
+
+<h2 id="survey">Survey</h2>
+
+
+<p>
+    Goal of this "Learn RSS" documentation is to increase awareness and adoption of RSS. We would really appreciate it if you could take a minute to answer the following questions (it's completely anonymous).
+</p>
+
+
+<svelte:head>
+    <script src="https://tally.so/widgets/embed.js"></script>
+</svelte:head>
+
+<div class="survey-wrap">
+    <iframe data-tally-src="https://tally.so/embed/wMaD7Y?alignLeft=1&hideTitle=1&transparentBackground=1&dynamicHeight=1" loading="lazy" width="100%" height="200" frameborder="0" marginheight="0" marginwidth="0" title="Hyvor Reader Learn RSS Feedback"></iframe>
+</div>
+
+<style>
+    .survey-wrap {
+        padding: 15px;
+        background-color: var(--accent-lightest);
+        border-radius: 20px;
+    }
+</style>

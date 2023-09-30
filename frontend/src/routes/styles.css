@@ -52,6 +52,11 @@
 	--header-height: 55px;
 }
 
+/* To offset hash scroll */
+:target {
+    scroll-margin-top: calc(var(--header-height) + 10px);
+}
+
 * {
 	box-sizing: border-box;
 }

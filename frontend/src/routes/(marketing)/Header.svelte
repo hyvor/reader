@@ -17,13 +17,13 @@
 
 		<div class="nav-right">
 
-			<a href="find">
+			<a href="/find">
 				<Button active={$page.url.pathname === '/find'}>
 					Find Feed
 				</Button>
 			</a>
 
-			<a href="learn" class="learn-button">
+			<a href="/learn" class="learn-button">
 				<Button active={$page.url.pathname.startsWith('/learn')}>
 					Learn RSS
 				</Button>
