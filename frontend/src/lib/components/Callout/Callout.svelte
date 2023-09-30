@@ -42,11 +42,11 @@
 
     .text {
         display: flex;
-        align-items: center;
+        align-items: flex-start;
     }
 
     .icon {
-        margin-right: 5px;
+        margin-right: 7px;
         font-size: 18px;
     }
 

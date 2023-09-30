@@ -10,6 +10,7 @@
         flex: 1;
         padding: 25px 0;
         margin: 0 15px;
+        min-width: 0;
     }
     content {
         display: block;
@@ -42,6 +43,37 @@
     }
     content :global(li) {
         margin-bottom: 8px;
+    }
+
+    content :global(:not(pre) > code) {
+        font-size: 85%;
+        padding: 0.2em 0.4em;
+        display: inline-block;
+        background-color: #f1f1f1;
+        color: #eb5757;
+        font-family: Consolas,monospace;
+        border-radius: 4px;
+        line-height: normal;
+        font-weight: 400;
+    }
+
+    content :global(pre) {
+        color: #000;
+        background: #f5f2f0;
+        text-shadow: 0 1px #fff;
+        font-family: Consolas,Monaco,Andale Mono,Ubuntu Mono,monospace;
+        font-size: 0.9em;
+        text-align: left;
+        white-space: pre;
+        word-spacing: normal;
+        word-break: normal;
+        word-wrap: normal;
+        line-height: 1.5;
+        tab-size: 4;
+        hyphens: none;
+        overflow: auto;
+        border-radius: 20px;
+        padding: 20px;
     }
 
 </style>
