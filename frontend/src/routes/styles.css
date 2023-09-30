@@ -7,7 +7,7 @@
 :root {
 
 	font-family: 'Readex Pro', Avenir, Inter, Helvetica, Arial, sans-serif;
-	font-size: 14px;
+	font-size: 16px;
     font-weight: 400;
     font-synthesis: none;
     text-rendering: optimizeLegibility;
@@ -23,16 +23,34 @@
     --box-radius: 20px;
     --box-background: #fff;
 
-	--color-accent: #354f52;
-	--color-accent-light: #bdc5c6;
-	--color-accent-lightest: #eaebe9;
-	--color-border: #e1e1e1;
+	--accent: #354f52;
+	--accent-light: #bdc5c6;
+	--accent-lightest: #eaebe9;
+	--border: #e1e1e1;
 
-	--color-text-light: #777;
-	--color-text-white: #fff;
+	--text-light: #777;
+	--text-white: #fff;
 
-	--color-hover: #fafafa;
-	--color-link: #1d85d2;
+	--hover: #fafafa;
+	--link: #1d85d2;
+
+	--green-light: #cadfca;
+    --green: #5d995d;
+    --green-dark: #335c33;
+
+    --red-dark:#ab2525;
+    --red:#db7474;
+    --red-light:#ffdfdf;
+
+    --blue-dark: #334b81;
+    --blue:#5875b9;
+    --blue-light: #dae5ff;
+
+    --orange-dark: #8b5b04;
+    --orange: #f1c40f;
+    --orange-light: #efe3b4;
+
+	--header-height: 55px;
 }
 
 * {
@@ -41,7 +59,7 @@
 
 body {
 	margin: 0;
-	background-color: var(--color-accent-lightest);
+	background-color: var(--accent-lightest);
 }
 
 p {
@@ -53,7 +71,7 @@ a {
 	text-decoration: none;
 }
 a.link {
-	color: var(--color-link);
+	color: var(--link);
 	text-decoration: underline;
 }
 

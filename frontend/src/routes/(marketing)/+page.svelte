@@ -25,7 +25,11 @@
 
 <section class="container" id="faqs">
 
-	<Faq title="Is it really free?">
+	<Faq title="What is RSS?">
+		If this is your first time hearing about RSS, your whole internet experience is about to change! RSS is an amazing but heavily underutilized technology that allows you to subscribe to websites. It's like subscribing to a Youtube channel, but for websites, with much more control! See our <a href="/learn" class="link">Learn RSS</a> guide to learn more.
+	</Faq>
+
+	<Faq title="Is Hyvor Reader really free?">
 		Yes, Hyvor Reader is a completely free & open-source RSS reader. And, no, you are not the product. We do not track you or show you ads. It is merely a product created by the HYVOR team out of love for the open web.
 	</Faq>
 
@@ -38,7 +42,11 @@
 	</Faq>
 
 	<Faq title="How can I support you?">
-		You can support us by spreading the word about Hyvor Reader, contributing to the <a href="https://github.com/hyvor/reader.hyvor.com" target="_blank" class="link">codebase</a>, using other <a href="https://hyvor.com" target="_blank" class="link">HYVOR paid products</a>, or donating via <a href="https://github.com/hyvor" target="_blank" class="link">Github Sponsors</a> or <a href="https://www.paypal.com/donate/?hosted_button_id=Z2E682B6KLRYS" target="_blank" class="link">Paypal</a>.
+		The best way would be teaching your friends and family about RSS 😊. If you would like to support us financially, you can donate via <a href="https://github.com/hyvor" target="_blank" class="link">Github Sponsors</a> or <a href="https://www.paypal.com/donate/?hosted_button_id=Z2E682B6KLRYS" target="_blank" class="link">Paypal</a>. Or, you can use our other paid products:
+		<ul>
+			<li><a href="https://talk.hyvor.com" target="_blank" class="link">Hyvor Talk</a> - Commenting Platform</li>
+			<li><a href="https://blogs.hyvor.com" target="_blank" class="link">Hyvor Blogs</a> - Blogging Platform</li>
+		</ul>
 	</Faq>
 
 </section>

@@ -25,17 +25,17 @@
         border-left: 5px solid transparent;
     }
     .entry:hover {
-        background-color: var(--color-hover);
+        background-color: var(--hover);
         cursor: pointer;
     }
     .entry.active {
-        /* background-color: var(--color-accent);
-        color: var(--color-text-white);
-        --color-text-light: #ddd; */
-        /* background-color: var(--color-accent-lightest); */
+        /* background-color: var(--accent);
+        color: var(--text-white);
+        --text-light: #ddd; */
+        /* background-color: var(--accent-lightest); */
 
-        background-color: var(--color-accent-lightest);
-        border-left-color: var(--color-accent);
+        background-color: var(--accent-lightest);
+        border-left-color: var(--accent);
     }
 
     img {
@@ -51,7 +51,7 @@
     }
     
     .description {
-        color: var(--color-text-light);
+        color: var(--text-light);
         line-height: 1.2;
         margin-top: 5px;
     }

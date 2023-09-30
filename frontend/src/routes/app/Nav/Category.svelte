@@ -26,10 +26,10 @@
         margin-bottom: 4px;
     }
     .category:hover {
-        box-shadow: 0 0 0 1px var(--color-accent-light);
+        box-shadow: 0 0 0 1px var(--accent-light);
     }
     .category.active {
-        background-color: var(--color-accent);
+        background-color: var(--accent);
         color: white;
     }
     .name {
@@ -41,13 +41,13 @@
         display: inline-flex;
         vertical-align: middle;
         border-radius: 10px;
-        background-color: var(--color-accent-light);
+        background-color: var(--accent-light);
         padding: 0px 3px;
         align-items: center;
         justify-content: center;
     }
     .category.active .count {
         background-color: white;
-        color: var(--color-accent);
+        color: var(--accent);
     }
 </style>

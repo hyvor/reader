@@ -31,7 +31,7 @@
 <style>
 
     footer {
-        border-top: 1px solid var(--color-border)
+        border-top: 1px solid var(--border)
     }
 
 </style>

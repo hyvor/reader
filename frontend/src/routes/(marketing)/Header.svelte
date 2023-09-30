@@ -1,6 +1,7 @@
-<script>
+<script lang="ts">
 	import logo from '$lib/images/logo.svg';
 	import Button from '$lib/components/Button.svelte';
+	import { page } from "$app/stores";
 </script>
 
 <header>
@@ -15,12 +16,25 @@
         </div>
 
 		<div class="nav-right">
-			<a href="/?login">
+
+			<a href="find">
+				<Button active={$page.url.pathname === '/find'}>
+					Find Feed
+				</Button>
+			</a>
+
+			<a href="learn" class="learn-button">
+				<Button active={$page.url.pathname.startsWith('/learn')}>
+					Learn RSS
+				</Button>
+			</a>
+
+			<a href="/app">
 				<Button>
 					Log in
 				</Button>
 			</a>
-			<a href="/?signup">
+			<a href="/app?signup">
 				<Button accent>
 					Sign up for FREE
 				</Button>
@@ -38,12 +52,14 @@
 		left: 0;
 		width: 100%;
 		z-index: 100;
-		background-color: var(--color-accent-lightest);
-		border-bottom: 1px solid var(--color-border);
+		background-color: var(--accent-lightest);
+		border-bottom: 1px solid var(--border);
+		height: var(--header-height);
+		display: flex;
+		align-items: center;
 	}
 	nav {
 		display: flex;
-        height: 65px;
         align-items: center;
 	}
 	.nav-brand {
@@ -64,5 +80,9 @@
 
 	.nav-left {
 		flex: 1;
+	}
+
+	.learn-button {
+		margin-right: 10px;
 	}
 </style>

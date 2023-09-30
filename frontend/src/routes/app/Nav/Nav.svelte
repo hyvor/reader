@@ -84,7 +84,7 @@
 
     .categories {
         padding: 15px 20px 11px;
-        border-bottom: 1px solid var(--color-accent-lightest);
+        border-bottom: 1px solid var(--accent-lightest);
     }
 
     .feeds {
@@ -93,7 +93,7 @@
     }
 
     .footer {
-        border-top: 1px solid var(--color-accent-lightest);
+        border-top: 1px solid var(--accent-lightest);
         padding: 10px;
         text-align: center;
     }

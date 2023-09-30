@@ -66,7 +66,7 @@
 
     .metadata {
         margin-top: 4px;
-        color: var(--color-text-light);
+        color: var(--text-light);
     }
 
 </style>

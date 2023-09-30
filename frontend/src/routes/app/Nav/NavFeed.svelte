@@ -26,12 +26,12 @@
         border-left: 3px solid transparent;
     }
     .feed:hover {
-        background-color: var(--color-hover);
+        background-color: var(--hover);
         cursor: pointer;
     }
     .feed.active {
-        background-color: var(--color-accent-lightest);
-        border-left-color: var(--color-accent);
+        background-color: var(--accent-lightest);
+        border-left-color: var(--accent);
     }
 
     .icon {
