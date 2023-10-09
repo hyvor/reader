@@ -5,7 +5,7 @@
 	import NavFeed from "./NavFeed.svelte";
     const category = ['All', 'Blogs', 'Tech', 'Astro'];
 
-    import IconPlus from '@hyvor/icons/IconPlus';
+    //import IconPlus from '@hyvor/icons/IconPlus';
 
     const feeds : Feed[] = [
         {
@@ -57,7 +57,7 @@
 
         <div class="footer">
             <Button small>
-                Add Feed <IconPlus slot="end" />
+                Add Feed <!-- <IconPlus slot="end" /> -->
             </Button>
         </div>
 

@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { onMount } from "svelte";
-    import {IconRssFill} from '@hyvor/icons';
+    //import {IconRssFill} from '@hyvor/icons';
 	import { CodeBlock, Callout } from "@hyvor/design/components";
 
     onMount(() => {
@@ -60,7 +60,7 @@
 
 <ul>
     <li>
-        <b>Method 1:</b> Look for the RSS icon <IconRssFill style="color: #f26522;vertical-align:middle;" /> on the website. This is usually a link to the RSS feed. Don't be frightened by the XML code you see when you click on the link. Copy the feed URL from the address bar of your browser and paste it into your RSS reader.
+        <b>Method 1:</b> Look for the RSS icon <!-- <IconRssFill style="color: #f26522;vertical-align:middle;" /> --> on the website. This is usually a link to the RSS feed. Don't be frightened by the XML code you see when you click on the link. Copy the feed URL from the address bar of your browser and paste it into your RSS reader.
     </li>
     <li>
         <b>Method 2:</b> Look into the source code of the website and search for an <code>{`<link>`}</code> element with <code>type="application/rss+xml"</code> or <code>type="application/atom+xml"</code>. The <code>href</code> attribute of the element will be the URL of the RSS feed.

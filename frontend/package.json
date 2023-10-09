@@ -39,7 +39,7 @@
 	},
 	"type": "module",
 	"dependencies": {
-		"@hyvor/design": "^0.0.7",
+		"@hyvor/design": "^0.0.8",
 		"@hyvor/icons": "^0.0.3"
 	}
 }
