@@ -1,12 +1,13 @@
 <script lang="ts">
-	import Callout from "$lib/components/Callout/Callout.svelte";
-	import CodeBlock from "$lib/components/Docs/Content/CodeBlock.svelte";
 	import { onMount } from "svelte";
     import {IconRssFill} from '@hyvor/icons';
+	import { CodeBlock, Callout } from "@hyvor/design/components";
 
     onMount(() => {
         if ((window as any).Tally) {
             (window as any).Tally.loadEmbeds();
+        } else {
+            console.log('no tally')
         }
     })
 </script>
@@ -72,7 +73,7 @@
                 type="application/rss+xml"
                 href="https://example.com/feed" 
             />
-        `} lang="html" />
+        `} language="html" />
 
     </li>
     <li>
