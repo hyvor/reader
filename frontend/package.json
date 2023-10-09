@@ -38,5 +38,9 @@
 		"vite": "^4.4.2",
 		"vitest": "^0.32.2"
 	},
-	"type": "module"
+	"type": "module",
+	"dependencies": {
+		"@hyvor/design": "^0.0.4",
+		"@hyvor/icons": "^0.0.2"
+	}
 }

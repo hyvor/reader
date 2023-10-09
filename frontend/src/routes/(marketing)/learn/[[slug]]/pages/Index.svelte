@@ -2,7 +2,7 @@
 	import Callout from "$lib/components/Callout/Callout.svelte";
 	import CodeBlock from "$lib/components/Docs/Content/CodeBlock.svelte";
 	import { onMount } from "svelte";
-	import { RssFill } from "svelte-bootstrap-icons";
+    import {IconRssFill} from '@hyvor/icons';
 
     onMount(() => {
         if ((window as any).Tally) {
@@ -34,7 +34,7 @@
 
 <ul>
     <li>
-        <b>Step 1: </b> Websites publish a file called an <b>RSS feed</b> that lists all of their content. This can be in <a href="rss">RSS format</a> or in <a href="atom">Atom format</a>. This file is updated every time the website publishes something new.
+        <b>Step 1: </b> Websites publish a file called an <b>RSS feed</b> that lists all of their content. This can be in <a href="/learn/rss">RSS format</a> or in <a href="/learn/atom">Atom format</a>. This file is updated every time the website publishes something new.
     </li>
     <li>
         <b>Step 2:</b> You can use an <b>RSS Reader</b> like <a href="/">Hyvor Reader</a> to subscribe to the RSS feeds of your favorite websites.
@@ -61,7 +61,7 @@
 
 <ul>
     <li>
-        <b>Method 1:</b> Look for the RSS icon <RssFill style="color: #f26522;vertical-align:middle;" /> on the website. This is usually a link to the RSS feed. Don't be frightened by the XML code you see when you click on the link. Copy the feed URL from the address bar of your browser and paste it into your RSS reader.
+        <b>Method 1:</b> Look for the RSS icon <IconRssFill style="color: #f26522;vertical-align:middle;" /> on the website. This is usually a link to the RSS feed. Don't be frightened by the XML code you see when you click on the link. Copy the feed URL from the address bar of your browser and paste it into your RSS reader.
     </li>
     <li>
         <b>Method 2:</b> Look into the source code of the website and search for an <code>{`<link>`}</code> element with <code>type="application/rss+xml"</code> or <code>type="application/atom+xml"</code>. The <code>href</code> attribute of the element will be the URL of the RSS feed.
@@ -168,16 +168,16 @@
 
 <ul>
     <li>
-        Sign up for <a href="/">Hyvor Reader</a> or other <a href="readers">RSS Readers</a> to start reading your favorite websites.
+        Sign up for <a href="/">Hyvor Reader</a> or other <a href="/learn/readers">RSS Readers</a> to start reading your favorite websites.
     </li>
     <li>
-        See the <a href="history">History of RSS</a> to learn how RSS came to be.
+        See the <a href="/learn/history">History of RSS</a> to learn how RSS came to be.
     </li>
     <li>
-        If you are a developer, see the <a href="rss">RSS</a> and <a href="atom">Atom</a> format guides to learn how to implement RSS feeds on your CMS/website.
+        If you are a developer, see the <a href="/learn/rss">RSS</a> and <a href="/learn/atom">Atom</a> format guides to learn how to implement RSS feeds on your CMS/website.
     </li>
     <li>
-        If you are developing a RSS reader, see the <a href="opml">OPML</a> guide to learn how to import and export feed subscriptions between RSS readers.
+        If you are developing a RSS reader, see the <a href="/learn/opml">OPML</a> guide to learn how to import and export feed subscriptions between RSS readers.
     </li>
 </ul>
 

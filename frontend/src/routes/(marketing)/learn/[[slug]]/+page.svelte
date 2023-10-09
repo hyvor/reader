@@ -1,9 +1,11 @@
 <script lang="ts">
-	import Content from "$lib/components/Docs/Content/Content.svelte";
-    import Docs from "$lib/components/Docs/Docs.svelte";
-	import Nav from "$lib/components/Docs/Nav/Nav.svelte";
-	import NavCategory from "$lib/components/Docs/Nav/NavCategory.svelte";
-	import NavItem from "$lib/components/Docs/Nav/NavItem.svelte";
+    import { 
+        Docs, 
+        DocsNav as Nav, 
+        DocsNavItem as NavItem,
+        DocsNavCategory as NavCategory,
+        DocsContent as Content,
+    } from '@hyvor/design/marketing';
 
     export let data;
 </script>

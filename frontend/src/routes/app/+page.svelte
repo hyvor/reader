@@ -1,5 +1,4 @@
 <script lang="ts">
-    import '../styles.css';
 	import FeedList from "./FeedList/FeedList.svelte";
 	import Nav from "./Nav/Nav.svelte";
 	import Reader from "./Reader/Reader.svelte";
