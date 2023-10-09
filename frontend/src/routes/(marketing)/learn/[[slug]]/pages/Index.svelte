@@ -6,8 +6,6 @@
     onMount(() => {
         if ((window as any).Tally) {
             (window as any).Tally.loadEmbeds();
-        } else {
-            console.log('no tally')
         }
     })
 </script>

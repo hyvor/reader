@@ -1,11 +1,11 @@
 <script lang="ts">
 	import type { Feed } from "$lib/types.js";
-	import Button from "../../../lib/components/Button.svelte";
+	import { Button } from "@hyvor/design/components";
 	import Category from "./Category.svelte";
 	import NavFeed from "./NavFeed.svelte";
     const category = ['All', 'Blogs', 'Tech', 'Astro'];
 
-    import {IconPlus} from '@hyvor/icons';
+    import IconPlus from '@hyvor/icons/IconPlus';
 
     const feeds : Feed[] = [
         {
@@ -57,7 +57,7 @@
 
         <div class="footer">
             <Button small>
-                Add Feed <IconPlus slot="icon-right" />
+                Add Feed <IconPlus slot="end" />
             </Button>
         </div>
 

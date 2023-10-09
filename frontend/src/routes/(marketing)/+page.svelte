@@ -23,7 +23,7 @@
 <section class="container" id="faqs">
 
 	<Faq title="What is RSS?">
-		If this is your first time hearing about RSS, your whole internet experience is about to change! RSS is an amazing but heavily underutilized technology that allows you to subscribe to websites. It's like subscribing to a Youtube channel, but for websites, with much more control! See our <a href="/learn" class="link">Learn RSS</a> guide to learn more. You don't need to be a techy to use RSS.
+		If this is your first time hearing about RSS, your whole internet experience is about to change! RSS is an amazing but heavily underutilized technology that allows you to subscribe to websites. It's like subscribing to a Youtube channel, but for websites, with much more control! See our <Link href="/learn">Learn RSS</Link> guide to learn more. You don't need to be a techy to use RSS.
 	</Faq>
 
 	<Faq title="Is Hyvor Reader really free?">
