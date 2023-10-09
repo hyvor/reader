@@ -4,8 +4,9 @@
 	import { Header } from '@hyvor/design/marketing';
 
 	import logo from '$lib/images/logo.svg';
-	import { Button } from '@hyvor/design/components';
+	import { Button, DarkToggle, IconButton } from '@hyvor/design/components';
 	import { page } from "$app/stores";
+	import {IconGithub} from '@hyvor/icons';
 </script>
 
 <div class="app">
@@ -13,6 +14,7 @@
 	<Header 
 		{logo}
 		name="Hyvor Reader"
+		darkToggle={false}
 	>
 
 		<div slot="center">
@@ -29,7 +31,15 @@
 			</a>
 		</div>
 
-		<div slot="end">
+		<div slot="end" class="header-end">
+
+			<span class="icons">
+				<DarkToggle />
+
+				<IconButton color="invisible" as="a" href="https://github.com/hyvor/reader.hyvor.com" target="_blank">
+					<IconGithub />
+				</IconButton>
+			</span>
 
 			<a href="/app?signup">
 				<Button color="accent">
@@ -47,3 +57,17 @@
 
 	<Footer />
 </div>
+
+
+<style>
+	.header-end {
+		display: flex;
+		align-items: center;
+	}
+	.header-end .icons {
+		display: inline-flex;
+		align-items: center;
+		gap: 4px;
+		margin-right: 10px;
+	}
+</style>
