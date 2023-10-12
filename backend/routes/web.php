@@ -16,3 +16,10 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', function () {
     return 'welcome';
 });
+
+
+Route::get('/api/init', function() {
+    return response()->json([
+        'message' => 'Backend Healthy'
+    ]);
+}); 

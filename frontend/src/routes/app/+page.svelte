@@ -2,13 +2,25 @@
 	import FeedList from "./FeedList/FeedList.svelte";
 	import Nav from "./Nav/Nav.svelte";
 	import Reader from "./Reader/Reader.svelte";
+
+    import { PUBLIC_API_URL } from '$env/static/public';
+	import { Loader } from "@hyvor/design/components";
+	import api from "../../lib/api";
+
+    const response = api.get('/init');
+
 </script>
 
-<main>
-    <Nav />
-    <FeedList />
-    <Reader />
-</main>
+{#await response}
+    <Loader />
+{:then data}
+    <main>
+        <Nav />
+        <FeedList />
+        <Reader />
+    </main>
+{/await}
+
 
 
 <style>
