@@ -1,5 +1,6 @@
 <script lang="ts">
-	import type { FeedEntry } from "../../../lib/types";
+	import { Box } from "@hyvor/design/components";
+import type { FeedEntry } from "../../../lib/types";
 	import Entry from "./Entry.svelte";
 
     const feedEntries : FeedEntry[] = [
@@ -30,13 +31,13 @@
 
 <div class="feed-list">
 
-    <div class="g-box feed-list-inner">
-
-        {#each feedEntries as entry}
-            <Entry {entry} />
-        {/each}
-
-    </div>
+    <Box class="box">
+        <div class="feed-list-inner">
+            {#each feedEntries as entry}
+                <Entry {entry} />
+            {/each}
+        </div>
+    </Box>
 
 </div>
 
@@ -46,6 +47,10 @@
         width: 400px;
         padding: 20px 0;
         height: 100vh;
+    }
+
+    .feed-list :global(.box) {
+        height: 100%;
     }
 
     .feed-list-inner {

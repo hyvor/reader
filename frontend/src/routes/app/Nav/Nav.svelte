@@ -1,6 +1,6 @@
 <script lang="ts">
 	import type { Feed } from "$lib/types.js";
-	import { Button } from "@hyvor/design/components";
+	import { Box, Button } from "@hyvor/design/components";
 	import Category from "./Category.svelte";
 	import NavFeed from "./NavFeed.svelte";
     const category = ['All', 'Blogs', 'Tech', 'Astro'];
@@ -39,7 +39,8 @@
 
 <div id="left">
 
-    <nav class="g-box">
+    <Box as="nav">
+
 
         <div class="categories">
             {#each category as cat}
@@ -60,8 +61,8 @@
                 Add Feed <!-- <IconPlus slot="end" /> -->
             </Button>
         </div>
-
-    </nav>
+    
+    </Box>
 
 </div>
 
@@ -75,7 +76,7 @@
         height: 100vh;
     }
 
-    nav {
+    #left > :global(nav) {
         margin-bottom: 15px;
         height: 100%;
         display: flex;
