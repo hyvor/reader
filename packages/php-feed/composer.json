@@ -1,6 +1,6 @@
 {
     "name": "hyvor/feed-parser",
-    "description": "Parse RSS and Atom Feeds",
+    "description": "Parse feeds in PHP (RSS, Atom, JSON Feed)",
     "type": "library",
     "license": "MIT",
     "autoload": {

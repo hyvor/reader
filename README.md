@@ -1,12 +1,10 @@
-
-## Hosting
-
+Hyvor Reader is a self-hosted RSS reader. The hosted version is available at [reader.hyvor.com](https://reader.hyvor.com).
 
 ## Authentication
 
-Hyvor Reader does not have a built-in authentication system. Instead, it uses an OpenID Connect (OIDC) provider to authenticate users. Our hosted version (reader.hyvor.com) uses hyvor.com login for this case. However, hyvor.com OIDC is not open for public use yet.
+Hyvor Reader does not have a built-in authentication system. Instead, it uses an OpenID Connect (OIDC) provider to authenticate users. Our hosted version (reader.hyvor.com) uses hyvor.com login for this case. However, hyvor.com OIDC is not open for public. So, you need to use your own OIDC provider for [hosting](#hosting) and [development](#development).
 
-Here are some OIDC providers you can use for development:
+Here are some OIDC providers you can use, if your organization does not already have one:
 
 * [Auth0](https://auth0.com) (free plan)
 * [Google Identity Platform](https://cloud.google.com/identity-platform) (free plan)
@@ -15,11 +13,15 @@ Here are some OIDC providers you can use for development:
 
 Then, add the OIDC provider's configuration to the `.env` file.
 
-```sh
+```env
 OIDC_ISSUER=https://your-oidc-provider.com
 OIDC_CLIENT_ID=your-client-id
 OIDC_CLIENT_SECRET=your-client-secret
 ```
+
+## Hosting
+
+To be written.
 
 ## Development
 
