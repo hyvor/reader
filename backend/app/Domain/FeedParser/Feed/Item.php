@@ -1,9 +1,8 @@
 <?php
 
-namespace Hyvor\FeedParser;
+namespace App\Domain\FeedParser\Feed;
 
 use DateTimeInterface;
-use Hyvor\FeedParser\Atom\Author;
 
 class Item
 {

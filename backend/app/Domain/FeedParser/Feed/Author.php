@@ -1,6 +1,6 @@
 <?php
 
-namespace Hyvor\FeedParser\Atom;
+namespace App\Domain\FeedParser\Feed;
 
 class Author
 {

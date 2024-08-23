@@ -1,6 +1,6 @@
 <?php
 
-namespace Hyvor\FeedParser;
+namespace App\Domain\FeedParser\Feed;
 
 class Tag
 {

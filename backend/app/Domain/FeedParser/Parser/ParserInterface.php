@@ -2,10 +2,12 @@
 
 namespace Hyvor\FeedParser\Parser;
 
-use Hyvor\FeedParser\Feed;
+
+use App\Domain\FeedParser\Feed\Feed;
 
 interface ParserInterface
 {
     public function __construct(string $content);
-    public function parse() : Feed;
+
+    public function parse(): Feed;
 }
