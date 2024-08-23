@@ -1,0 +1,20 @@
+#!/usr/bin/env sh
+
+set -e
+
+# Function to kill all background processes
+cleanup() {
+    echo "Cleaning up..."
+    jobs -p | xargs -r kill
+    exit 0
+}
+
+(
+    trap cleanup SIGINT SIGTERM;
+
+    cd frontend && npm run dev &
+    cd backend && composer serve &
+    caddy run --config meta/dev/Caddyfile.dev &
+
+    wait
+)
