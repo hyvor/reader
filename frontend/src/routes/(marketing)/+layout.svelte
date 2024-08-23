@@ -5,23 +5,15 @@
 
 	import logo from '$lib/images/logo.svg';
 	import { Button, DarkToggle, IconButton } from '@hyvor/design/components';
-	import { page } from "$app/stores";
-	import {IconGithub} from '@hyvor/icons';
+	import { page } from '$app/stores';
+	import { IconGithub } from '@hyvor/icons';
 </script>
 
 <div class="app">
-
-	<Header 
-		{logo}
-		name="Hyvor Reader"
-		darkToggle={false}
-	>
-
+	<Header {logo} name="HYVOR" subName="Reader" darkToggle={false}>
 		<div slot="center">
 			<a href="/find">
-				<Button active={$page.url.pathname === '/find'} color="invisible">
-					Find Feed
-				</Button>
+				<Button active={$page.url.pathname === '/find'} color="invisible">Find Feed</Button>
 			</a>
 
 			<a href="/learn" class="learn-button">
@@ -32,23 +24,23 @@
 		</div>
 
 		<div slot="end" class="header-end">
-
 			<span class="icons">
 				<DarkToggle />
 
-				<IconButton color="invisible" as="a" href="https://github.com/hyvor/reader.hyvor.com" target="_blank">
+				<IconButton
+					color="invisible"
+					as="a"
+					href="https://github.com/hyvor/reader.hyvor.com"
+					target="_blank"
+				>
 					<IconGithub />
 				</IconButton>
 			</span>
 
 			<a href="/app?signup">
-				<Button color="accent">
-					Go to App
-				</Button>
+				<Button color="accent">Go to App</Button>
 			</a>
-
 		</div>
-
 	</Header>
 
 	<main>
@@ -57,7 +49,6 @@
 
 	<Footer />
 </div>
-
 
 <style>
 	.header-end {

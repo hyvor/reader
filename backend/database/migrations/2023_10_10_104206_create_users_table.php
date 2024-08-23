@@ -14,16 +14,7 @@ return new class extends Migration
         Schema::create('users', function (Blueprint $table) {
             $table->id();
             $table->timestamps();
-
-            // OIDC fields
-            $table->string('iss');
-            $table->string('sub');
-            $table->string('name');
-            $table->string('preferred_username')->nullable();
-            $table->string('picture')->nullable();
-            $table->string('email');
-
-            $table->unique(['iss', 'sub']);
+            $table->bigInteger('hyvor_user_id')->nullable();
         });
     }
 

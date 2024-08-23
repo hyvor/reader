@@ -19,7 +19,6 @@ return new class extends Migration
             $table->string('title')->nullable();
             $table->string('description')->nullable();
             $table->timestamp('last_fetched_at')->nullable();
-
         });
     }
 

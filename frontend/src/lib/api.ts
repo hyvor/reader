@@ -1,12 +1,10 @@
-import { PUBLIC_API_URL } from '$env/static/public';
-
 type Method = 'get' | 'post' | 'patch' | 'put' | 'delete';
 
 export default class api {
 
     static async call(method: Method, endpoint: string, data : Record<string, any> = {}) {
 
-        const apiUrl = PUBLIC_API_URL.replace(/\/$/, '');
+        const apiUrl = location.origin + "/api";
         const endpointUrl = endpoint.replace(/^\//, '');
         let url = `${apiUrl}/${endpointUrl}`;
 

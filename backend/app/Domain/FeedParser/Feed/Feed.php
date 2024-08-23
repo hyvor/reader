@@ -3,11 +3,6 @@
 namespace Hyvor\FeedParser;
 
 use DateTimeInterface;
-use Hyvor\FeedParser\Atom\Author;
-use Hyvor\FeedParser\Atom\Category;
-use Hyvor\FeedParser\Atom\Entry;
-use Hyvor\FeedParser\Atom\Link;
-use Hyvor\FeedParser\Atom\Person;
 
 class Feed
 {
