@@ -1,12 +1,12 @@
 <?php
 
-namespace Hyvor\FeedParser;
+namespace App\Domain\FeedParser;
 
-enum FeedType
+enum FeedType: string
 {
 
-    case RSS;
-    case ATOM;
-    case JSON;
+    case RSS = 'rss';
+    case ATOM = 'atom';
+    case JSON = 'json';
 
 }

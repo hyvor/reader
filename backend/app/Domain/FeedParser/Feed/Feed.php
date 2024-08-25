@@ -2,8 +2,8 @@
 
 namespace App\Domain\FeedParser\Feed;
 
+use App\Domain\FeedParser\FeedType;
 use DateTimeInterface;
-use Hyvor\FeedParser\FeedType;
 
 class Feed
 {
@@ -36,14 +36,14 @@ class Feed
          * RSS: <channel><link>
          * JSON Feed: home_page_url
          */
-        public string $homepageUrl,
+        public string $homepage_url,
 
         /**
          * Atom: <feed><link rel="self">
          * RSS: null
          * JSON Feed: feed_url
          */
-        public string $feedUrl,
+        public string $feed_url,
 
         /**
          * Atom: <feed><subtitle>
@@ -73,8 +73,7 @@ class Feed
          * RSS: <channel><lastBuildDate>
          * JSON Feed: null
          */
-        public ?DateTimeInterface $updated = null,
-
+        public ?DateTimeInterface $updated_at = null,
 
         /**
          * Atom: <feed><generator>
@@ -82,11 +81,6 @@ class Feed
          * JSON Feed: null
          */
         public ?string $generator = null,
-
-        /**
-         * @var Author[]
-         */
-        public array $authors = [],
 
         /**
          * @var Item[]

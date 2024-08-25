@@ -1,6 +1,6 @@
 <?php
 
-namespace Hyvor\FeedParser\Parser;
+namespace App\Domain\FeedParser\Parser;
 
 class ParserException extends \Exception
 {

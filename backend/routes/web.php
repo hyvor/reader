@@ -1,5 +1,6 @@
 <?php
 
+use App\Domain\FeedParser\Parser\JsonParser;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -18,8 +19,18 @@ Route::get('/', function () {
 });
 
 
-Route::get('/api/init', function() {
+Route::get('/api/init', function () {
     return response()->json([
         'message' => 'Backend Healthy'
     ]);
-}); 
+});
+
+Route::get('/api/test', function () {
+    $url = 'https://www.jsonfeed.org/feed.json';
+    $url = 'https://micro.blog/feeds/manton.json';
+    $file = file_get_contents($url);
+    $parser = new JsonParser($file);
+    $feed = $parser->parse();
+
+    return response()->json($feed);
+});

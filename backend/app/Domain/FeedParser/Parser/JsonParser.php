@@ -1,10 +1,13 @@
 <?php
 
-namespace Hyvor\FeedParser\Parser;
+namespace App\Domain\FeedParser\Parser;
 
+use App\Domain\FeedParser\Feed\Author;
 use App\Domain\FeedParser\Feed\Feed;
 use App\Domain\FeedParser\Feed\Item;
-use Hyvor\FeedParser\FeedType;
+use App\Domain\FeedParser\Feed\Tag;
+use App\Domain\FeedParser\FeedType;
+use Carbon\Carbon;
 
 class JsonParser implements ParserInterface
 {
@@ -49,7 +52,11 @@ class JsonParser implements ParserInterface
         $items = is_array($items) ? $items : [];
         $itemsObjects = [];
         foreach ($items as $item) {
-            $itemsObjects[] = $this->parseItem($item);
+            try {
+                $itemsObjects[] = $this->parseItem($item);
+            } catch (ParserException) {
+                //
+            }
         }
 
         return new Feed(
@@ -70,8 +77,110 @@ class JsonParser implements ParserInterface
      * @param array<mixed> $item
      * @return Item
      */
-    private function parseItem(array $item): Item
+    private function parseItem(mixed $item): Item
     {
-        //
+        if (!is_array($item)) {
+            throw new ParserException('Item must be an array');
+        }
+
+        $id = strval($item['id'] ?? '');
+        $url = strval($item['url'] ?? '');
+        $title = strval($item['title'] ?? '');
+
+        $contentHtml = $item['content_html'] ?? null;
+        $contentHtml = empty($contentHtml) ? null : strval($contentHtml);
+
+        $contentText = $item['content_text'] ?? null;
+        $contentText = empty($contentText) ? null : strval($contentText);
+
+        if ($contentHtml === null && $contentText === null) {
+            throw new ParserException('Either content_html or content_text must be provided');
+        }
+
+        $summary = $item['summary'] ?? null;
+        $summary = empty($summary) ? null : strval($summary);
+
+        $imageValue = $item['image'] ?? null;
+        $bannerImageValue = $item['banner_image'] ?? null;
+        $image = $imageValue ?? $bannerImageValue ?? null;
+
+        $publishedAt = $this->date($item['date_published'] ?? null);
+        $updatedAt = $this->date($item['date_modified'] ?? null);
+
+        $authorsValue = $item['authors'] ?? [];
+        $authorsValue = is_array($authorsValue) ? $authorsValue : [];
+        $authors = [];
+
+        foreach ($authorsValue as $author) {
+            try {
+                $authors[] = $this->parseAuthor($author);
+            } catch (ParserException) {
+                // Skip
+            }
+        }
+
+        $tagsValue = $item['tags'] ?? [];
+        $tagsValue = is_array($tagsValue) ? $tagsValue : [];
+        $tags = [];
+
+        foreach ($tagsValue as $tag) {
+            $tags[] = new Tag(strval($tag));
+        }
+
+        $language = $item['language'] ?? null;
+        $language = empty($language) ? null : strval($language);
+
+        return new Item(
+            $id,
+            $url,
+            $title,
+            $contentHtml,
+            $contentText,
+            $summary,
+            $image,
+            $publishedAt,
+            $updatedAt,
+            $authors,
+            $tags,
+            $language
+        );
+    }
+
+    /**
+     * @param array<mixed> $author
+     * @return Author
+     */
+    private function parseAuthor(mixed $author): Author
+    {
+        if (!is_array($author)) {
+            throw new ParserException('Author must be an array');
+        }
+
+        $name = $author['name'] ?? null;
+
+        if (!is_string($name)) {
+            throw new ParserException('Author name is required');
+        }
+
+        $url = $author['url'] ?? null;
+        $url = empty($url) ? null : strval($url);
+
+        $avatar = $author['avatar'] ?? null;
+        $avatar = empty($avatar) ? null : strval($avatar);
+
+        return new Author($name, $url, $avatar);
+    }
+
+    private function date(mixed $date): ?Carbon
+    {
+        if (!is_string($date)) {
+            return null;
+        }
+
+        try {
+            return Carbon::parse($date);
+        } catch (\Exception) {
+            return null;
+        }
     }
 }

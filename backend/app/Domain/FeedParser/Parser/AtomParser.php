@@ -1,8 +1,9 @@
 <?php
 
-namespace Hyvor\FeedParser\Parser;
 
-use Hyvor\FeedParser\Feed;
+namespace App\Domain\FeedParser\Parser;
+
+use App\Domain\FeedParser\Feed\Feed;
 use SimpleXMLElement;
 
 class AtomParser implements ParserInterface
