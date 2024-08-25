@@ -12,7 +12,7 @@ cleanup() {
 (
     trap cleanup SIGINT SIGTERM;
 
-    cd frontend && npm run dev &
+    cd frontend && bun run dev &
     cd backend && composer serve &
     caddy run --config meta/dev/Caddyfile.dev &
 

@@ -1,43 +1,33 @@
-Hyvor Reader is a self-hosted RSS reader. The hosted version is available at [reader.hyvor.com](https://reader.hyvor.com).
+Hyvor Reader ([reader.hyvor.com](https://reader.hyvor.com)) is a free & open-source RSS reader. It supports RSS, Atom,
+and JSON feeds. While open-source, it is not meant to be self-hosted as it depends on the HYVOR internal services for
+authentication. Developers can run the project locally with mocked authentication.
 
-## Authentication
+## Features
 
-Hyvor Reader does not have a built-in authentication system. Instead, it uses an OpenID Connect (OIDC) provider to authenticate users. Our hosted version (reader.hyvor.com) uses hyvor.com login for this case. However, hyvor.com OIDC is not open for public. So, you need to use your own OIDC provider for [hosting](#hosting) and [development](#development).
-
-Here are some OIDC providers you can use, if your organization does not already have one:
-
-* [Auth0](https://auth0.com) (free plan)
-* [Google Identity Platform](https://cloud.google.com/identity-platform) (free plan)
-* [FusionAuth](https://fusionauth.io/) (self-hosted)
-* [Keycloak](https://www.keycloak.org/) (self-hosted)
-
-Then, add the OIDC provider's configuration to the `.env` file.
-
-```env
-OIDC_ISSUER=https://your-oidc-provider.com
-OIDC_CLIENT_ID=your-client-id
-OIDC_CLIENT_SECRET=your-client-secret
-```
-
-## Hosting
-
-To be written.
+- Subscribe to RSS, Atom, and JSON feeds
+- Organize feeds into groups
+- Easy web-based reader
 
 ## Development
 
-Hyvor Reader is built with [Laravel](https://laravel.com) for the backend (API only, no views) and [Svelte](https://svelte.dev) for the frontend. If you like to contribute, you can follow the steps below to set up the development environment.
+Hyvor Reader is built with [Laravel](https://laravel.com) for the backend (API only, no views)
+and [Svelte](https://svelte.dev) for the frontend. If you like to contribute, follow the steps below to set up
+the development environment.
 
-> **Note**: If you just want to contribute to the documentation or landing pages, you can simply set up the frontend only.
+> **Note**: You only need to set up the front-end to work on landing pages and documentation pages.
 
 ### Prerequisites
 
-- PHP 8.2
+For backend:
+
+- PHP 8.3
 - [PHP Extensions required by Laravel](https://laravel.com/docs/10.x/deployment#server-requirements)
 - Composer
-- Node.js 18+
 - PostgreSQL
-- Redis
-- An OpenID Connect provider
+
+For frontend:
+
+- Bun.js
 
 ### Environment
 
@@ -47,27 +37,25 @@ Copy the `.env.example` file to `.env` and fill in the required environment vari
 cp .env.example .env
 ```
 
-
-
 ### Installation
 
 First, install the dependencies.
 
 ```sh
-cd frontend && npm install
+cd frontend && bun install
 cd backend && composer install
 ```
 
-Start the frontend Vite dev server (http://localhost:7777):
+Run the migrations and seed the database.
 
 ```sh
-cd frontend && npm start
+cd backend && php artisan migrate --seed
 ```
 
-Start the backend Laravel server (http://localhost:7778) in a separate terminal:
+Start the development servers.
 
-```sh
-cd backend && composer serve
+```
+meta/dev/dev
 ```
 
-Then, visit the front-end URL (http://localhost:7777) in your browser.
+Then, visit `http://localhost:13458` in your browser.
