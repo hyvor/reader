@@ -14,10 +14,7 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::get('/', function () {
-    return 'welcome';
-});
-
+include 'api-app.php';
 
 Route::get('/api/init', function () {
     return response()->json([

@@ -1,0 +1,30 @@
+<?php
+
+namespace App\Domain\Feed;
+
+use App\Domain\Feed\Exception\FeedFetchException;
+use Illuminate\Http\Client\ConnectionException;
+use Illuminate\Support\Facades\Http;
+
+class Fetch
+{
+
+    /**
+     * @throws FeedFetchException
+     */
+    public static function fetch(string $url): string
+    {
+        try {
+            $response = Http::get($url);
+
+            if ($response->failed()) {
+                throw new FeedFetchException('Failed to fetch the feed with status: ' . $response->status());
+            }
+
+            return $response->body();
+        } catch (ConnectionException $e) {
+            throw new FeedFetchException('Failed to fetch the feed. ' . $e->getMessage());
+        }
+    }
+
+}
