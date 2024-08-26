@@ -11,22 +11,21 @@ authentication. Developers can run the project locally with mocked authenticatio
 ## Development
 
 Hyvor Reader is built with [Laravel](https://laravel.com) for the backend (API only, no views)
-and [Svelte](https://svelte.dev) for the frontend. If you like to contribute, follow the steps below to set up
+and [SvelteKit](https://kit.svelte.dev/) + [Hyvor Design System](https://github.com/hyvor/design)
+for the frontend. If you
+wish to contribute, follow the steps below to
+set up
 the development environment.
 
 > **Note**: You only need to set up the front-end to work on landing pages and documentation pages.
 
 ### Prerequisites
 
-For backend:
-
+- Caddy
 - PHP 8.3
 - [PHP Extensions required by Laravel](https://laravel.com/docs/10.x/deployment#server-requirements)
 - Composer
 - PostgreSQL
-
-For frontend:
-
 - Bun.js
 
 ### Environment
@@ -39,7 +38,9 @@ cp .env.example .env
 
 ### Installation
 
-First, install the dependencies.
+(Run all the following commands in the project root directory)
+
+Install the dependencies.
 
 ```sh
 cd frontend && bun install
@@ -59,3 +60,10 @@ meta/dev/dev
 ```
 
 Then, visit `http://localhost:13458` in your browser.
+
+>
+> `meta/dev/dev` runs the following processes:
+>
+>- Frontend server (`bun run dev`) at `http://localhost:13456`
+>- Backend server (`php artisan serve`) at `http://localhost:13457`
+>- Caddy server proxy at `http://localhost:13458`

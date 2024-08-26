@@ -50,7 +50,10 @@
         "post-create-project-cmd": [
             "@php artisan key:generate --ansi"
         ],
-        "serve": "@php artisan serve --port=13457"
+        "serve": [
+            "Composer\\Config::disableProcessTimeout",
+            "@php artisan serve --port=13457"
+        ]
     },
     "extra": {
         "laravel": {
