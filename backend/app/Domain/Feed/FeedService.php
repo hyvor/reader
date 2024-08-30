@@ -2,7 +2,7 @@
 
 namespace App\Domain\Feed;
 
-use App\Domain\FeedParser\Feed\Feed;
+use App\Domain\Feed\Feed\Feed;
 use App\Models\Feed as FeedModel;
 
 class FeedService

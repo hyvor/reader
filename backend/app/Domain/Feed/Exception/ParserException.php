@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Domain\FeedParser\Parser;
+namespace App\Domain\Feed\Exception;
 
 class ParserException extends \Exception
 {

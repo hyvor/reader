@@ -1,12 +1,12 @@
 <?php
 
-namespace App\Domain\FeedParser\Parser;
+namespace App\Domain\Feed\Parser;
 
-use App\Domain\FeedParser\Feed\Author;
-use App\Domain\FeedParser\Feed\Feed;
-use App\Domain\FeedParser\Feed\Item;
-use App\Domain\FeedParser\Feed\Tag;
-use App\Domain\FeedParser\FeedType;
+use App\Domain\Feed\Feed\Author;
+use App\Domain\Feed\Feed\Feed;
+use App\Domain\Feed\Feed\Item;
+use App\Domain\Feed\Feed\Tag;
+use App\Domain\Feed\FeedType;
 use Carbon\Carbon;
 
 class JsonParser implements ParserInterface

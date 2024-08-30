@@ -14,6 +14,7 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         $defaultFeeds = [
+            ['https://daringfireball.net/feeds/json', 'Daring Fireball'],
             ['https://feeds.bbci.co.uk/news/world/rss.xml', 'BBC News'],
             ['https://rss.nytimes.com/services/xml/rss/nyt/HomePage.xml', 'The New York Times'],
             ['https://news.ycombinator.com/rss', 'Hacker News'],

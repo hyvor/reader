@@ -1,13 +1,12 @@
 <?php
 
-namespace Hyvor\FeedParser;
+namespace App\Domain\Feed;
 
-use App\Domain\FeedParser\Feed\Feed;
-use App\Domain\FeedParser\FeedType;
-use App\Domain\FeedParser\Parser\AtomParser;
-use App\Domain\FeedParser\Parser\JsonParser;
-use App\Domain\FeedParser\Parser\ParserException;
-use App\Domain\FeedParser\Parser\RssParser;
+use App\Domain\Feed\Feed\Feed;
+use App\Domain\Feed\Parser\AtomParser;
+use App\Domain\Feed\Parser\JsonParser;
+use App\Domain\Feed\Exception\ParserException;
+use App\Domain\Feed\Parser\RssParser;
 use Illuminate\Http\Client\Response;
 
 class Parser

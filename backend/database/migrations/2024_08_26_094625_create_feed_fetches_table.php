@@ -23,6 +23,8 @@ return new class extends Migration {
 
             $table->integer('new_items_count')->default(0);
             $table->integer('updated_items_count')->default(0);
+
+            $table->integer('latency_ms')->nullable();
         });
     }
 

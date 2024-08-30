@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Domain\FeedParser;
+namespace App\Domain\Feed;
 
 use Illuminate\Http\Client\Response;
 
@@ -25,7 +25,7 @@ enum FeedType: string
 
     public static function fromContentType(string $contentType): ?self
     {
-        if (str_contains('json', $contentType)) {
+        if (str_contains($contentType, 'json')) {
             return self::JSON;
         } elseif (str_contains('application/atom+xml', $contentType)) {
             return self::ATOM;

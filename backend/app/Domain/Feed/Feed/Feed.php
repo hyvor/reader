@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Domain\FeedParser\Feed;
+namespace App\Domain\Feed\Feed;
 
-use App\Domain\FeedParser\FeedType;
+use App\Domain\Feed\FeedType;
 use DateTimeInterface;
 
 class Feed

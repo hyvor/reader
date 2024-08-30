@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Domain\FeedParser\Feed;
+namespace App\Domain\Feed\Feed;
 
 class Tag
 {

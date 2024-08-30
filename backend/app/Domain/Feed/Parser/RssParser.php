@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Domain\FeedParser\Parser;
+namespace App\Domain\Feed\Parser;
 
-use App\Domain\FeedParser\Feed\Feed;
+use App\Domain\Feed\Feed\Feed;
 
 class RssParser implements ParserInterface
 {

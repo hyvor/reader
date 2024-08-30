@@ -1,6 +1,6 @@
 <?php
 
-use App\Domain\FeedParser\Parser\JsonParser;
+use App\Domain\Feed\Parser\JsonParser;
 use Illuminate\Support\Facades\Route;
 
 /*

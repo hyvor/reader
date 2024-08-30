@@ -2,8 +2,8 @@
 
 namespace App\Domain\FeedItem;
 
-use App\Domain\FeedParser\Feed\Feed;
-use App\Domain\FeedParser\Feed\Item;
+use App\Domain\Feed\Feed\Feed;
+use App\Domain\Feed\Feed\Item;
 use App\Models\Feed as FeedModel;
 use App\Models\FeedItem;
 use Illuminate\Database\Eloquent\Collection;

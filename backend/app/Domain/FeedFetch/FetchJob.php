@@ -3,13 +3,13 @@
 namespace App\Domain\FeedFetch;
 
 use App\Domain\Feed\Exception\FeedFetchException;
+use App\Domain\Feed\Exception\ParserException;
 use App\Domain\FeedItem\FeedItemService;
-use App\Domain\FeedParser\Feed\Feed;
-use App\Domain\FeedParser\Feed\Item;
-use App\Domain\FeedParser\Parser\ParserException;
+use App\Domain\Feed\Feed\Feed;
+use App\Domain\Feed\Feed\Item;
+use App\Domain\Feed\Parser;
 use App\Models\Feed as FeedModel;
 use App\Models\FeedFetch;
-use Hyvor\FeedParser\Parser;
 use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Contracts\Queue\ShouldQueue;
 
@@ -35,7 +35,11 @@ class FetchJob implements ShouldQueue, ShouldBeUnique
     public function handle(): void
     {
         try {
+            $startTimeMicro = microtime(true);
             $response = Fetch::fetch($this->feed->url);
+            $endTimeMicro = microtime(true);
+            $latencyMs = (int)(($endTimeMicro - $startTimeMicro) * 1000);
+
             $parsedFeed = Parser::fromResponse($response);
 
             ['new' => $newItems, 'updated' => $updatedItems] = $this->getNewAndUpdatedItems($parsedFeed);
@@ -45,6 +49,7 @@ class FetchJob implements ShouldQueue, ShouldBeUnique
                 'status_code' => $response->status(),
                 'new_items_count' => 0,
                 'updated_items_count' => 0,
+                'latency_ms' => $latencyMs,
             ]);
         } catch (\Exception $exception) {
             $error = 'Internal server error';
