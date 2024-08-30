@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Domain\Feed\Fetch;
+namespace app\Domain\FeedFetch;
 
 use App\Domain\Feed\Exception\FeedFetchException;
 use App\Domain\FeedItem\FeedItemService;
@@ -9,11 +9,18 @@ use App\Domain\FeedParser\Parser\ParserException;
 use App\Models\Feed as FeedModel;
 use App\Models\FeedFetch;
 use Hyvor\FeedParser\Parser;
+use Illuminate\Contracts\Queue\ShouldBeUnique;
+use Illuminate\Contracts\Queue\ShouldQueue;
 
-class FetchJob
+class FetchJob implements ShouldQueue, ShouldBeUnique
 {
 
     public FeedFetch $fetch;
+
+    public function uniqueId(): string
+    {
+        return $this->feed->id;
+    }
 
     public function __construct(
         public FeedModel $feed

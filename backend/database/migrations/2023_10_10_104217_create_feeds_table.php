@@ -18,7 +18,9 @@ return new class extends Migration {
             $table->string('url')->unique();
             $table->string('title')->nullable();
             $table->string('description')->nullable();
+
             $table->timestamp('last_fetched_at')->nullable();
+            $table->timestamp('next_fetch_at')->useCurrent()->index();
 
             $table->integer('subscribers')->default(0);
         });

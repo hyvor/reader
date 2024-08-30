@@ -2,7 +2,7 @@
 
 namespace App\Models;
 
-use app\Domain\Feed\Fetch\FetchStatusEnum;
+use app\Domain\FeedFetch\FetchStatusEnum;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 

@@ -2,7 +2,7 @@
 
 use App\Domain\Feed\Exception\FeedFetchException;
 use App\Domain\Feed\FeedService;
-use app\Domain\Feed\Fetch\Fetch;
+use app\Domain\FeedFetch\Fetch;
 use App\Domain\FeedParser\Parser\ParserException;
 use App\Domain\FeedSubscription\FeedSubscriptionService;
 use App\Domain\User\UserService;
