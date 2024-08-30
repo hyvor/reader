@@ -1,10 +1,11 @@
 <?php
 
-namespace app\Domain\FeedFetch;
+namespace App\Domain\FeedFetch;
 
 use App\Domain\Feed\Exception\FeedFetchException;
 use App\Domain\FeedItem\FeedItemService;
 use App\Domain\FeedParser\Feed\Feed;
+use App\Domain\FeedParser\Feed\Item;
 use App\Domain\FeedParser\Parser\ParserException;
 use App\Models\Feed as FeedModel;
 use App\Models\FeedFetch;
@@ -19,7 +20,7 @@ class FetchJob implements ShouldQueue, ShouldBeUnique
 
     public function uniqueId(): string
     {
-        return $this->feed->id;
+        return (string)$this->feed->id;
     }
 
     public function __construct(
@@ -61,6 +62,9 @@ class FetchJob implements ShouldQueue, ShouldBeUnique
         }
     }
 
+    /**
+     * @return array{new: Item[], updated: Item[]}
+     */
     private function getNewAndUpdatedItems(Feed $parsedFeed)
     {
         $items = FeedItemService::getItemsFromParsedFeed($this->feed, $parsedFeed);

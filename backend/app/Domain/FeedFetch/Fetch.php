@@ -1,6 +1,6 @@
 <?php
 
-namespace app\Domain\FeedFetch;
+namespace App\Domain\FeedFetch;
 
 use App\Domain\Feed\Exception\FeedFetchException;
 use Illuminate\Http\Client\ConnectionException;

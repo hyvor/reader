@@ -3,7 +3,6 @@
 	import Nav from "./Nav/Nav.svelte";
 	import Reader from "./Reader/Reader.svelte";
 
-    import { PUBLIC_API_URL } from '$env/static/public';
 	import { Loader } from "@hyvor/design/components";
 	import api from "../../lib/api";
 

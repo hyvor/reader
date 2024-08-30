@@ -8,4 +8,9 @@ use Illuminate\Database\Eloquent\Model;
 class Feed extends Model
 {
     use HasFactory;
+
+    protected $casts = [
+        'last_fetch_at' => 'datetime',
+        'next_fetch_at' => 'datetime',
+    ];
 }

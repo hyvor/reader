@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+use App\Models\Feed;
 use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
@@ -12,11 +13,20 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // \App\Models\User::factory(10)->create();
+        $defaultFeeds = [
+            ['https://feeds.bbci.co.uk/news/world/rss.xml', 'BBC News'],
+            ['https://rss.nytimes.com/services/xml/rss/nyt/HomePage.xml', 'The New York Times'],
+            ['https://news.ycombinator.com/rss', 'Hacker News'],
+            ['https://techcrunch.com/feed/', 'TechCrunch'],
+            ['https://www.reddit.com/r/programming/.rss', 'Reddit Programming'],
+            ['https://www.wired.com/feed/rss', 'Wired']
+        ];
 
-        // \App\Models\User::factory()->create([
-        //     'name' => 'Test User',
-        //     'email' => 'test@example.com',
-        // ]);
+        foreach ($defaultFeeds as $feed) {
+            Feed::factory()->create([
+                'url' => $feed[0],
+                'title' => $feed[1]
+            ]);
+        }
     }
 }

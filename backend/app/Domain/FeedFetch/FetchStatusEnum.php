@@ -1,6 +1,6 @@
 <?php
 
-namespace app\Domain\FeedFetch;
+namespace App\Domain\FeedFetch;
 
 enum FetchStatusEnum: string
 {

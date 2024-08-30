@@ -1,13 +1,14 @@
 <?php
 
-namespace app\Domain\FeedFetch;
+namespace App\Domain\FeedFetch;
 
 use App\Models\Feed;
+use Illuminate\Support\Facades\DB;
 
 class FetchDispatchJob
 {
 
-    public function handle()
+    public function handle(): void
     {
         $feeds = Feed::where('next_fetch_at', '<=', now())->get();
 

@@ -17,7 +17,7 @@ return new class extends Migration {
             $table->bigInteger('feed_id')->unsigned();
 
             $table->enum('status', ['pending', 'completed', 'failed']);
-            $table->integer('status_code');
+            $table->integer('status_code')->nullable();
             $table->string('error')->nullable();
             $table->text('error_private')->nullable();
 

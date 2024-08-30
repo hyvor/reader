@@ -7,8 +7,7 @@
         "ext-simplexml": "*",
         "guzzlehttp/guzzle": "^7.2",
         "hyvor/internal": "^1.1",
-        "laravel/framework": "^10.10",
-        "laravel/sanctum": "^3.2",
+        "laravel/framework": "^11.0",
         "laravel/tinker": "^2.8",
         "ext-libxml": "*"
     },
@@ -18,7 +17,7 @@
         "laravel/pint": "^1.0",
         "laravel/sail": "^1.18",
         "mockery/mockery": "^1.4.4",
-        "nunomaduro/collision": "^7.0",
+        "nunomaduro/collision": "^8.0",
         "pestphp/pest": "^2.35",
         "phpstan/phpstan": "^1.11",
         "spatie/laravel-ignition": "^2.0"
