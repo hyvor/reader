@@ -1,49 +1,26 @@
 <script lang="ts">
-	import type { Feed } from "../../../lib/types";
-    export let feed: Feed;
+	import { NavLink } from '@hyvor/design/components';
+	import type { Feed } from '../../../lib/types';
+	export let feed: Feed;
 </script>
 
-<div 
-    class="feed"
-    class:active={feed.name === 'Food in Jars'}
->
+<NavLink href="/app" active={feed.name === 'Food in Jars'}>
+	<span class="icon" slot="start">
+		<img src={feed.icon_url} alt={feed.name} />
+	</span>
 
-    <span class="icon">
-        <img src={feed.icon_url} alt={feed.name} />
-    </span>
-
-    <span class="name">{feed.name}</span>
-
-</div>
-
+	{feed.name}
+</NavLink>
 
 <style>
+	.icon {
+		display: inline-flex;
+		align-items: center;
+	}
 
-    .feed {
-        padding: 10px 20px;
-        display: flex;
-        align-items: center;
-        border-left: 3px solid transparent;
-    }
-    .feed:hover {
-        background-color: var(--hover);
-        cursor: pointer;
-    }
-    .feed.active {
-        background-color: var(--accent-lightest);
-        border-left-color: var(--accent);
-    }
-
-    .icon {
-        display: inline-flex;
-        align-items: center;
-    }
-
-    img {
-        width: 20px;
-        height: 20px;
-        border-radius: 50%;
-        margin-right: 6px;
-    }
-
+	img {
+		width: 20px;
+		height: 20px;
+		border-radius: 50%;
+	}
 </style>

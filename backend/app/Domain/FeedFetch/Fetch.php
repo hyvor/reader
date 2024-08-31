@@ -18,7 +18,8 @@ class Fetch
         try {
             $response = Http::get($url);
 
-            if ($response->failed()) {
+            // if the code is 4xx or 5xx
+            if (!self::isSuccessful($response)) {
                 throw new FeedFetchException('Failed to fetch the feed with status: ' . $response->status());
             }
 
@@ -26,6 +27,20 @@ class Fetch
         } catch (ConnectionException $e) {
             throw new FeedFetchException('Failed to fetch the feed. ' . $e->getMessage());
         }
+    }
+
+    private static function isSuccessful(Response $response): bool
+    {
+        // success
+        if ($response->successful()) {
+            return true;
+        }
+        // not modified
+        if ($response->status() === 304) {
+            return true;
+        }
+
+        return false;
     }
 
 }

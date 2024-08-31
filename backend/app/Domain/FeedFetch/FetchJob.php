@@ -40,15 +40,21 @@ class FetchJob implements ShouldQueue, ShouldBeUnique
             $endTimeMicro = microtime(true);
             $latencyMs = (int)(($endTimeMicro - $startTimeMicro) * 1000);
 
-            $parsedFeed = Parser::fromResponse($response);
+            $newItems = [];
+            $updatedItems = [];
 
-            ['new' => $newItems, 'updated' => $updatedItems] = $this->getNewAndUpdatedItems($parsedFeed);
+            $isConditionalRequest = $response->status() === 304;
+
+            if (!$isConditionalRequest) {
+                $parsedFeed = Parser::fromResponse($response);
+                ['new' => $newItems, 'updated' => $updatedItems] = $this->getNewAndUpdatedItems($parsedFeed);
+            }
 
             $this->fetch->update([
                 'status' => FetchStatusEnum::COMPLETED,
                 'status_code' => $response->status(),
-                'new_items_count' => 0,
-                'updated_items_count' => 0,
+                'new_items_count' => count($newItems),
+                'updated_items_count' => count($updatedItems),
                 'latency_ms' => $latencyMs,
             ]);
         } catch (\Exception $exception) {

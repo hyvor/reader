@@ -2,6 +2,7 @@
 
 namespace App\Domain\Feed\Parser;
 
+use App\Domain\Feed\Exception\ParserException;
 use App\Domain\Feed\Feed\Author;
 use App\Domain\Feed\Feed\Feed;
 use App\Domain\Feed\Feed\Item;
