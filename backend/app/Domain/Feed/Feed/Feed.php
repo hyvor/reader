@@ -43,7 +43,7 @@ class Feed
          * RSS: null
          * JSON Feed: feed_url
          */
-        public string $feed_url,
+        public ?string $feed_url,
 
         /**
          * Atom: <feed><subtitle>

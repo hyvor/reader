@@ -111,8 +111,8 @@
 	}
 
 	.head img {
-		width: 25px;
-		height: 25px;
+		width: 22px;
+		height: 22px;
 	}
 
 	.main {
@@ -122,6 +122,12 @@
 	.feeds {
 		padding: 15px 0;
 		flex: 1;
+	}
+
+	.main :global(a),
+	.feeds :global(a) {
+		padding-top: 8px !important;
+		padding-bottom: 8px !important;
 	}
 
 	.footer {

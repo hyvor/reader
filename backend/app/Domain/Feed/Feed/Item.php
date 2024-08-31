@@ -6,7 +6,6 @@ use DateTimeInterface;
 
 class Item
 {
-
     public function __construct(
 
         /**
@@ -38,7 +37,7 @@ class Item
          * Content of the item in HTML
          *
          * Atom: <entry><content type="html|xhtml">
-         * RSS: <item><description>
+         * RSS: null
          * JSON Feed: item.content_html
          */
         public ?string $content_html,
@@ -48,7 +47,7 @@ class Item
          * Content of the item in plain text
          *
          * Atom: <entry><content type="text"> (if not provided, it is converted from content_html)
-         * RSS: <item><description>
+         * RSS: null
          * JSON Feed: item.content_text
          */
         public ?string $content_text,

@@ -9,7 +9,8 @@
         "hyvor/internal": "^1.1",
         "laravel/framework": "^11.0",
         "laravel/tinker": "^2.8",
-        "ext-libxml": "*"
+        "ext-libxml": "*",
+        "ext-dom": "*"
     },
     "require-dev": {
         "fakerphp/faker": "^1.9.1",

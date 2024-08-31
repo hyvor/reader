@@ -26,4 +26,5 @@ it('parses xml', function () {
 XML;
 
     $parser = new RssParser($xml);
+    $feed = $parser->parse();
 });
