@@ -4,47 +4,11 @@
 	import { IconBook, IconBookmark } from '@hyvor/icons';
 	import logo from '$lib/images/logo.svg';
 	import { feeds } from '../appStore';
-
-	const category = ['All', 'Blogs', 'Tech', 'Astro'];
-
-	//import IconPlus from '@hyvor/icons/IconPlus';
-
-	// const feeds: Feed[] = [
-	// 	{
-	// 		name: 'Daring Fireball',
-	// 		icon_url: 'https://daringfireball.net/graphics/favicon-64.png'
-	// 	},
-	// 	{
-	// 		name: 'Paul Graham',
-	// 		icon_url: 'https://www.ycombinator.com/arc/arc.png'
-	// 	},
-	// 	{
-	// 		name: 'Food in Jars',
-	// 		icon_url: 'https://foodinjars.com/wp-content/uploads/2018/10/cropped-fij-favicon-32x32.jpg'
-	// 	},
-	// 	{
-	// 		name: "Supun's Blog",
-	// 		icon_url: 'https://supun.io/media/gbOn3UUi2Zn2rsUB0FuZJdIFLPR4TTu36nlcti16.png'
-	// 	},
-	// 	{
-	// 		name: 'Wired',
-	// 		icon_url: 'https://www.wired.com/favicon.ico'
-	// 	},
-	// 	{
-	// 		name: 'HYVOR Blog',
-	// 		icon_url: 'https://hyvor.com/blog/media/g23hA3xHTLp3ntj867jQDmvwdr8ARY5ec2wQIOsP.png'
-	// 	}
-	// ];
+	import { page } from '$app/stores';
 </script>
 
 <div id="left">
 	<Box as="nav">
-		<!-- <div class="categories">
-			{#each category as cat}
-				<Category name={cat} />
-			{/each}
-		</div> -->
-
 		<div class="head">
 			<a href="/">
 				<img src={logo} alt="Hyvor Reader" />
@@ -53,11 +17,11 @@
 		</div>
 
 		<div class="main">
-			<NavLink href="/app">
+			<NavLink href="/app" active={$page.url.pathname === '/app'}>
 				<IconBook slot="start" />
 				All Feeds
 			</NavLink>
-			<NavLink href="/app">
+			<NavLink href="/app/saved" active={$page.url.pathname === '/app/saved'}>
 				<IconBookmark slot="start" size={14} />
 				Saved
 			</NavLink>
