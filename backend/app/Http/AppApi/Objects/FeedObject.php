@@ -1,6 +1,6 @@
 <?php
 
-namespace Objects;
+namespace App\Http\AppApi\Objects;
 
 use App\Models\Feed;
 

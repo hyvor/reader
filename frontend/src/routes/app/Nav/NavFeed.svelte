@@ -1,15 +1,19 @@
 <script lang="ts">
 	import { NavLink } from '@hyvor/design/components';
-	import type { Feed } from '../../../lib/types';
+	import type { Feed } from '../types';
+
 	export let feed: Feed;
+
+	const domain = feed.url.match(/https?:\/\/([^/]+)/)[1];
+	const iconUrl = `https://icons.duckduckgo.com/ip3/${domain}.ico`;
 </script>
 
-<NavLink href="/app" active={feed.name === 'Food in Jars'}>
+<NavLink href="/app">
 	<span class="icon" slot="start">
-		<img src={feed.icon_url} alt={feed.name} />
+		<img src={iconUrl} alt={feed.title} />
 	</span>
 
-	{feed.name}
+	{feed.title}
 </NavLink>
 
 <style>

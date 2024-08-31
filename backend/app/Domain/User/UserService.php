@@ -7,16 +7,25 @@ use App\Models\User;
 class UserService
 {
 
-    public static function byHyvorUserId(int $hyvorUserId): ?User
+    public static function byId(int $hyvorUserId): ?User
     {
-        return User::where('hyvor_user_id', $hyvorUserId)->first();
+        return User::find($hyvorUserId);
     }
 
     public static function createUser(int $hyvorUserId): User
     {
         return User::create([
-            'hyvor_user_id' => $hyvorUserId,
+            'id' => $hyvorUserId,
         ]);
+    }
+
+    public static function getOrCreateUser(int $hyvorUserId): User
+    {
+        $user = self::byId($hyvorUserId);
+        if ($user) {
+            return $user;
+        }
+        return self::createUser($hyvorUserId);
     }
 
 }

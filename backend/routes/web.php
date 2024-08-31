@@ -16,12 +16,6 @@ use Illuminate\Support\Facades\Route;
 
 include 'api-app.php';
 
-Route::get('/api/init', function () {
-    return response()->json([
-        'message' => 'Backend Healthy'
-    ]);
-});
-
 Route::get('/api/test', function () {
     $url = 'https://www.jsonfeed.org/feed.json';
     $url = 'https://micro.blog/feeds/manton.json';

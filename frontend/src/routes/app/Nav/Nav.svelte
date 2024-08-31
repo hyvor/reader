@@ -1,40 +1,40 @@
 <script lang="ts">
-	import type { Feed } from '$lib/types.js';
 	import { Box, Button, NavLink } from '@hyvor/design/components';
 	import NavFeed from './NavFeed.svelte';
 	import { IconBook, IconBookmark } from '@hyvor/icons';
 	import logo from '$lib/images/logo.svg';
+	import { feeds } from '../appStore';
 
 	const category = ['All', 'Blogs', 'Tech', 'Astro'];
 
 	//import IconPlus from '@hyvor/icons/IconPlus';
 
-	const feeds: Feed[] = [
-		{
-			name: 'Daring Fireball',
-			icon_url: 'https://daringfireball.net/graphics/favicon-64.png'
-		},
-		{
-			name: 'Paul Graham',
-			icon_url: 'https://www.ycombinator.com/arc/arc.png'
-		},
-		{
-			name: 'Food in Jars',
-			icon_url: 'https://foodinjars.com/wp-content/uploads/2018/10/cropped-fij-favicon-32x32.jpg'
-		},
-		{
-			name: "Supun's Blog",
-			icon_url: 'https://supun.io/media/gbOn3UUi2Zn2rsUB0FuZJdIFLPR4TTu36nlcti16.png'
-		},
-		{
-			name: 'Wired',
-			icon_url: 'https://www.wired.com/favicon.ico'
-		},
-		{
-			name: 'HYVOR Blog',
-			icon_url: 'https://hyvor.com/blog/media/g23hA3xHTLp3ntj867jQDmvwdr8ARY5ec2wQIOsP.png'
-		}
-	];
+	// const feeds: Feed[] = [
+	// 	{
+	// 		name: 'Daring Fireball',
+	// 		icon_url: 'https://daringfireball.net/graphics/favicon-64.png'
+	// 	},
+	// 	{
+	// 		name: 'Paul Graham',
+	// 		icon_url: 'https://www.ycombinator.com/arc/arc.png'
+	// 	},
+	// 	{
+	// 		name: 'Food in Jars',
+	// 		icon_url: 'https://foodinjars.com/wp-content/uploads/2018/10/cropped-fij-favicon-32x32.jpg'
+	// 	},
+	// 	{
+	// 		name: "Supun's Blog",
+	// 		icon_url: 'https://supun.io/media/gbOn3UUi2Zn2rsUB0FuZJdIFLPR4TTu36nlcti16.png'
+	// 	},
+	// 	{
+	// 		name: 'Wired',
+	// 		icon_url: 'https://www.wired.com/favicon.ico'
+	// 	},
+	// 	{
+	// 		name: 'HYVOR Blog',
+	// 		icon_url: 'https://hyvor.com/blog/media/g23hA3xHTLp3ntj867jQDmvwdr8ARY5ec2wQIOsP.png'
+	// 	}
+	// ];
 </script>
 
 <div id="left">
@@ -64,7 +64,7 @@
 		</div>
 
 		<div class="feeds">
-			{#each feeds as feed}
+			{#each $feeds as feed}
 				<NavFeed {feed} />
 			{/each}
 		</div>

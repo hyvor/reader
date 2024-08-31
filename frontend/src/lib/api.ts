@@ -4,7 +4,7 @@ export default class api {
 
     static async call(method: Method, endpoint: string, data : Record<string, any> = {}) {
 
-        const apiUrl = location.origin + "/api";
+        const apiUrl = location.origin + "/api/app";
         const endpointUrl = endpoint.replace(/^\//, '');
         let url = `${apiUrl}/${endpointUrl}`;
 
