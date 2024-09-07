@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { Box, Button, NavLink } from '@hyvor/design/components';
+	import { Button, NavLink } from '@hyvor/design/components';
 	import NavFeed from './NavFeed.svelte';
 	import { IconBook, IconBookmark } from '@hyvor/icons';
 	import logo from '$lib/images/logo.svg';
@@ -8,7 +8,7 @@
 </script>
 
 <div id="left">
-	<Box as="nav">
+	<nav class="hds-box">
 		<div class="head">
 			<a href="/">
 				<img src={logo} alt="Hyvor Reader" />
@@ -38,14 +38,14 @@
 				Add Feed <!-- <IconPlus slot="end" /> -->
 			</Button>
 		</div>
-	</Box>
+	</nav>
 </div>
 
 <style>
 	#left {
 		width: 300px;
 		flex-shrink: 0;
-		padding: 20px;
+		padding: 15px;
 		height: 100vh;
 	}
 

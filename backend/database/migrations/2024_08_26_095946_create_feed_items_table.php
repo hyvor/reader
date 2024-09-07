@@ -19,7 +19,7 @@ return new class extends Migration {
             $table->string('guid');
             $table->string('url', 1024);
             $table->string('title');
-            $table->timestamp('published_at');
+            $table->timestamp('published_at')->nullable();
             $table->text('content_html')->nullable();
             $table->text('content_text')->nullable();
             $table->string('summary')->nullable();

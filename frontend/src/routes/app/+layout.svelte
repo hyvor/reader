@@ -1,8 +1,5 @@
 <script lang="ts">
-	import FeedList from './FeedList/FeedList.svelte';
 	import Nav from './Nav/Nav.svelte';
-	import Reader from './Reader/Reader.svelte';
-
 	import { Loader } from '@hyvor/design/components';
 	import api from '../../lib/api';
 	import { feeds } from './appStore';
@@ -30,17 +27,26 @@
 </svelte:head>
 
 {#if loading}
-	<Loader />
+	<div class="loader-wrap">
+		<Loader full />
+	</div>
 {:else}
 	<main>
 		<Nav />
-		<FeedList />
-		<Reader />
+		<slot />
+		<!-- <FeedList />
+		<Reader /> -->
 	</main>
 {/if}
 
 <style>
 	main {
 		display: flex;
+	}
+	.loader-wrap {
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		height: 100vh;
 	}
 </style>

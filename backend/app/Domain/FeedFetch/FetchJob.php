@@ -50,6 +50,8 @@ class FetchJob implements ShouldQueue, ShouldBeUnique
                 ['new' => $newItems, 'updated' => $updatedItems] = $this->getNewAndUpdatedItems($parsedFeed);
             }
 
+            $this->addNewItems($newItems);
+
             $this->fetch->update([
                 'status' => FetchStatusEnum::COMPLETED,
                 'status_code' => $response->status(),
@@ -57,6 +59,11 @@ class FetchJob implements ShouldQueue, ShouldBeUnique
                 'updated_items_count' => count($updatedItems),
                 'latency_ms' => $latencyMs,
             ]);
+
+            $this->feed->update([
+                'last_fetched_at' => now(),
+            ]);
+
         } catch (\Exception $exception) {
             $error = 'Internal server error';
 
@@ -97,6 +104,13 @@ class FetchJob implements ShouldQueue, ShouldBeUnique
             'new' => $newItems,
             'updated' => $updatedItems,
         ];
+    }
+
+    private function addNewItems(array $newItems): void
+    {
+        foreach ($newItems as $newItem) {
+            FeedItemService::createItemFromParsedItem($this->feed, $newItem);
+        }
     }
 
 }

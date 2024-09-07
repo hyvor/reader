@@ -35,13 +35,26 @@ class FeedItemService
         return $ids;
     }
 
+    public static function createFromParsedItem(Item $item) : FeedItem
+    {
+        $attributes = self::parsedItemToAttributes($item);
+        return FeedItem::create($attributes);
+    }
+
     public static function parsedItemToAttributes(Item $item): array
     {
         return [
             'guid' => $item->id,
             'url' => $item->url,
             'title' => $item->title,
-
+            'published_at' => $item->published_at,
+            'content_html' => $item->content_html,
+            'content_text' => $item->content_text,
+            'summary' => $item->summary,
+            'image' => $item->image,
+            'authors' => $item->authors,
+            'tags' => $item->tags,
+            'language' => $item->language,
         ];
     }
 
