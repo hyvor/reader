@@ -7,3 +7,11 @@ export interface Feed {
     description: string;
     subscribers: number;
 }
+
+export interface FeedItem {
+    // TODO: Complete
+    id: number;
+    title: string;
+    url: string;
+    [key: string]: unknown;
+}

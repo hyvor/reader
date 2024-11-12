@@ -1,12 +1,33 @@
 <script lang="ts">
-	export let type: 'all' | 'saved' | 'feed' = 'all';
+	import api from '$lib/api';
+	import type { FeedItem } from '../types';
+	import List from './List.svelte';
+	import Reader from './Reader.svelte';
+
+	type FetchType = 'all' | 'saved' | 'feed';
+
+	export let type: FetchType = 'all';
 	export let feedId: number | null = null;
+
+	$: fetchItems(type, feedId);
+
+	let items: FeedItem[] = [];
+	let currentItem: FeedItem | null = null;
+
+	function fetchItems(type: FetchType, feedId: number | null) {
+		api.get('items', { type, feed_id: feedId }).then((res) => {
+			items = res;
+			currentItem = items[0];
+		});
+	}
 </script>
 
 <section class="wrap">
 	<div class="inner hds-box">
-		<div class="list">Hello World</div>
-		<div class="reader">Reading</div>
+		<List {items} bind:currentItem />
+		{#if currentItem}
+			<Reader item={currentItem} />
+		{/if}
 	</div>
 </section>
 
@@ -18,13 +39,5 @@
 	.inner {
 		display: flex;
 		height: 100%;
-	}
-	.list {
-		width: 270px;
-		padding: 20px 25px;
-		border-right: 1px solid var(--border);
-	}
-	.reader {
-		flex: 1;
 	}
 </style>

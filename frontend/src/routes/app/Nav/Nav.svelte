@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { Button, NavLink } from '@hyvor/design/components';
 	import NavFeed from './NavFeed.svelte';
-	import { IconBook, IconBookmark } from '@hyvor/icons';
+	import { IconBook, IconBookmark, IconGear } from '@hyvor/icons';
 	import logo from '$lib/images/logo.svg';
 	import { feeds } from '../appStore';
 	import { page } from '$app/stores';
@@ -31,6 +31,13 @@
 			{#each $feeds as feed}
 				<NavFeed {feed} />
 			{/each}
+		</div>
+
+		<div class="bottom">
+			<NavLink href="/app/settings" active={$page.url.pathname.startsWith('/app/settings')}>
+				<IconGear slot="start" />
+				Settings
+			</NavLink>
 		</div>
 
 		<div class="footer">
@@ -86,12 +93,18 @@
 	.feeds {
 		padding: 15px 0;
 		flex: 1;
+		overflow: auto;
 	}
 
 	.main :global(a),
-	.feeds :global(a) {
+	.feeds :global(a),
+	.bottom :global(a) {
 		padding-top: 8px !important;
 		padding-bottom: 8px !important;
+	}
+
+	.bottom {
+		padding: 10px 0;
 	}
 
 	.footer {

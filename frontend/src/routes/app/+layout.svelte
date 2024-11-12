@@ -42,6 +42,7 @@
 <style>
 	main {
 		display: flex;
+		height: 100vh;
 	}
 	.loader-wrap {
 		display: flex;

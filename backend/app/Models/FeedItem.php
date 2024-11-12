@@ -11,5 +11,7 @@ class FeedItem extends Model
 
     protected $casts = [
         'published_at' => 'datetime',
+        'authors' => 'array',
+        'tags' => 'array'
     ];
 }

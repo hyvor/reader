@@ -6,10 +6,17 @@ use App\Domain\Feed\Feed\Feed;
 use App\Domain\Feed\Feed\Item;
 use App\Models\Feed as FeedModel;
 use App\Models\FeedItem;
+use App\Models\User;
 use Illuminate\Database\Eloquent\Collection;
 
 class FeedItemService
 {
+
+    public static function getItems(int $feedId)
+    {
+        return FeedItem::where('feed_id', $feedId)
+            ->get();
+    }
 
     /**
      * @return Collection<int, FeedItem>
@@ -35,15 +42,16 @@ class FeedItemService
         return $ids;
     }
 
-    public static function createFromParsedItem(Item $item) : FeedItem
+    public static function createFromParsedItem(FeedModel $feed, Item $item) : FeedItem
     {
-        $attributes = self::parsedItemToAttributes($item);
+        $attributes = self::parsedItemToAttributes($feed, $item);
         return FeedItem::create($attributes);
     }
 
-    public static function parsedItemToAttributes(Item $item): array
+    public static function parsedItemToAttributes(FeedModel $feed, Item $item): array
     {
         return [
+            'feed_id' => $feed->id,
             'guid' => $item->id,
             'url' => $item->url,
             'title' => $item->title,
@@ -52,8 +60,8 @@ class FeedItemService
             'content_text' => $item->content_text,
             'summary' => $item->summary,
             'image' => $item->image,
-            'authors' => $item->authors,
-            'tags' => $item->tags,
+            'authors' => [], // $item->authors,
+            'tags' => [], // $item->tags,
             'language' => $item->language,
         ];
     }

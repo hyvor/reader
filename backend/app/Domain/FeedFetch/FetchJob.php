@@ -109,7 +109,7 @@ class FetchJob implements ShouldQueue, ShouldBeUnique
     private function addNewItems(array $newItems): void
     {
         foreach ($newItems as $newItem) {
-            FeedItemService::createItemFromParsedItem($this->feed, $newItem);
+            FeedItemService::createFromParsedItem($this->feed, $newItem);
         }
     }
 
