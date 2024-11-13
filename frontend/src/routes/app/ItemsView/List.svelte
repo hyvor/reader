@@ -2,8 +2,12 @@
 	import type { FeedItem } from '../types';
 	import ListItem from './ListItem.svelte';
 
-	export let items: FeedItem[] = [];
-	export let currentItem: FeedItem | null = null;
+	interface Props {
+		items?: FeedItem[];
+		currentItem?: FeedItem | null;
+	}
+
+	let { items = [], currentItem = $bindable(null) }: Props = $props();
 
 	function handleOnClick(item: FeedItem) {
 		currentItem = item;

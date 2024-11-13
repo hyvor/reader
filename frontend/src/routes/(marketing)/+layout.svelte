@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
 	import Footer from './Footer.svelte';
 	import '../styles.css';
 	import { Header } from '@hyvor/design/marketing';
@@ -7,44 +7,53 @@
 	import { Button, DarkToggle, IconButton } from '@hyvor/design/components';
 	import { page } from '$app/stores';
 	import { IconGithub } from '@hyvor/icons';
+	interface Props {
+		children?: import('svelte').Snippet;
+	}
+
+	let { children }: Props = $props();
 </script>
 
 <div class="app">
 	<Header {logo} name="HYVOR" subName="Reader" darkToggle={false}>
-		<div slot="center">
-			<a href="/find">
-				<Button active={$page.url.pathname === '/find'} color="invisible">Find Feed</Button>
-			</a>
+		{#snippet center()}
+				<div >
+				<a href="/find">
+					<Button active={$page.url.pathname === '/find'} color="invisible">Find Feed</Button>
+				</a>
 
-			<a href="/learn" class="learn-button">
-				<Button active={$page.url.pathname.startsWith('/learn')} color="invisible">
-					Learn RSS
-				</Button>
-			</a>
-		</div>
+				<a href="/learn" class="learn-button">
+					<Button active={$page.url.pathname.startsWith('/learn')} color="invisible">
+						Learn RSS
+					</Button>
+				</a>
+			</div>
+			{/snippet}
 
-		<div slot="end" class="header-end">
-			<span class="icons">
-				<DarkToggle />
+		{#snippet end()}
+				<div  class="header-end">
+				<span class="icons">
+					<DarkToggle />
 
-				<IconButton
-					color="invisible"
-					as="a"
-					href="https://github.com/hyvor/reader.hyvor.com"
-					target="_blank"
-				>
-					<IconGithub />
-				</IconButton>
-			</span>
+					<IconButton
+						color="invisible"
+						as="a"
+						href="https://github.com/hyvor/reader.hyvor.com"
+						target="_blank"
+					>
+						<IconGithub />
+					</IconButton>
+				</span>
 
-			<a href="/app?signup">
-				<Button color="accent">Go to App</Button>
-			</a>
-		</div>
+				<a href="/app?signup">
+					<Button color="accent">Go to App</Button>
+				</a>
+			</div>
+			{/snippet}
 	</Header>
 
 	<main>
-		<slot />
+		{@render children?.()}
 	</main>
 
 	<Footer />

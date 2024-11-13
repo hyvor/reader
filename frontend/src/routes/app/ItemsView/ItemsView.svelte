@@ -1,4 +1,6 @@
 <script lang="ts">
+	import { run } from 'svelte/legacy';
+
 	import api from '$lib/api';
 	import type { FeedItem } from '../types';
 	import List from './List.svelte';
@@ -6,13 +8,16 @@
 
 	type FetchType = 'all' | 'saved' | 'feed';
 
-	export let type: FetchType = 'all';
-	export let feedId: number | null = null;
+	interface Props {
+		type?: FetchType;
+		feedId?: number | null;
+	}
 
-	$: fetchItems(type, feedId);
+	let { type = 'all', feedId = null }: Props = $props();
 
-	let items: FeedItem[] = [];
-	let currentItem: FeedItem | null = null;
+
+	let items: FeedItem[] = $state([]);
+	let currentItem: FeedItem | null = $state(null);
 
 	function fetchItems(type: FetchType, feedId: number | null) {
 		api.get('items', { type, feed_id: feedId }).then((res) => {
@@ -20,6 +25,9 @@
 			currentItem = items[0];
 		});
 	}
+	run(() => {
+		fetchItems(type, feedId);
+	});
 </script>
 
 <section class="wrap">
@@ -35,6 +43,7 @@
 	.wrap {
 		flex: 1;
 		padding: 15px 0;
+		padding-right: 15px;
 	}
 	.inner {
 		display: flex;

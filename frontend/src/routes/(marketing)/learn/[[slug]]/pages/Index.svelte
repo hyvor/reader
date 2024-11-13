@@ -21,7 +21,9 @@
 
 
 <Callout type="info">
-    <span slot="icon">💡</span>
+    {#snippet icon()}
+        <span >💡</span>
+    {/snippet}
     RSS stands for <b>Really Simple Syndication</b>.
 </Callout>
 
@@ -50,7 +52,9 @@
 </p>
 
 <Callout type="info">
-    <span slot="icon">🔎</span>
+    {#snippet icon()}
+        <span >🔎</span>
+    {/snippet}
     Some websites have <b>multiple RSS feeds</b> for different categories (e.g. news, sports, etc.).
 </Callout>
 
