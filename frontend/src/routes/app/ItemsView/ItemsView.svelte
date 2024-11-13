@@ -2,7 +2,7 @@
 	import { run } from 'svelte/legacy';
 
 	import api from '$lib/api';
-	import type { FeedItem } from '../types';
+	import type { Feed, FeedItem } from '../types';
 	import List from './List.svelte';
 	import Reader from './Reader.svelte';
 
@@ -15,13 +15,14 @@
 
 	let { type = 'all', feedId = null }: Props = $props();
 
-
+	let feed: Feed = $state({} as Feed);
 	let items: FeedItem[] = $state([]);
 	let currentItem: FeedItem | null = $state(null);
 
 	function fetchItems(type: FetchType, feedId: number | null) {
 		api.get('items', { type, feed_id: feedId }).then((res) => {
-			items = res;
+			items = res.items;
+			feed = res.feed;
 			currentItem = items[0];
 		});
 	}
@@ -32,7 +33,7 @@
 
 <section class="wrap">
 	<div class="inner hds-box">
-		<List {items} bind:currentItem />
+		<List {items} {feed} bind:currentItem />
 		{#if currentItem}
 			<Reader item={currentItem} />
 		{/if}

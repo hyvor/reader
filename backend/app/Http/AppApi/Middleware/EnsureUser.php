@@ -19,12 +19,18 @@ class EnsureUser
     public function handle(Request $request, \Closure $next): mixed
     {
         $hyvorUser = app(AccessAuthUser::class);
+
+        // TODO: Change this to get only
         $user = UserService::getOrCreateUser($hyvorUser->id);
         app()->instance(self::USER_CONTAINER_KEY, $user);
 
         return $next($request);
     }
 
+    /**
+     * Gets the current user from the container
+     * EnsureUser must be added to the middleware stack before this is called
+     */
     public static function user(): User
     {
         return app(self::USER_CONTAINER_KEY);

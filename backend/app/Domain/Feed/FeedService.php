@@ -8,6 +8,11 @@ use App\Models\Feed as FeedModel;
 class FeedService
 {
 
+    public static function byId(int $id): ?FeedModel
+    {
+        return FeedModel::find($id);
+    }
+
     public static function byUrl(string $url): ?FeedModel
     {
         return FeedModel::where('url', $url)->first();

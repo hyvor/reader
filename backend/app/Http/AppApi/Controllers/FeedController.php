@@ -1,22 +1,23 @@
 <?php
 
+namespace App\Http\AppApi\Controllers;
+
 use App\Domain\Feed\Exception\FeedFetchException;
+use App\Domain\Feed\Exception\ParserException;
 use App\Domain\Feed\FeedService;
+use App\Domain\Feed\Parser;
 use App\Domain\FeedFetch\Fetch;
-use App\Domain\Feed\Parser\ParserException;
 use App\Domain\FeedSubscription\FeedSubscriptionService;
-use App\Domain\User\UserService;
-use Hyvor\FeedParser\Parser;
+use App\Http\AppApi\Middleware\EnsureUser;
+use App\Http\AppApi\Objects\FeedObject;
 use Hyvor\Internal\Http\Exceptions\HttpException;
-use Hyvor\Internal\Http\Middleware\AccessAuthUser;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Objects\FeedObject;
 
 class FeedController
 {
 
-    public function addFeed(Request $request, AccessAuthUser $user): JsonResponse
+    public function addFeed(Request $request): JsonResponse
     {
         $request->validate([
             'url' => 'required|url',
@@ -24,11 +25,7 @@ class FeedController
 
         $url = (string)$request->string('url');
 
-        $user = UserService::byHyvorUserId($user->id);
-
-        if ($user === null) {
-            $user = UserService::createUser($user->id);
-        }
+        $user = EnsureUser::user();
 
         $feed = FeedService::byUrl($url);
 
