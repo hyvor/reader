@@ -4,8 +4,13 @@
 	import api from '../../lib/api';
 	import { feeds } from './appStore';
 	import { onMount } from 'svelte';
+	interface Props {
+		children?: import('svelte').Snippet;
+	}
 
-	let loading = true;
+	let { children }: Props = $props();
+
+	let loading = $state(true);
 
 	onMount(() => {
 		api
@@ -35,7 +40,7 @@
 		<HyvorBar product="core" config={{ name: 'Hyvor Reader' }} />
 		<div class="inner">
 			<Nav />
-			<slot />
+			{@render children?.()}
 		</div>
 		<!-- <FeedList />
 		<Reader /> -->

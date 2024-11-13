@@ -3,7 +3,11 @@
 	import type { Feed } from '../types';
 	import { page } from '$app/stores';
 
-	export let feed: Feed;
+	interface Props {
+		feed: Feed;
+	}
+
+	let { feed }: Props = $props();
 
 	const domain = feed.url.match(/https?:\/\/([^/]+)/)[1];
 	const iconUrl = `https://icons.duckduckgo.com/ip3/${domain}.ico`;

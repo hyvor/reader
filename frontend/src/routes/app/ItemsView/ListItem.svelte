@@ -1,11 +1,18 @@
 <script lang="ts">
+	import { createBubbler } from 'svelte/legacy';
+
+	const bubble = createBubbler();
 	import type { FeedItem } from '../types';
 
-	export let item: FeedItem;
-	export let active = false;
+	interface Props {
+		item: FeedItem;
+		active?: boolean;
+	}
+
+	let { item, active = false }: Props = $props();
 </script>
 
-<button class="item" class:active on:click>
+<button class="item" class:active onclick={bubble('click')}>
 	<div class="title">{item.title}</div>
 
 	{#if item.description}

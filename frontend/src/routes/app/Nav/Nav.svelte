@@ -10,11 +10,15 @@
 	<nav class="hds-box">
 		<div class="main">
 			<NavLink href="/app" active={$page.url.pathname === '/app'}>
-				<IconBook slot="start" />
+				{#snippet start()}
+								<IconBook  />
+							{/snippet}
 				All Feeds
 			</NavLink>
 			<NavLink href="/app/saved" active={$page.url.pathname === '/app/saved'}>
-				<IconBookmark slot="start" size={14} />
+				{#snippet start()}
+								<IconBookmark  size={14} />
+							{/snippet}
 				Saved
 			</NavLink>
 		</div>
@@ -27,7 +31,9 @@
 
 		<div class="bottom">
 			<NavLink href="/app/settings" active={$page.url.pathname.startsWith('/app/settings')}>
-				<IconGear slot="start" />
+				{#snippet start()}
+								<IconGear  />
+							{/snippet}
 				Settings
 			</NavLink>
 		</div>
