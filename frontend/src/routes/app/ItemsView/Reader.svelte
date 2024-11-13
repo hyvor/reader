@@ -16,7 +16,16 @@
 	</div>
 	<div class="featured-image" />
 	<div class="content">
-		{@html item.content_html}
+		{#if item.content_html}
+			{@html item.content_html}
+		{:else}
+			<iframe
+				src={item.url}
+				title={item.title}
+				frameborder="0"
+				style="width: 100%; height: 100%;"
+			/>
+		{/if}
 	</div>
 </div>
 

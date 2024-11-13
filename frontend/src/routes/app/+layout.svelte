@@ -1,6 +1,6 @@
 <script lang="ts">
 	import Nav from './Nav/Nav.svelte';
-	import { Loader } from '@hyvor/design/components';
+	import { Loader, HyvorBar } from '@hyvor/design/components';
 	import api from '../../lib/api';
 	import { feeds } from './appStore';
 	import { onMount } from 'svelte';
@@ -32,8 +32,11 @@
 	</div>
 {:else}
 	<main>
-		<Nav />
-		<slot />
+		<HyvorBar product="core" config={{ name: 'Hyvor Reader' }} />
+		<div class="inner">
+			<Nav />
+			<slot />
+		</div>
 		<!-- <FeedList />
 		<Reader /> -->
 	</main>
@@ -42,7 +45,13 @@
 <style>
 	main {
 		display: flex;
+		flex-direction: column;
 		height: 100vh;
+	}
+	.inner {
+		display: flex;
+		flex: 1;
+		min-height: 0;
 	}
 	.loader-wrap {
 		display: flex;

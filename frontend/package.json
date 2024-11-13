@@ -14,31 +14,30 @@
 		"test:unit": "vitest"
 	},
 	"devDependencies": {
-		"@neoconfetti/svelte": "^1.0.0",
-		"@playwright/test": "^1.46.1",
-		"@sveltejs/adapter-auto": "^2.1.1",
-		"@sveltejs/adapter-static": "^2.0.3",
-		"@sveltejs/kit": "^1.30.4",
+		"@playwright/test": "^1.48.2",
+		"@sveltejs/adapter-static": "^3.0.6",
+		"@sveltejs/kit": "^2.8.0",
 		"@types/cookie": "^0.5.4",
-		"@typescript-eslint/eslint-plugin": "^8.3.0",
-		"@typescript-eslint/parser": "^8.3.0",
-		"eslint": "^8.57.0",
+		"@typescript-eslint/eslint-plugin": "^8.14.0",
+		"@typescript-eslint/parser": "^8.14.0",
+		"eslint": "^8.57.1",
 		"eslint-config-prettier": "^8.10.0",
-		"eslint-plugin-svelte": "^2.43.0",
+		"eslint-plugin-svelte": "^2.46.0",
 		"prettier": "^2.8.8",
 		"prettier-plugin-svelte": "^2.10.1",
 		"prismjs": "^1.29.0",
-		"sass": "^1.77.8",
-		"svelte": "^4.2.19",
+		"sass": "^1.80.7",
+		"@sveltejs/vite-plugin-svelte": "^4.0.0",
+		"svelte": "^5.1.16",
 		"svelte-check": "^3.8.6",
-		"tslib": "^2.7.0",
-		"typescript": "^5.5.4",
-		"vite": "^4.5.3",
-		"vitest": "^0.32.4"
+		"tslib": "^2.8.1",
+		"typescript": "^5.6.3",
+		"vite": "^5.4.11",
+		"vitest": "^2.1.4"
 	},
 	"type": "module",
 	"dependencies": {
-		"@hyvor/design": "^0.0.67",
-		"@hyvor/icons": "^0.0.3"
+		"@hyvor/design": "^1.0.3",
+		"@hyvor/icons": "^1.0.0"
 	}
 }

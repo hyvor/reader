@@ -35,6 +35,7 @@
 	.wrap {
 		flex: 1;
 		padding: 15px 0;
+		padding-right: 15px;
 	}
 	.inner {
 		display: flex;

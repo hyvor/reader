@@ -10,9 +10,11 @@
 </script>
 
 <NavLink href={'/app/feed/' + feed.id} active={$page.url.pathname === '/app/feed/' + feed.id}>
-	<span class="icon" slot="start">
-		<img src={iconUrl} alt={feed.title} />
-	</span>
+	{#snippet start()}
+		<span class="icon">
+			<img src={iconUrl} alt={feed.title} />
+		</span>
+	{/snippet}
 
 	{feed.title}
 </NavLink>
