@@ -1,0 +1,9 @@
+reader.hyvor.dev, http://:13458 {
+    tls internal
+    handle /api/* {
+        reverse_proxy localhost:13457
+    }
+    handle {
+        reverse_proxy localhost:13456
+    }
+}

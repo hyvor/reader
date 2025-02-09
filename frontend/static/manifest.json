@@ -1,0 +1,19 @@
+{
+    "name": "Hyvor Reader",
+    "icons": [
+      {
+        "src": "/icons/app-icon.192.png",
+        "sizes": "192x192",
+        "type": "image/png"
+      },
+      {
+        "src": "/icons/app-icon.512.png",
+        "sizes": "512x512",
+        "type": "image/png"
+      }
+    ],
+    "start_url": "/app?standalone=true",
+    "display": "standalone",
+    "theme_color": "#354f52",
+    "background_color": "#eff0ed"
+  }

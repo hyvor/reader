@@ -1,0 +1,10 @@
+:root {
+	/* --accent: #354f52;
+	--accent-light: #bdc5c6;
+	--accent-lightest: #eff0ed; */
+}
+
+/* To offset hash scroll */
+:target {
+    scroll-margin-top: calc(var(--header-height) + 10px);
+}
