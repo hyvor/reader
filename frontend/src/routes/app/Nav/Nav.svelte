@@ -1,7 +1,9 @@
 <script lang="ts">
 	import { Button, NavLink } from '@hyvor/design/components';
 	import NavFeed from './NavFeed.svelte';
-	import { IconBook, IconBookmark, IconGear } from '@hyvor/icons';
+	import IconBook from '@hyvor/icons/IconBook';
+	import IconBookmark from '@hyvor/icons/IconBookmark';
+	import IconGear from '@hyvor/icons/IconGear';
 	import { feeds } from '../appStore';
 	import { page } from '$app/stores';
 </script>
@@ -11,14 +13,14 @@
 		<div class="main">
 			<NavLink href="/app" active={$page.url.pathname === '/app'}>
 				{#snippet start()}
-								<IconBook  />
-							{/snippet}
+					<IconBook />
+				{/snippet}
 				All Feeds
 			</NavLink>
 			<NavLink href="/app/saved" active={$page.url.pathname === '/app/saved'}>
 				{#snippet start()}
-								<IconBookmark  size={14} />
-							{/snippet}
+					<IconBookmark size={14} />
+				{/snippet}
 				Saved
 			</NavLink>
 		</div>
@@ -32,8 +34,8 @@
 		<div class="bottom">
 			<NavLink href="/app/settings" active={$page.url.pathname.startsWith('/app/settings')}>
 				{#snippet start()}
-								<IconGear  />
-							{/snippet}
+					<IconGear />
+				{/snippet}
 				Settings
 			</NavLink>
 		</div>

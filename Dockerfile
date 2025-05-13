@@ -1,4 +1,3 @@
-# TODO###################################################
 # Alias for deppendencies
 FROM node:22.12.0 AS node
 FROM composer:2.8.4 AS composer
@@ -15,10 +14,10 @@ WORKDIR /app/frontend
 COPY frontend/package.json frontend/package-lock.json \
     frontend/svelte.config.js \
     frontend/vite.config.ts \
-    frontend/tsconfig.json /app/frontend/
+    frontend/tsconfig.json .
 # copy code
-COPY frontend/src /app/frontend/src
-COPY frontend/static /app/frontend/static
+COPY frontend/src .
+COPY frontend/static .
 COPY shared /app/shared
 
 ###################################################
@@ -61,11 +60,12 @@ RUN curl -1sLf 'https://dl.cloudsmith.io/public/symfony/stable/setup.deb.sh' | b
 # pcov for coverage
 RUN install-php-extensions pcov
 COPY backend/composer.json backend/composer.lock /app/backend/
-RUN composer install --no-interaction
+RUN composer install --no-interaction --no-scripts
 # set up code and install composer packages
 COPY backend /app/backend/
 COPY meta/image/dev/Caddyfile.dev /etc/caddy/Caddyfile
 COPY meta/image/dev/run.dev /app/run
+
 CMD ["sh", "/app/run"]
 
 ###################################################

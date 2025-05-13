@@ -1,6 +1,6 @@
-# TODOservices:
-  hyvor-post-frontend:
-    container_name: hyvor-post-frontend
+services:
+  hyvor-reader-frontend:
+    container_name: hyvor-reader-frontend
     build:
       context: .
       target: frontend-dev
@@ -15,19 +15,18 @@
       - ./shared:/app/shared
     labels:
       traefik.enable: true
-      traefik.http.routers.hyvor-post-frontend.rule: Host(`post.hyvor.dev`)
-      traefik.http.routers.hyvor-post-frontend.entrypoints: https
-      traefik.http.routers.hyvor-post-frontend.tls: true
-      traefik.http.routers.hyvor-post-frontend.middlewares: vite-retry@file
-      traefik.http.services.hyvor-post-frontend.loadbalancer.server.port: 80
+      traefik.http.routers.hyvor-reader-frontend.rule: Host(`localhost`)
+      traefik.http.routers.hyvor-reader-frontend.entrypoints: http
+      traefik.http.routers.hyvor-reader-frontend.middlewares: vite-retry@file
+      traefik.http.services.hyvor-reader-frontend.loadbalancer.server.port: 80
 
     networks:
       - hyvor-network
 
-    profiles: [dev]
+    # profiles: [dev]
 
-  hyvor-post-backend:
-    container_name: hyvor-post-backend
+  hyvor-reader-backend:
+    container_name: hyvor-reader-backend
     build:
       context: .
       target: backend-dev
@@ -38,15 +37,14 @@
     labels:
       traefik.enable: true
       # backend
-      traefik.http.routers.hyvor-post-backend.rule: Host(`post.hyvor.dev`) && PathPrefix(`/api`)
-      traefik.http.routers.hyvor-post-backend.entrypoints: https
-      traefik.http.routers.hyvor-post-backend.tls: true
-      traefik.http.routers.hyvor-post-backend.service: hyvor-post-backend
+      traefik.http.routers.hyvor-reader-backend.rule: Host(`localhost`) && PathPrefix(`/api`)
+      traefik.http.routers.hyvor-reader-backend.entrypoints: http
+      traefik.http.routers.hyvor-reader-backend.service: hyvor-reader-backend
       # service
-      traefik.http.services.hyvor-post-backend.loadbalancer.server.port: 80
+      traefik.http.services.hyvor-reader-backend.loadbalancer.server.port: 80
     networks:
       - hyvor-network
-    profiles: [dev]
+    # profiles: [dev]
     healthcheck:
       test: ls
       disable: true
