@@ -16,15 +16,14 @@ services:
     labels:
       traefik.enable: true
       traefik.http.routers.hyvor-reader-frontend.rule: Host(`localhost`)
-      traefik.http.routers.hyvor-reader-frontend.entrypoints: https
-      traefik.http.routers.hyvor-reader-frontend.tls: true
+      traefik.http.routers.hyvor-reader-frontend.entrypoints: http
       traefik.http.routers.hyvor-reader-frontend.middlewares: vite-retry@file
       traefik.http.services.hyvor-reader-frontend.loadbalancer.server.port: 80
 
     networks:
       - hyvor-network
 
-    profiles: [dev]
+    # profiles: [dev]
 
   hyvor-reader-backend:
     container_name: hyvor-reader-backend
@@ -39,14 +38,13 @@ services:
       traefik.enable: true
       # backend
       traefik.http.routers.hyvor-reader-backend.rule: Host(`localhost`) && PathPrefix(`/api`)
-      traefik.http.routers.hyvor-reader-backend.entrypoints: https
-      traefik.http.routers.hyvor-reader-backend.tls: true
+      traefik.http.routers.hyvor-reader-backend.entrypoints: http
       traefik.http.routers.hyvor-reader-backend.service: hyvor-reader-backend
       # service
       traefik.http.services.hyvor-reader-backend.loadbalancer.server.port: 80
     networks:
       - hyvor-network
-    profiles: [dev]
+    # profiles: [dev]
     healthcheck:
       test: ls
       disable: true

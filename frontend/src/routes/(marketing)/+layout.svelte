@@ -6,7 +6,7 @@
 	import logo from '$lib/images/logo.svg';
 	import { Button, DarkToggle, IconButton } from '@hyvor/design/components';
 	import { page } from '$app/stores';
-	import { IconGithub } from '@hyvor/icons';
+	import IconGithub from '@hyvor/icons/IconGithub';
 	interface Props {
 		children?: import('svelte').Snippet;
 	}
@@ -17,7 +17,7 @@
 <div class="app">
 	<Header {logo} name="HYVOR" subName="Reader" darkToggle={false}>
 		{#snippet center()}
-				<div >
+			<div>
 				<a href="/find">
 					<Button active={$page.url.pathname === '/find'} color="invisible">Find Feed</Button>
 				</a>
@@ -28,10 +28,10 @@
 					</Button>
 				</a>
 			</div>
-			{/snippet}
+		{/snippet}
 
 		{#snippet end()}
-				<div  class="header-end">
+			<div class="header-end">
 				<span class="icons">
 					<DarkToggle />
 
@@ -49,7 +49,7 @@
 					<Button color="accent">Go to App</Button>
 				</a>
 			</div>
-			{/snippet}
+		{/snippet}
 	</Header>
 
 	<main>
