@@ -1,13 +1,11 @@
 <?php
 
-namespace App\Service\Parser;
-
+namespace App\Service\Parser\Types;
 
 use Symfony\Component\HttpFoundation\Response;
 
 enum FeedType: string
 {
-
     case RSS = 'rss';
     case ATOM = 'atom';
     case JSONFEED = 'jsonfeed';
@@ -60,5 +58,4 @@ enum FeedType: string
 
         return null;
     }
-
 }

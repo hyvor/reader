@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Service\Parser;
+namespace App\Service\Parser\Types;
 
 class Author
 {
@@ -11,7 +11,7 @@ class Author
         /**
          * Name of the author
          *
-         * Atom: <author><name>
+         * Atom: <author><n>
          * RSS: <item><author>
          * JSON Feed: author.name
          */

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Service\Parser;
+namespace App\Service\Parser\Types;
 
 class Tag
 {

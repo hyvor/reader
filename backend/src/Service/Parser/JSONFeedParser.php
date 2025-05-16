@@ -4,12 +4,12 @@ namespace App\Service\Parser;
 
 use App\Entity\Feed;
 use App\Entity\Item;
+use App\Service\Parser\Types\Author;
+use App\Service\Parser\Types\FeedType;
+use App\Service\Parser\Types\Tag;
 
-use Carbon\Carbon;
-
-class JsonParser implements ParserInterface
+class JSONFeedParser implements ParserInterface
 {
-
     /**
      * @var array<mixed>
      */
@@ -53,7 +53,7 @@ class JsonParser implements ParserInterface
             try {
                 $itemsObjects[] = $this->parseItem($item);
             } catch (ParserException) {
-                //
+                continue;
             }
         }
 
@@ -66,10 +66,9 @@ class JsonParser implements ParserInterface
             $description,
             $icon,
             $language,
-            items: $itemsObjects
+            $itemsObjects
         );
     }
-
 
     /**
      * @param array<mixed> $item
@@ -113,7 +112,7 @@ class JsonParser implements ParserInterface
             try {
                 $authors[] = $this->parseAuthor($author);
             } catch (ParserException) {
-                // Skip
+                continue;
             }
         }
 
@@ -169,14 +168,14 @@ class JsonParser implements ParserInterface
         return new Author($name, $url, $avatar);
     }
 
-    private function date(mixed $date): ?Carbon
+    private function date(mixed $date): ?\DateTimeImmutable
     {
         if (!is_string($date)) {
             return null;
         }
 
         try {
-            return Carbon::parse($date);
+            return new \DateTimeImmutable($date);
         } catch (\Exception) {
             return null;
         }
