@@ -32,8 +32,8 @@ services:
       - ../internal:/app/backend/vendor/hyvor/internal:ro
       - ./shared:/app/shared
     environment:
-      - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/hyvor_reader?serverVersion=16&charset=utf8
-      - APP_RUNTIME=Runtime\\FrankenPhpSymfony\\Runtime
+      DATABASE_URL: "postgresql://postgres:postgres@postgres:5432/hyvor_reader?serverVersion=16&charset=utf8"
+      APP_RUNTIME: "Runtime\\FrankenPhpSymfony\\Runtime"
     labels:
       traefik.enable: true
       traefik.http.routers.hyvor-reader-backend.rule: Host(`localhost`) && PathPrefix(`/api`)
