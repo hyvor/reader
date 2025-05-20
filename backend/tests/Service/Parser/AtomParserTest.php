@@ -5,8 +5,10 @@ namespace App\Tests\Service\Parser;
 use App\Entity\Feed;
 use App\Service\Parser\AtomParser;
 use App\Service\Parser\ParserException;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 
+#[CoversClass(AtomParser::class)]
 class AtomParserTest extends TestCase
 {
     public function testValidAtomFeed(): void

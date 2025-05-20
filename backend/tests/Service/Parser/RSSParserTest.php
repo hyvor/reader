@@ -5,8 +5,10 @@ namespace App\Tests\Service\Parser;
 use App\Entity\Feed;
 use App\Service\Parser\RSSParser;
 use App\Service\Parser\ParserException;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 
+#[CoversClass(RSSParser::class)]
 class RSSParserTest extends TestCase
 {
     public function testValidRSSFeed(): void

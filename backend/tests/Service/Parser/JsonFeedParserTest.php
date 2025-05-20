@@ -3,15 +3,17 @@
 namespace App\Tests\Service\Parser;
 
 use App\Entity\Feed;
-use App\Service\Parser\JSONFeedParser;
+use App\Service\Parser\JsonFeedParser;
 use App\Service\Parser\ParserException;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 
-class JSONFeedParserTest extends TestCase
+#[CoversClass(JsonFeedParser::class)]
+class JsonFeedParserTest extends TestCase
 {
-    public function testValidJSONFeed(): void
+    public function test_valid_json_feed(): void
     {
-        $jsonContent = json_encode([
+        $jsonContent = (string) json_encode([
             'version' => 'https://jsonfeed.org/version/1.1',
             'title' => 'My Example Feed',
             'home_page_url' => 'https://example.org/',
@@ -32,7 +34,7 @@ class JSONFeedParserTest extends TestCase
             ]
         ]);
 
-        $parser = new JSONFeedParser($jsonContent);
+        $parser = new JsonFeedParser($jsonContent);
         $feed = $parser->parse();
 
         $this->assertInstanceOf(Feed::class, $feed);
@@ -47,17 +49,17 @@ class JSONFeedParserTest extends TestCase
 
         $this->expectException(ParserException::class);
         $this->expectExceptionMessage('Invalid JSON');
-        new JSONFeedParser($invalidJson);
+        new JsonFeedParser($invalidJson);
     }
 
     public function testMissingVersion(): void
     {
-        $contentWithoutVersion = json_encode([
+        $contentWithoutVersion = (string) json_encode([
             'title' => 'JSON Feed',
             'home_page_url' => 'https://example.org/'
         ]);
 
-        $parser = new JSONFeedParser($contentWithoutVersion);
+        $parser = new JsonFeedParser($contentWithoutVersion);
         $this->expectException(ParserException::class);
         $this->expectExceptionMessage('Required field missing: version');
         $parser->parse();
@@ -65,12 +67,12 @@ class JSONFeedParserTest extends TestCase
 
     public function testMissingTitle(): void
     {
-        $contentWithoutTitle = json_encode([
+        $contentWithoutTitle = (string) json_encode([
             'version' => 'https://jsonfeed.org/version/1.1',
             'home_page_url' => 'https://example.org/'
         ]);
 
-        $parser = new JSONFeedParser($contentWithoutTitle);
+        $parser = new JsonFeedParser($contentWithoutTitle);
         $this->expectException(ParserException::class);
         $this->expectExceptionMessage('Required field missing: title');
         $parser->parse();
@@ -80,7 +82,7 @@ class JSONFeedParserTest extends TestCase
     {
         $emptyContent = json_encode([]);
 
-        $parser = new JSONFeedParser($emptyContent);
+        $parser = new JsonFeedParser($emptyContent);
         $this->expectException(ParserException::class);
         $this->expectExceptionMessage('Required field missing: version');
         $parser->parse();
@@ -99,7 +101,7 @@ class JSONFeedParserTest extends TestCase
             ]
         ]);
 
-        $parser = new JSONFeedParser($contentWithInvalidItem);
+        $parser = new JsonFeedParser($contentWithInvalidItem);
         $feed = $parser->parse();
 
         $this->assertInstanceOf(Feed::class, $feed);
@@ -110,6 +112,6 @@ class JSONFeedParserTest extends TestCase
     public function testEmptyContent(): void
     {
         $this->expectException(ParserException::class);
-        new JSONFeedParser('');
+        new JsonFeedParser('');
     }
 } 
