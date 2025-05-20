@@ -1,0 +1,115 @@
+<?php
+
+namespace App\Tests\Service\Parser;
+
+use App\Entity\Feed;
+use App\Service\Parser\JSONFeedParser;
+use App\Service\Parser\ParserException;
+use PHPUnit\Framework\TestCase;
+
+class JSONFeedParserTest extends TestCase
+{
+    public function testValidJSONFeed(): void
+    {
+        $jsonContent = json_encode([
+            'version' => 'https://jsonfeed.org/version/1.1',
+            'title' => 'My Example Feed',
+            'home_page_url' => 'https://example.org/',
+            'feed_url' => 'https://example.org/feed.json',
+            'description' => 'A detailed description of my feed',
+            'items' => [
+                [
+                    'id' => '1',
+                    'title' => 'First Post',
+                    'content_html' => '<p>Hello World</p>',
+                    'url' => 'https://example.org/posts/1',
+                    'date_published' => '2024-03-20T12:00:00Z',
+                    'authors' => [
+                        ['name' => 'John Doe', 'url' => 'https://example.org/john']
+                    ],
+                    'tags' => ['tech', 'news']
+                ]
+            ]
+        ]);
+
+        $parser = new JSONFeedParser($jsonContent);
+        $feed = $parser->parse();
+
+        $this->assertInstanceOf(Feed::class, $feed);
+        $this->assertEquals('https://example.org/', $feed->getUrl());
+        $this->assertEquals('My Example Feed', $feed->getTitle());
+        $this->assertEquals('A detailed description of my feed', $feed->getDescription());
+    }
+
+    public function testInvalidJSON(): void
+    {
+        $invalidJson = '{title: "Invalid JSON Feed",}';
+
+        $this->expectException(ParserException::class);
+        $this->expectExceptionMessage('Invalid JSON');
+        new JSONFeedParser($invalidJson);
+    }
+
+    public function testMissingVersion(): void
+    {
+        $contentWithoutVersion = json_encode([
+            'title' => 'JSON Feed',
+            'home_page_url' => 'https://example.org/'
+        ]);
+
+        $parser = new JSONFeedParser($contentWithoutVersion);
+        $this->expectException(ParserException::class);
+        $this->expectExceptionMessage('Required field missing: version');
+        $parser->parse();
+    }
+
+    public function testMissingTitle(): void
+    {
+        $contentWithoutTitle = json_encode([
+            'version' => 'https://jsonfeed.org/version/1.1',
+            'home_page_url' => 'https://example.org/'
+        ]);
+
+        $parser = new JSONFeedParser($contentWithoutTitle);
+        $this->expectException(ParserException::class);
+        $this->expectExceptionMessage('Required field missing: title');
+        $parser->parse();
+    }
+
+    public function testEmptyFeed(): void
+    {
+        $emptyContent = json_encode([]);
+
+        $parser = new JSONFeedParser($emptyContent);
+        $this->expectException(ParserException::class);
+        $this->expectExceptionMessage('Required field missing: version');
+        $parser->parse();
+    }
+
+    public function testInvalidItemStructure(): void
+    {
+        $contentWithInvalidItem = json_encode([
+            'version' => 'https://jsonfeed.org/version/1.1',
+            'title' => 'Feed with Invalid Item',
+            'home_page_url' => 'https://example.org/',
+            'items' => [
+                'not-an-object',
+                ['id' => '1', 'url' => 'https://example.org/1'], // Missing required content
+                ['content_html' => '<p>Content</p>'] // Missing required url
+            ]
+        ]);
+
+        $parser = new JSONFeedParser($contentWithInvalidItem);
+        $feed = $parser->parse();
+
+        $this->assertInstanceOf(Feed::class, $feed);
+        $this->assertEquals('https://example.org/', $feed->getUrl());
+        $this->assertEquals('Feed with Invalid Item', $feed->getTitle());
+    }
+
+    public function testEmptyContent(): void
+    {
+        $this->expectException(ParserException::class);
+        new JSONFeedParser('');
+    }
+} 

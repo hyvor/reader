@@ -14,8 +14,14 @@ class RSSParser implements ParserInterface
 
     public function __construct(string $content)
     {
+        if (empty($content)) {
+            throw new ParserException('Empty content');
+        }
+
         $this->document = new \DOMDocument();
-        $this->document->loadXML($content, LIBXML_NOERROR | LIBXML_NOWARNING);
+        if (!@$this->document->loadXML($content, LIBXML_NOERROR | LIBXML_NOWARNING)) {
+            throw new ParserException('Invalid XML');
+        }
     }
 
     public function parse(): Feed
@@ -26,7 +32,6 @@ class RSSParser implements ParserInterface
             throw new ParserException('Invalid RSS feed. <rss> element not found');
         }
 
-        $version = $rssElement->getAttribute('version');
         $channel = $rssElement->getElementsByTagName('channel')->item(0);
 
         if (!$channel) {
@@ -34,9 +39,22 @@ class RSSParser implements ParserInterface
         }
 
         $title = $channel->getElementsByTagName('title')->item(0)?->textContent ?? '';
+        if (empty($title)) {
+            throw new ParserException('Required field missing: title');
+        }
+
         $homepageUrl = $channel->getElementsByTagName('link')->item(0)?->textContent ?? '';
+        if (empty($homepageUrl)) {
+            throw new ParserException('Required field missing: link');
+        }
+
+        $feed = new Feed($homepageUrl);
+        $feed->setTitle($title);
+
         $description = $channel->getElementsByTagName('description')->item(0)?->textContent;
-        $language = $channel->getElementsByTagName('language')->item(0)?->textContent;
+        if ($description) {
+            $feed->setDescription($description);
+        }
 
         $itemsObjects = [];
         $items = $channel->getElementsByTagName('item');
@@ -48,17 +66,7 @@ class RSSParser implements ParserInterface
             }
         }
 
-        return new Feed(
-            FeedType::RSS,
-            $version,
-            $title,
-            $homepageUrl,
-            null,
-            $description,
-            null,
-            $language,
-            $itemsObjects
-        );
+        return $feed;
     }
 
     private function parseItem(\DOMElement $item): Item

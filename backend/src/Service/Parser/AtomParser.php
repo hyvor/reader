@@ -14,8 +14,14 @@ class AtomParser implements ParserInterface
 
     public function __construct(string $content)
     {
+        if (empty($content)) {
+            throw new ParserException('Empty content');
+        }
+
         $this->document = new \DOMDocument();
-        $this->document->loadXML($content, LIBXML_NOERROR | LIBXML_NOWARNING);
+        if (!@$this->document->loadXML($content, LIBXML_NOERROR | LIBXML_NOWARNING)) {
+            throw new ParserException('Invalid XML');
+        }
     }
 
     public function parse(): Feed
@@ -26,16 +32,32 @@ class AtomParser implements ParserInterface
             throw new ParserException('Invalid Atom feed. <feed> element not found');
         }
 
-        $version = '1.0';
         $title = $this->getTextContent($feedElement, 'title');
-        $homepageUrl = $this->getAlternateLink($feedElement);
-        $feedUrl = $this->getSelfLink($feedElement);
-        $description = $this->getTextContent($feedElement, 'subtitle');
-        $icon = $this->getTextContent($feedElement, 'icon');
-        $language = $feedElement->getAttribute('xml:lang');
+        if (empty($title)) {
+            throw new ParserException('Required field missing: title');
+        }
 
-        if (empty($language)) {
-            $language = null;
+        $id = $this->getTextContent($feedElement, 'id');
+        if (empty($id)) {
+            throw new ParserException('Required field missing: id');
+        }
+
+        $updated = $this->getTextContent($feedElement, 'updated');
+        if (empty($updated)) {
+            throw new ParserException('Required field missing: updated');
+        }
+
+        $homepageUrl = $this->getAlternateLink($feedElement);
+        if (empty($homepageUrl)) {
+            throw new ParserException('Required field missing: link');
+        }
+
+        $feed = new Feed($homepageUrl);
+        $feed->setTitle($title);
+
+        $description = $this->getTextContent($feedElement, 'subtitle');
+        if ($description) {
+            $feed->setDescription($description);
         }
 
         $itemsObjects = [];
@@ -48,17 +70,7 @@ class AtomParser implements ParserInterface
             }
         }
 
-        return new Feed(
-            FeedType::ATOM,
-            $version,
-            $title,
-            $homepageUrl,
-            $feedUrl,
-            $description,
-            $icon,
-            $language,
-            $itemsObjects
-        );
+        return $feed;
     }
 
     private function parseEntry(\DOMElement $entry): Item

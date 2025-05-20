@@ -17,6 +17,10 @@ class JSONFeedParser implements ParserInterface
 
     public function __construct(string $content)
     {
+        if (empty($content)) {
+            throw new ParserException('Empty content');
+        }
+
         $json = json_decode($content, true);
 
         if (json_last_error() !== JSON_ERROR_NONE) {
@@ -28,23 +32,24 @@ class JSONFeedParser implements ParserInterface
 
     public function parse(): Feed
     {
-        $version = $this->json['version'] ?? '1.0';
-        $version = str_replace('https://jsonfeed.org/version/', '', $version);
+        $version = $this->json['version'] ?? '';
+        if (empty($version)) {
+            throw new ParserException('Required field missing: version');
+        }
 
         $title = strval($this->json['title'] ?? '');
+        if (empty($title)) {
+            throw new ParserException('Required field missing: title');
+        }
+
         $homepageUrl = strval($this->json['home_page_url'] ?? '');
-        $feedUrl = strval($this->json['feed_url'] ?? '');
+        $feed = new Feed($homepageUrl);
+        $feed->setTitle($title);
 
         $description = $this->json['description'] ?? '';
-        $description = empty($description) ? null : strval($description);
-
-        $icon = $this->json['icon'] ?? '';
-        $favicon = $this->json['favicon'] ?? '';
-        $icon = empty($favicon) ? $icon : $favicon;
-        $icon = empty($icon) ? null : strval($icon);
-
-        $language = $this->json['language'] ?? '';
-        $language = empty($language) ? null : strval($language);
+        if (!empty($description)) {
+            $feed->setDescription(strval($description));
+        }
 
         $items = $this->json['items'] ?? [];
         $items = is_array($items) ? $items : [];
@@ -57,17 +62,7 @@ class JSONFeedParser implements ParserInterface
             }
         }
 
-        return new Feed(
-            FeedType::JSONFEED,
-            $version,
-            $title,
-            $homepageUrl,
-            $feedUrl,
-            $description,
-            $icon,
-            $language,
-            $itemsObjects
-        );
+        return $feed;
     }
 
     /**
