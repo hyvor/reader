@@ -59,11 +59,10 @@ RUN curl -1sLf 'https://dl.cloudsmith.io/public/symfony/stable/setup.deb.sh' | b
     && apt install -y symfony-cli
 # pcov for coverage
 RUN install-php-extensions pcov
-COPY backend /app/backend/
+COPY backend/composer.json backend/composer.lock /app/backend/
+RUN composer install --no-interaction --no-scripts
 # set up code and install composer packages
-RUN composer install --no-interaction
-
-
+COPY backend /app/backend/
 COPY meta/image/dev/Caddyfile.dev /etc/caddy/Caddyfile
 COPY meta/image/dev/run.dev /app/run
 
