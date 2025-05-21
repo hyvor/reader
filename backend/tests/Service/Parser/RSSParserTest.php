@@ -11,7 +11,7 @@ use PHPUnit\Framework\TestCase;
 #[CoversClass(RssParser::class)]
 class RssParserTest extends TestCase
 {
-    public function testValidRSSFeed(): void
+    public function test_valid_rss_feed(): void
     {
         $rssContent = <<<XML
 <?xml version="1.0" encoding="UTF-8" ?>
@@ -34,7 +34,7 @@ class RssParserTest extends TestCase
 </rss>
 XML;
 
-        $parser = new RSSParser($rssContent);
+        $parser = new RssParser($rssContent);
         $feed = $parser->parse();
 
         $this->assertInstanceOf(Feed::class, $feed);
@@ -43,7 +43,7 @@ XML;
         $this->assertEquals('A sample RSS feed', $feed->description);
     }
 
-    public function testInvalidRSSStructure(): void
+    public function test_invalid_rss_structure(): void
     {
         $invalidContent = <<<XML
 <?xml version="1.0" encoding="UTF-8" ?>
@@ -54,13 +54,13 @@ XML;
 </rss>
 XML;
 
-        $parser = new RSSParser($invalidContent);
+        $parser = new RssParser($invalidContent);
         $this->expectException(ParserException::class);
         $this->expectExceptionMessage('Invalid RSS feed. <channel> element not found');
         $parser->parse();
     }
 
-    public function testMissingTitle(): void
+    public function test_missing_title(): void
     {
         $contentWithoutTitle = <<<XML
 <?xml version="1.0" encoding="UTF-8" ?>
@@ -72,13 +72,13 @@ XML;
 </rss>
 XML;
 
-        $parser = new RSSParser($contentWithoutTitle);
+        $parser = new RssParser($contentWithoutTitle);
         $this->expectException(ParserException::class);
         $this->expectExceptionMessage('Required field missing: title');
         $parser->parse();
     }
 
-    public function testMissingLink(): void
+    public function test_missing_link(): void
     {
         $contentWithoutLink = <<<XML
 <?xml version="1.0" encoding="UTF-8" ?>
@@ -90,13 +90,13 @@ XML;
 </rss>
 XML;
 
-        $parser = new RSSParser($contentWithoutLink);
+        $parser = new RssParser($contentWithoutLink);
         $this->expectException(ParserException::class);
         $this->expectExceptionMessage('Required field missing: link');
         $parser->parse();
     }
 
-    public function testEmptyChannel(): void
+    public function test_empty_channel(): void
     {
         $emptyContent = <<<XML
 <?xml version="1.0" encoding="UTF-8" ?>
@@ -106,13 +106,13 @@ XML;
 </rss>
 XML;
 
-        $parser = new RSSParser($emptyContent);
+        $parser = new RssParser($emptyContent);
         $this->expectException(ParserException::class);
         $this->expectExceptionMessage('Required field missing: title');
         $parser->parse();
     }
 
-    public function testInvalidXMLSyntax(): void
+    public function test_invalid_xml_syntax(): void
     {
         $invalidXml = <<<XML
 <?xml version="1.0" encoding="UTF-8" ?>
@@ -124,12 +124,12 @@ XML;
 XML;
 
         $this->expectException(ParserException::class);
-        new RSSParser($invalidXml);
+        new RssParser($invalidXml);
     }
 
-    public function testEmptyContent(): void
+    public function test_empty_content(): void
     {
         $this->expectException(ParserException::class);
-        new RSSParser('');
+        new RssParser('');
     }
 } 

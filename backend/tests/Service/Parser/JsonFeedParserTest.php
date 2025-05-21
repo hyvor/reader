@@ -43,7 +43,7 @@ class JsonFeedParserTest extends TestCase
         $this->assertEquals('A detailed description of my feed', $feed->description);
     }
 
-    public function testInvalidJSON(): void
+    public function test_invalid_json(): void
     {
         $invalidJson = '{title: "Invalid JSON Feed",}';
 
@@ -52,7 +52,7 @@ class JsonFeedParserTest extends TestCase
         new JsonFeedParser($invalidJson);
     }
 
-    public function testMissingVersion(): void
+    public function test_missing_version(): void
     {
         $contentWithoutVersion = (string) json_encode([
             'title' => 'JSON Feed',
@@ -65,7 +65,7 @@ class JsonFeedParserTest extends TestCase
         $parser->parse();
     }
 
-    public function testMissingTitle(): void
+    public function test_missing_title(): void
     {
         $contentWithoutTitle = (string) json_encode([
             'version' => 'https://jsonfeed.org/version/1.1',
@@ -78,7 +78,7 @@ class JsonFeedParserTest extends TestCase
         $parser->parse();
     }
 
-    public function testEmptyFeed(): void
+    public function test_empty_feed(): void
     {
         $emptyContent = json_encode([]);
 
@@ -88,7 +88,7 @@ class JsonFeedParserTest extends TestCase
         $parser->parse();
     }
 
-    public function testInvalidItemStructure(): void
+    public function test_invalid_item_structure(): void
     {
         $contentWithInvalidItem = json_encode([
             'version' => 'https://jsonfeed.org/version/1.1',
@@ -109,7 +109,7 @@ class JsonFeedParserTest extends TestCase
         $this->assertEquals('Feed with Invalid Item', $feed->title);
     }
 
-    public function testEmptyContent(): void
+    public function test_empty_content(): void
     {
         $this->expectException(ParserException::class);
         new JsonFeedParser('');

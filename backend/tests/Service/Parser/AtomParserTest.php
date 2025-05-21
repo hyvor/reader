@@ -11,7 +11,7 @@ use PHPUnit\Framework\TestCase;
 #[CoversClass(AtomParser::class)]
 class AtomParserTest extends TestCase
 {
-    public function testValidAtomFeed(): void
+    public function test_valid_atom_feed(): void
     {
         $atomContent = <<<XML
 <?xml version="1.0" encoding="UTF-8"?>
@@ -46,7 +46,7 @@ XML;
         $this->assertEquals('An Atom formatted feed', $feed->description);
     }
 
-    public function testInvalidAtomStructure(): void
+    public function test_invalid_atom_structure(): void
     {
         $invalidContent = <<<XML
 <?xml version="1.0" encoding="UTF-8"?>
@@ -61,7 +61,7 @@ XML;
         $parser->parse();
     }
 
-    public function testMissingTitle(): void
+    public function test_missing_title(): void
     {
         $contentWithoutTitle = <<<XML
 <?xml version="1.0" encoding="UTF-8"?>
@@ -78,7 +78,7 @@ XML;
         $parser->parse();
     }
 
-    public function testMissingId(): void
+    public function test_missing_id(): void
     {
         $contentWithoutId = <<<XML
 <?xml version="1.0" encoding="UTF-8"?>
@@ -95,7 +95,7 @@ XML;
         $parser->parse();
     }
 
-    public function testMissingUpdated(): void
+    public function test_missing_updated(): void
     {
         $contentWithoutUpdated = <<<XML
 <?xml version="1.0" encoding="UTF-8"?>
@@ -112,7 +112,7 @@ XML;
         $parser->parse();
     }
 
-    public function testMissingLink(): void
+    public function test_missing_link(): void
     {
         $contentWithoutLink = <<<XML
 <?xml version="1.0" encoding="UTF-8"?>
@@ -129,7 +129,7 @@ XML;
         $parser->parse();
     }
 
-    public function testEmptyFeed(): void
+    public function test_empty_feed(): void
     {
         $emptyContent = <<<XML
 <?xml version="1.0" encoding="UTF-8"?>
@@ -143,7 +143,7 @@ XML;
         $parser->parse();
     }
 
-    public function testInvalidXMLSyntax(): void
+    public function test_invalid_xml_syntax(): void
     {
         $invalidXml = <<<XML
 <?xml version="1.0" encoding="UTF-8"?>
@@ -157,7 +157,7 @@ XML;
         new AtomParser($invalidXml);
     }
 
-    public function testEmptyContent(): void
+    public function test_empty_content(): void
     {
         $this->expectException(ParserException::class);
         new AtomParser('');
