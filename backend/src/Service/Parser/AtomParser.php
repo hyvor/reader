@@ -2,11 +2,11 @@
 
 namespace App\Service\Parser;
 
-use App\Entity\Feed;
-use App\Entity\Item;
+use App\Service\Parser\Types\Feed;
+use App\Service\Parser\Types\Item;
 use App\Service\Parser\Types\Author;
-use App\Service\Parser\Types\FeedType;
 use App\Service\Parser\Types\Tag;
+use App\Service\Parser\Types\FeedType;
 
 class AtomParser implements ParserInterface
 {
@@ -52,13 +52,18 @@ class AtomParser implements ParserInterface
             throw new ParserException('Required field missing: link');
         }
 
-        $feed = new Feed($homepageUrl);
-        $feed->setTitle($title);
-
-        $description = $this->getTextContent($feedElement, 'subtitle');
-        if ($description) {
-            $feed->setDescription($description);
-        }
+        $feed = new Feed(
+            type: FeedType::ATOM, 
+            version: '1.0', 
+            title: $title, 
+            homepage_url: $homepageUrl, 
+            feed_url: $this->getSelfLink($feedElement), 
+            description: $this->getTextContent($feedElement, 'subtitle'),
+            icon: $this->getTextContent($feedElement, 'icon'),
+            language: $feedElement->getAttribute('xml:lang') ?: null,
+            updated_at: $this->getDate($feedElement, 'updated'),
+            generator: $this->getTextContent($feedElement, 'generator')
+        );
 
         $itemsObjects = [];
         $entries = $feedElement->getElementsByTagName('entry');
@@ -69,6 +74,8 @@ class AtomParser implements ParserInterface
                 continue;
             }
         }
+
+        $feed->items = $itemsObjects;
 
         return $feed;
     }

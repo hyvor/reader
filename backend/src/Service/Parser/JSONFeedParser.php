@@ -2,11 +2,11 @@
 
 namespace App\Service\Parser;
 
-use App\Entity\Feed;
-use App\Entity\Item;
+use App\Service\Parser\Types\Feed;
+use App\Service\Parser\Types\Item;
 use App\Service\Parser\Types\Author;
-use App\Service\Parser\Types\FeedType;
 use App\Service\Parser\Types\Tag;
+use App\Service\Parser\Types\FeedType;
 
 class JSONFeedParser implements ParserInterface
 {
@@ -43,13 +43,16 @@ class JSONFeedParser implements ParserInterface
         }
 
         $homepageUrl = strval($this->json['home_page_url'] ?? '');
-        $feed = new Feed($homepageUrl);
-        $feed->setTitle($title);
-
-        $description = $this->json['description'] ?? '';
-        if (!empty($description)) {
-            $feed->setDescription(strval($description));
-        }
+        $feed = new Feed(
+            type: FeedType::JSONFEED, 
+            version: strval($version), 
+            title: $title, 
+            homepage_url: $homepageUrl, 
+            feed_url: strval($this->json['feed_url'] ?? null), 
+            description: strval($this->json['description'] ?? null),
+            icon: strval($this->json['favicon'] ?? $this->json['icon'] ?? null),
+            language: strval($this->json['language'] ?? null)
+        );
 
         $items = $this->json['items'] ?? [];
         $items = is_array($items) ? $items : [];
@@ -61,6 +64,8 @@ class JSONFeedParser implements ParserInterface
                 continue;
             }
         }
+
+        $feed->items = $itemsObjects;
 
         return $feed;
     }

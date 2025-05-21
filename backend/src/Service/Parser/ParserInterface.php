@@ -2,7 +2,7 @@
 
 namespace App\Service\Parser;
 
-use App\Entity\Feed;
+use App\Service\Parser\Types\Feed;
 
 interface ParserInterface
 {

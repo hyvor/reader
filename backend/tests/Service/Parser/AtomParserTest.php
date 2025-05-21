@@ -2,11 +2,13 @@
 
 namespace App\Tests\Service\Parser;
 
-use App\Entity\Feed;
+use App\Service\Parser\Types\Feed;
 use App\Service\Parser\AtomParser;
 use App\Service\Parser\ParserException;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 
+#[CoversClass(AtomParser::class)]
 class AtomParserTest extends TestCase
 {
     public function testValidAtomFeed(): void
@@ -39,9 +41,9 @@ XML;
         $feed = $parser->parse();
 
         $this->assertInstanceOf(Feed::class, $feed);
-        $this->assertEquals('https://example.org/', $feed->getUrl());
-        $this->assertEquals('My Atom Feed', $feed->getTitle());
-        $this->assertEquals('An Atom formatted feed', $feed->getDescription());
+        $this->assertEquals('https://example.org/', $feed->homepage_url);
+        $this->assertEquals('My Atom Feed', $feed->title);
+        $this->assertEquals('An Atom formatted feed', $feed->description);
     }
 
     public function testInvalidAtomStructure(): void

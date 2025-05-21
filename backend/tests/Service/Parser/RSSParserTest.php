@@ -2,11 +2,13 @@
 
 namespace App\Tests\Service\Parser;
 
-use App\Entity\Feed;
+use App\Service\Parser\Types\Feed;
 use App\Service\Parser\RSSParser;
 use App\Service\Parser\ParserException;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 
+#[CoversClass(RSSParser::class)]
 class RSSParserTest extends TestCase
 {
     public function testValidRSSFeed(): void
@@ -36,9 +38,9 @@ XML;
         $feed = $parser->parse();
 
         $this->assertInstanceOf(Feed::class, $feed);
-        $this->assertEquals('https://example.org/', $feed->getUrl());
-        $this->assertEquals('My RSS Feed', $feed->getTitle());
-        $this->assertEquals('A sample RSS feed', $feed->getDescription());
+        $this->assertEquals('https://example.org/', $feed->homepage_url);
+        $this->assertEquals('My RSS Feed', $feed->title);
+        $this->assertEquals('A sample RSS feed', $feed->description);
     }
 
     public function testInvalidRSSStructure(): void

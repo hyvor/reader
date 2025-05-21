@@ -2,11 +2,13 @@
 
 namespace App\Tests\Service\Parser;
 
-use App\Entity\Feed;
+use App\Service\Parser\Types\Feed;
 use App\Service\Parser\JSONFeedParser;
 use App\Service\Parser\ParserException;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 
+#[CoversClass(JSONFeedParser::class)]
 class JSONFeedParserTest extends TestCase
 {
     public function testValidJSONFeed(): void
@@ -36,9 +38,9 @@ class JSONFeedParserTest extends TestCase
         $feed = $parser->parse();
 
         $this->assertInstanceOf(Feed::class, $feed);
-        $this->assertEquals('https://example.org/', $feed->getUrl());
-        $this->assertEquals('My Example Feed', $feed->getTitle());
-        $this->assertEquals('A detailed description of my feed', $feed->getDescription());
+        $this->assertEquals('https://example.org/', $feed->homepage_url);
+        $this->assertEquals('My Example Feed', $feed->title);
+        $this->assertEquals('A detailed description of my feed', $feed->description);
     }
 
     public function testInvalidJSON(): void
@@ -103,8 +105,8 @@ class JSONFeedParserTest extends TestCase
         $feed = $parser->parse();
 
         $this->assertInstanceOf(Feed::class, $feed);
-        $this->assertEquals('https://example.org/', $feed->getUrl());
-        $this->assertEquals('Feed with Invalid Item', $feed->getTitle());
+        $this->assertEquals('https://example.org/', $feed->homepage_url);
+        $this->assertEquals('Feed with Invalid Item', $feed->title);
     }
 
     public function testEmptyContent(): void

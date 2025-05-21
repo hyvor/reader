@@ -2,11 +2,11 @@
 
 namespace App\Service\Parser;
 
-use App\Entity\Feed;
-use App\Entity\Item;
+use App\Service\Parser\Types\Feed;
+use App\Service\Parser\Types\Item;
 use App\Service\Parser\Types\Author;
-use App\Service\Parser\Types\FeedType;
 use App\Service\Parser\Types\Tag;
+use App\Service\Parser\Types\FeedType;
 
 class RSSParser implements ParserInterface
 {
@@ -48,13 +48,18 @@ class RSSParser implements ParserInterface
             throw new ParserException('Required field missing: link');
         }
 
-        $feed = new Feed($homepageUrl);
-        $feed->setTitle($title);
-
-        $description = $channel->getElementsByTagName('description')->item(0)?->textContent;
-        if ($description) {
-            $feed->setDescription($description);
-        }
+        $feed = new Feed(
+            type: FeedType::RSS, 
+            version: $rssElement->getAttribute('version') ?: 'unknown',
+            title: $title, 
+            homepage_url: $homepageUrl, 
+            feed_url: null,
+            description: $channel->getElementsByTagName('description')->item(0)?->textContent,
+            icon: $channel->getElementsByTagName('image')->item(0)?->getElementsByTagName('url')->item(0)?->textContent,
+            language: $channel->getElementsByTagName('language')->item(0)?->textContent,
+            updated_at: ($lastBuildDate = $channel->getElementsByTagName('lastBuildDate')->item(0)?->textContent) ? \DateTimeImmutable::createFromFormat(DATE_RSS, $lastBuildDate) ?: null : null,
+            generator: $channel->getElementsByTagName('generator')->item(0)?->textContent
+        );
 
         $itemsObjects = [];
         $items = $channel->getElementsByTagName('item');
@@ -65,6 +70,8 @@ class RSSParser implements ParserInterface
                 continue;
             }
         }
+
+        $feed->items = $itemsObjects;
 
         return $feed;
     }
