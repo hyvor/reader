@@ -8,7 +8,7 @@ use App\Service\Parser\Types\Author;
 use App\Service\Parser\Types\Tag;
 use App\Service\Parser\Types\FeedType;
 
-class RSSParser implements ParserInterface
+class RssParser implements ParserInterface
 {
     private \DOMDocument $document;
 

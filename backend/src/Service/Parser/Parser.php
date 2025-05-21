@@ -23,7 +23,7 @@ class Parser implements ParserInterface
     {
         json_decode($this->content);
         if (json_last_error() === JSON_ERROR_NONE) {
-            return new JSONFeedParser($this->content);
+            return new JsonFeedParser($this->content);
         }
 
         $xml = @simplexml_load_string($this->content);
