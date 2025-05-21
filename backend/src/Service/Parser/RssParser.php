@@ -65,7 +65,7 @@ class RssParser implements ParserInterface
         $items = $channel->getElementsByTagName('item');
         foreach ($items as $item) {
             try {
-                $itemsObjects[] = $this->parseItem($item);
+                $itemsObjects[] = $this->parse_item($item);
             } catch (ParserException) {
                 continue;
             }
@@ -76,7 +76,7 @@ class RssParser implements ParserInterface
         return $feed;
     }
 
-    private function parseItem(\DOMElement $item): Item
+    private function parse_item(\DOMElement $item): Item
     {
         $id = $item->getElementsByTagName('guid')->item(0)?->textContent;
         $url = $item->getElementsByTagName('link')->item(0)?->textContent ?? '';
@@ -91,7 +91,7 @@ class RssParser implements ParserInterface
             throw new ParserException('Item must have a link');
         }
 
-        $image = $this->getImage($item);
+        $image = $this->get_image($item);
 
         $publishedAt = $item->getElementsByTagName('pubDate')->item(0)?->textContent;
         $publishedAt = $publishedAt ? \DateTimeImmutable::createFromFormat(DATE_RSS, $publishedAt) ?: null : null;
@@ -137,7 +137,7 @@ class RssParser implements ParserInterface
         );
     }
 
-    private function getImage(\DOMElement $item): ?string
+    private function get_image(\DOMElement $item): ?string
     {
         $mediaElements = $item->getElementsByTagNameNS('http://search.yahoo.com/mrss/', 'content');
         foreach ($mediaElements as $element) {

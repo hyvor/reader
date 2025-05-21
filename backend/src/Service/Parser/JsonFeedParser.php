@@ -59,7 +59,7 @@ class JsonFeedParser implements ParserInterface
         $itemsObjects = [];
         foreach ($items as $item) {
             try {
-                $itemsObjects[] = $this->parseItem($item);
+                $itemsObjects[] = $this->parse_item($item);
             } catch (ParserException) {
                 continue;
             }
@@ -74,7 +74,7 @@ class JsonFeedParser implements ParserInterface
      * @param array<mixed> $item
      * @return Item
      */
-    private function parseItem(mixed $item): Item
+    private function parse_item(mixed $item): Item
     {
         if (!is_array($item)) {
             throw new ParserException('Item must be an array');
@@ -110,7 +110,7 @@ class JsonFeedParser implements ParserInterface
 
         foreach ($authorsValue as $author) {
             try {
-                $authors[] = $this->parseAuthor($author);
+                $authors[] = $this->parse_author($author);
             } catch (ParserException) {
                 continue;
             }
@@ -147,7 +147,7 @@ class JsonFeedParser implements ParserInterface
      * @param array<mixed> $author
      * @return Author
      */
-    private function parseAuthor(mixed $author): Author
+    private function parse_author(mixed $author): Author
     {
         if (!is_array($author)) {
             throw new ParserException('Author must be an array');

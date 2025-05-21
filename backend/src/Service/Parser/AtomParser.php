@@ -32,22 +32,22 @@ class AtomParser implements ParserInterface
             throw new ParserException('Invalid Atom feed. <feed> element not found');
         }
 
-        $title = $this->getTextContent($feedElement, 'title');
+        $title = $this->get_text_content($feedElement, 'title');
         if (empty($title)) {
             throw new ParserException('Required field missing: title');
         }
 
-        $id = $this->getTextContent($feedElement, 'id');
+        $id = $this->get_text_content($feedElement, 'id');
         if (empty($id)) {
             throw new ParserException('Required field missing: id');
         }
 
-        $updated = $this->getTextContent($feedElement, 'updated');
+        $updated = $this->get_text_content($feedElement, 'updated');
         if (empty($updated)) {
             throw new ParserException('Required field missing: updated');
         }
 
-        $homepageUrl = $this->getAlternateLink($feedElement);
+        $homepageUrl = $this->get_alternate_link($feedElement);
         if (empty($homepageUrl)) {
             throw new ParserException('Required field missing: link');
         }
@@ -57,19 +57,19 @@ class AtomParser implements ParserInterface
             version: '1.0', 
             title: $title, 
             homepage_url: $homepageUrl, 
-            feed_url: $this->getSelfLink($feedElement), 
-            description: $this->getTextContent($feedElement, 'subtitle'),
-            icon: $this->getTextContent($feedElement, 'icon'),
+            feed_url: $this->get_self_link($feedElement), 
+            description: $this->get_text_content($feedElement, 'subtitle'),
+            icon: $this->get_text_content($feedElement, 'icon'),
             language: $feedElement->getAttribute('xml:lang') ?: null,
-            updated_at: $this->getDate($feedElement, 'updated'),
-            generator: $this->getTextContent($feedElement, 'generator')
+            updated_at: $this->get_date($feedElement, 'updated'),
+            generator: $this->get_text_content($feedElement, 'generator')
         );
 
         $itemsObjects = [];
         $entries = $feedElement->getElementsByTagName('entry');
         foreach ($entries as $entry) {
             try {
-                $itemsObjects[] = $this->parseEntry($entry);
+                $itemsObjects[] = $this->parse_entry($entry);
             } catch (ParserException) {
                 continue;
             }
@@ -80,42 +80,42 @@ class AtomParser implements ParserInterface
         return $feed;
     }
 
-    private function parseEntry(\DOMElement $entry): Item
+    private function parse_entry(\DOMElement $entry): Item
     {
-        $id = $this->getTextContent($entry, 'id');
+        $id = $this->get_text_content($entry, 'id');
         if (empty($id)) {
             throw new ParserException('Entry must have an id');
         }
 
-        $url = $this->getAlternateLink($entry);
+        $url = $this->get_alternate_link($entry);
         if (empty($url)) {
             throw new ParserException('Entry must have an alternate link');
         }
 
-        $title = $this->getTextContent($entry, 'title');
-        $summary = $this->getTextContent($entry, 'summary');
-        $content = $this->getContent($entry);
+        $title = $this->get_text_content($entry, 'title');
+        $summary = $this->get_text_content($entry, 'summary');
+        $content = $this->get_content($entry);
         $language = $entry->getAttribute('xml:lang');
 
         if (empty($language)) {
             $language = null;
         }
 
-        $publishedAt = $this->getDate($entry, 'published');
+        $publishedAt = $this->get_date($entry, 'published');
         if ($publishedAt === null) {
-            $publishedAt = $this->getDate($entry, 'issued');
+            $publishedAt = $this->get_date($entry, 'issued');
         }
 
-        $updatedAt = $this->getDate($entry, 'updated');
+        $updatedAt = $this->get_date($entry, 'updated');
         if ($updatedAt === null) {
-            $updatedAt = $this->getDate($entry, 'modified');
+            $updatedAt = $this->get_date($entry, 'modified');
         }
 
         $authors = [];
         $authorElements = $entry->getElementsByTagName('author');
         foreach ($authorElements as $authorElement) {
             try {
-                $authors[] = $this->parseAuthor($authorElement);
+                $authors[] = $this->parse_author($authorElement);
             } catch (ParserException) {
                 continue;
             }
@@ -146,14 +146,14 @@ class AtomParser implements ParserInterface
         );
     }
 
-    private function parseAuthor(\DOMElement $author): Author
+    private function parse_author(\DOMElement $author): Author
     {
-        $name = $this->getTextContent($author, 'name');
+        $name = $this->get_text_content($author, 'name');
         if (empty($name)) {
             throw new ParserException('Author must have a name');
         }
 
-        $url = $this->getTextContent($author, 'uri');
+        $url = $this->get_text_content($author, 'uri');
         if (empty($url)) {
             $url = null;
         }
@@ -161,13 +161,13 @@ class AtomParser implements ParserInterface
         return new Author($name, $url, null);
     }
 
-    private function getTextContent(\DOMElement $element, string $tagName): string
+    private function get_text_content(\DOMElement $element, string $tagName): string
     {
         $node = $element->getElementsByTagName($tagName)->item(0);
         return $node?->textContent ?? '';
     }
 
-    private function getContent(\DOMElement $entry): ?string
+    private function get_content(\DOMElement $entry): ?string
     {
         $content = $entry->getElementsByTagName('content')->item(0);
         if (!$content) {
@@ -182,9 +182,9 @@ class AtomParser implements ParserInterface
         return null;
     }
 
-    private function getDate(\DOMElement $element, string $tagName): ?\DateTimeImmutable
+    private function get_date(\DOMElement $element, string $tagName): ?\DateTimeImmutable
     {
-        $date = $this->getTextContent($element, $tagName);
+        $date = $this->get_text_content($element, $tagName);
         if (empty($date)) {
             return null;
         }
@@ -196,7 +196,7 @@ class AtomParser implements ParserInterface
         }
     }
 
-    private function getAlternateLink(\DOMElement $element): string
+    private function get_alternate_link(\DOMElement $element): string
     {
         $links = $element->getElementsByTagName('link');
         foreach ($links as $link) {
@@ -208,7 +208,7 @@ class AtomParser implements ParserInterface
         return '';
     }
 
-    private function getSelfLink(\DOMElement $element): ?string
+    private function get_self_link(\DOMElement $element): ?string
     {
         $links = $element->getElementsByTagName('link');
         foreach ($links as $link) {
