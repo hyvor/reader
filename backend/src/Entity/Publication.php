@@ -2,11 +2,11 @@
 
 namespace App\Entity;
 
-use App\Repository\FeedRepository;
+use App\Repository\PublicationRepository;
 use Doctrine\ORM\Mapping as ORM;
 
-#[ORM\Entity(repositoryClass: FeedRepository::class)]
-class Feed
+#[ORM\Entity(repositoryClass: PublicationRepository::class)]
+class Publication
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
