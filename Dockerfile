@@ -43,6 +43,7 @@ RUN  npm install \
 FROM frankenphp AS backend-base
 
 WORKDIR /app/backend
+ENV APP_RUNTIME "Runtime\FrankenPhpSymfony\Runtime"
 
 # install php and dependencies
 COPY --from=composer /usr/bin/composer /usr/local/bin/composer
@@ -51,8 +52,6 @@ RUN install-php-extensions zip intl pdo_pgsql opcache
 
 ###################################################
 FROM backend-base AS backend-dev
-
-ENV APP_RUNTIME "Runtime\FrankenPhpSymfony\Runtime"
 
 # symfony cli
 RUN curl -1sLf 'https://dl.cloudsmith.io/public/symfony/stable/setup.deb.sh' | bash \
