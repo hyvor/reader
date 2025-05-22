@@ -2,11 +2,11 @@
 
 namespace App\Entity;
 
-use App\Repository\FeedListRepository;
+use App\Repository\CollectionRepository;
 use Doctrine\ORM\Mapping as ORM;
 
-#[ORM\Entity(repositoryClass: FeedListRepository::class)]
-class FeedList
+#[ORM\Entity(repositoryClass: CollectionRepository::class)]
+class Collection
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]

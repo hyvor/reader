@@ -2,22 +2,22 @@
 
 namespace App\Repository;
 
-use App\Entity\Feed;
+use App\Entity\Collection;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
- * @extends ServiceEntityRepository<Feed>
+ * @extends ServiceEntityRepository<Collection>
  */
-class FeedRepository extends ServiceEntityRepository
+class CollectionRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)
     {
-        parent::__construct($registry, Feed::class);
+        parent::__construct($registry, Collection::class);
     }
 
     //    /**
-    //     * @return Feed[] Returns an array of Feed objects
+    //     * @return Collection[] Returns an array of Collection objects
     //     */
     //    public function findByExampleField($value): array
     //    {
@@ -31,7 +31,7 @@ class FeedRepository extends ServiceEntityRepository
     //        ;
     //    }
 
-    //    public function findOneBySomeField($value): ?Feed
+    //    public function findOneBySomeField($value): ?Collection
     //    {
     //        return $this->createQueryBuilder('f')
     //            ->andWhere('f.exampleField = :val')

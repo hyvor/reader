@@ -2,22 +2,22 @@
 
 namespace App\Repository;
 
-use App\Entity\FeedList;
+use App\Entity\Publication;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
- * @extends ServiceEntityRepository<FeedList>
+ * @extends ServiceEntityRepository<Publication>
  */
-class FeedListRepository extends ServiceEntityRepository
+class PublicationRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)
     {
-        parent::__construct($registry, FeedList::class);
+        parent::__construct($registry, Publication::class);
     }
 
     //    /**
-    //     * @return FeedList[] Returns an array of FeedList objects
+    //     * @return Publication[] Returns an array of Publication objects
     //     */
     //    public function findByExampleField($value): array
     //    {
@@ -31,7 +31,7 @@ class FeedListRepository extends ServiceEntityRepository
     //        ;
     //    }
 
-    //    public function findOneBySomeField($value): ?FeedList
+    //    public function findOneBySomeField($value): ?Publication
     //    {
     //        return $this->createQueryBuilder('f')
     //            ->andWhere('f.exampleField = :val')
