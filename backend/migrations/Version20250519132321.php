@@ -19,7 +19,7 @@ final class Version20250519132321 extends AbstractMigration
         $this->addSql(<<<'SQL'
             CREATE TABLE feed_list (
                 id BIGSERIAL NOT NULL PRIMARY KEY,
-                name TEXT NOT NULL,
+                name TEXT NOT NULL
             )
         SQL);
     }
