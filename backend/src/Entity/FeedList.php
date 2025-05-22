@@ -11,8 +11,8 @@ class FeedList
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    private int $id = null;
+    private int $id;
 
     #[ORM\Column]
-    private string $name = null;
+    private string $name;
 }
