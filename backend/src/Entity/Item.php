@@ -49,16 +49,16 @@ class Item
 
     #[ORM\ManyToOne(inversedBy: 'items')]
     #[ORM\JoinColumn(nullable: false)]
-    private ?Feed $feed = null;
+    private ?Publication $publication = null;
 
-    public function getFeed(): ?Feed
+    public function getPublication(): ?Publication
     {
-        return $this->feed;
+        return $this->publication;
     }
 
-    public function setFeed(?Feed $feed): static
+    public function setPublication(?Publication $publication): static
     {
-        $this->feed = $feed;
+        $this->publication = $publication;
 
         return $this;
     }

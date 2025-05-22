@@ -20,7 +20,7 @@ final class Version20250207165918 extends AbstractMigration
     public function up(Schema $schema): void
     {
         $this->addSql('
-            CREATE TABLE feed (
+            CREATE TABLE publication (
                 id bigserial NOT NULL PRIMARY KEY, 
                 created_at timestamp DEFAULT CURRENT_TIMESTAMP NOT NULL, 
                 updated_at timestamp DEFAULT CURRENT_TIMESTAMP NOT NULL, 
@@ -40,6 +40,6 @@ final class Version20250207165918 extends AbstractMigration
     public function down(Schema $schema): void
     {
         $this->addSql('CREATE SCHEMA public');
-        $this->addSql('DROP TABLE feed');
+        $this->addSql('DROP TABLE publication');
     }
 }
