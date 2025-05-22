@@ -104,5 +104,4 @@ class Publication
 
         return $this;
     }
-
 }
