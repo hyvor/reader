@@ -19,6 +19,7 @@ final class Version20250519113000 extends AbstractMigration
         $this->addSql(<<<'SQL'
             CREATE TABLE item (
                 id BIGSERIAL NOT NULL PRIMARY KEY,
+                feed_id INT NOT NULL REFERENCES feed (id),
                 url TEXT NOT NULL,
                 title TEXT NOT NULL,
                 content_html TEXT DEFAULT NULL,

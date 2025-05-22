@@ -46,4 +46,20 @@ class Item
 
     #[ORM\Column(nullable: true)]
     private ?string $language = null;
+
+    #[ORM\ManyToOne(inversedBy: 'items')]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?Feed $feed = null;
+
+    public function getFeed(): ?Feed
+    {
+        return $this->feed;
+    }
+
+    public function setFeed(?Feed $feed): static
+    {
+        $this->feed = $feed;
+
+        return $this;
+    }
 }

@@ -22,6 +22,7 @@ final class Version20250207165918 extends AbstractMigration
         $this->addSql('
             CREATE TABLE feed (
                 id bigserial NOT NULL PRIMARY KEY, 
+                feed_list_id INT NOT NULL REFERENCES feed_list (id),
                 created_at timestamp DEFAULT CURRENT_TIMESTAMP NOT NULL, 
                 updated_at timestamp DEFAULT CURRENT_TIMESTAMP NOT NULL, 
                 url text NOT NULL UNIQUE, 
