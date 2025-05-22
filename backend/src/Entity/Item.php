@@ -12,13 +12,13 @@ class Item
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    private int $id = null;
+    private int $id;
 
     #[ORM\Column]
-    private string $url = null;
+    private string $url;
 
     #[ORM\Column]
-    private string $title = null;
+    private string $title;
 
     #[ORM\Column(nullable: true)]
     private ?string $content_html = null;
