@@ -12,24 +12,24 @@ class Item
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    private ?int $id = null;
+    private int $id = null;
 
-    #[ORM\Column(length: 255)]
-    private ?string $url = null;
+    #[ORM\Column]
+    private string $url = null;
 
-    #[ORM\Column(length: 255)]
-    private ?string $title = null;
+    #[ORM\Column]
+    private string $title = null;
 
-    #[ORM\Column(length: 10000, nullable: true)]
+    #[ORM\Column(nullable: true)]
     private ?string $content_html = null;
 
-    #[ORM\Column(length: 10000, nullable: true)]
+    #[ORM\Column(nullable: true)]
     private ?string $content_text = null;
 
-    #[ORM\Column(length: 1000, nullable: true)]
+    #[ORM\Column(nullable: true)]
     private ?string $summary = null;
 
-    #[ORM\Column(length: 255, nullable: true)]
+    #[ORM\Column(nullable: true)]
     private ?string $image = null;
 
     #[ORM\Column(nullable: true)]
@@ -44,6 +44,6 @@ class Item
     #[ORM\Column(type: Types::ARRAY)]
     private array $tags = [];
 
-    #[ORM\Column(length: 255, nullable: true)]
+    #[ORM\Column(nullable: true)]
     private ?string $language = null;
 }
