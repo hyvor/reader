@@ -6,8 +6,8 @@
     "require": {
         "php": ">=8.4",
         "ext-ctype": "*",
-        "ext-iconv": "*",
         "ext-dom": "*",
+        "ext-iconv": "*",
         "ext-libxml": "*",
         "doctrine/dbal": "^3.9.4",
         "doctrine/doctrine-bundle": "^2.14",
@@ -21,6 +21,7 @@
         "symfony/framework-bundle": "7.2.*",
         "symfony/runtime": "7.2.*",
         "symfony/security-bundle": "7.2.*",
+        "symfony/uid": "7.2.*",
         "symfony/yaml": "7.2.*"
     },
     "config": {
