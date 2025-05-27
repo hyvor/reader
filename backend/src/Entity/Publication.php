@@ -2,13 +2,13 @@
 
 namespace App\Entity;
 
-use App\Repository\FeedRepository;
+use App\Repository\PublicationRepository;
 use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\Common\Collections\Collection;
+use Doctrine\Common\Collections\Collection as DoctrineCollection;
 use Doctrine\ORM\Mapping as ORM;
 
-#[ORM\Entity(repositoryClass: FeedRepository::class)]
-class Feed
+#[ORM\Entity(repositoryClass: PublicationRepository::class)]
+class Publication
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
@@ -49,14 +49,14 @@ class Feed
     private ?string $conditionalGetEtag = null;
 
     /**
-     * @var Collection<int, Item>
+     * @var DoctrineCollection<int, Item>
      */
-    #[ORM\OneToMany(targetEntity: Item::class, mappedBy: 'feed', orphanRemoval: true)]
-    private Collection $items;
+    #[ORM\OneToMany(targetEntity: Item::class, mappedBy: 'publication', orphanRemoval: true)]
+    private DoctrineCollection $items;
 
-    #[ORM\ManyToOne(inversedBy: 'feeds')]
+    #[ORM\ManyToOne(inversedBy: 'publications')]
     #[ORM\JoinColumn(nullable: false)]
-    private ?FeedList $feed_list = null;
+    private ?Collection $collection = null;
 
     public function __construct()
     {
@@ -64,9 +64,9 @@ class Feed
     }
 
     /**
-     * @return Collection<int, Item>
+     * @return DoctrineCollection<int, Item>
      */
-    public function getItems(): Collection
+    public function getItems(): DoctrineCollection
     {
         return $this->items;
     }
@@ -75,7 +75,7 @@ class Feed
     {
         if (!$this->items->contains($item)) {
             $this->items->add($item);
-            $item->setFeed($this);
+            $item->setPublication($this);
         }
 
         return $this;
@@ -85,22 +85,22 @@ class Feed
     {
         if ($this->items->removeElement($item)) {
             // set the owning side to null (unless already changed)
-            if ($item->getFeed() === $this) {
-                $item->setFeed(null);
+            if ($item->getPublication() === $this) {
+                $item->setPublication(null);
             }
         }
 
         return $this;
     }
 
-    public function getFeedList(): ?FeedList
+    public function getCollection(): ?Collection
     {
-        return $this->feed_list;
+        return $this->collection;
     }
 
-    public function setFeedList(?FeedList $feed_list): static
+    public function setCollection(?Collection $collection): static
     {
-        $this->feed_list = $feed_list;
+        $this->collection = $collection;
 
         return $this;
     }

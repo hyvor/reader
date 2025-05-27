@@ -17,7 +17,7 @@ final class Version20250519132321 extends AbstractMigration
     public function up(Schema $schema): void
     {
         $this->addSql(<<<'SQL'
-            CREATE TABLE feed_list (
+            CREATE TABLE collections (
                 id BIGSERIAL NOT NULL PRIMARY KEY,
                 name TEXT NOT NULL
             )
@@ -27,7 +27,7 @@ final class Version20250519132321 extends AbstractMigration
     public function down(Schema $schema): void
     {
         $this->addSql(<<<'SQL'
-            DROP TABLE feed_list
+            DROP TABLE collections
         SQL);
     }
 }

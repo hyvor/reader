@@ -17,7 +17,7 @@ final class Version20250519113000 extends AbstractMigration
     public function up(Schema $schema): void
     {
         $this->addSql(<<<'SQL'
-            CREATE TABLE item (
+            CREATE TABLE items (
                 id BIGSERIAL NOT NULL PRIMARY KEY,
                 url TEXT NOT NULL,
                 title TEXT NOT NULL,
@@ -25,8 +25,8 @@ final class Version20250519113000 extends AbstractMigration
                 content_text TEXT DEFAULT NULL,
                 summary TEXT DEFAULT NULL,
                 image TEXT DEFAULT NULL,
-                published_at TIMESTAMP(0) WITHOUT TIME ZONE DEFAULT NULL,
-                updated_at TIMESTAMP(0) WITHOUT TIME ZONE DEFAULT NULL,
+                published_at TIMESTAMPTZ WITHOUT TIME ZONE DEFAULT NULL,
+                updated_at TIMESTAMPTZ WITHOUT TIME ZONE DEFAULT NULL,
                 authors TEXT NOT NULL,
                 tags TEXT NOT NULL,
                 language TEXT DEFAULT NULL
@@ -37,7 +37,7 @@ final class Version20250519113000 extends AbstractMigration
     public function down(Schema $schema): void
     {
         $this->addSql(<<<'SQL'
-            DROP TABLE item
+            DROP TABLE items
         SQL);
     }
 }
