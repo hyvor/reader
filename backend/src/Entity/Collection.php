@@ -73,7 +73,7 @@ class Collection
         return $this;
     }
 
-    public function removeFeed(Publication $publication): static
+    public function removePublication(Publication $publication): static
     {
         if ($this->publications->removeElement($publication)) {
             // set the owning side to null (unless already changed)

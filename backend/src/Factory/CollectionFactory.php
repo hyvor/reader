@@ -26,12 +26,11 @@ final class CollectionFactory extends PersistentProxyObjectFactory
 
     /**
      * @see https://symfony.com/bundles/ZenstruckFoundryBundle/current/index.html#model-factories
-     *
-     * @todo add your default values here
      */
     protected function defaults(): array|callable
     {
         return [
+            'name' => self::faker()->words(2, true),
         ];
     }
 

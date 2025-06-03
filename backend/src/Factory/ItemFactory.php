@@ -26,12 +26,20 @@ final class ItemFactory extends PersistentProxyObjectFactory
 
     /**
      * @see https://symfony.com/bundles/ZenstruckFoundryBundle/current/index.html#model-factories
-     *
-     * @todo add your default values here
      */
     protected function defaults(): array|callable
     {
         return [
+            'url' => self::faker()->url(),
+            'title' => self::faker()->sentence(6),
+            'content_html' => '<p>' . self::faker()->paragraphs(self::faker()->numberBetween(2, 5), true) . '</p>',
+            'content_text' => self::faker()->paragraphs(self::faker()->numberBetween(2, 5), true),
+            'summary' => self::faker()->sentence(10),
+            'image' => self::faker()->imageUrl(800, 400),
+            'published_at' => self::faker()->dateTimeBetween('-30 days', '-1 day'),
+            'authors' => [self::faker()->name()],
+            'tags' => self::faker()->words(self::faker()->numberBetween(2, 5)),
+            'language' => 'en',
         ];
     }
 
