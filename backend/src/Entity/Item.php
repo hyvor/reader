@@ -8,6 +8,7 @@ use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Uid\Uuid;
 
 #[ORM\Entity(repositoryClass: ItemRepository::class)]
+#[ORM\Table(name: 'items')]
 class Item
 {
     #[ORM\Id]
@@ -21,16 +22,16 @@ class Item
     #[ORM\Column]
     private string $url;
 
-    #[ORM\Column]
+    #[ORM\Column(type: 'text')]
     private string $title;
 
-    #[ORM\Column(nullable: true)]
+    #[ORM\Column(type: 'text', nullable: true)]
     private ?string $content_html = null;
 
-    #[ORM\Column(nullable: true)]
+    #[ORM\Column(type: 'text', nullable: true)]
     private ?string $content_text = null;
 
-    #[ORM\Column(nullable: true)]
+    #[ORM\Column(type: 'text', nullable: true)]
     private ?string $summary = null;
 
     #[ORM\Column(nullable: true)]
@@ -78,6 +79,116 @@ class Item
     public function setUrl(string $url): static
     {
         $this->url = $url;
+        return $this;
+    }
+
+    public function getTitle(): string
+    {
+        return $this->title;
+    }
+
+    public function setTitle(string $title): static
+    {
+        $this->title = $title;
+        return $this;
+    }
+
+    public function getContentHtml(): ?string
+    {
+        return $this->content_html;
+    }
+
+    public function setContentHtml(?string $content_html): static
+    {
+        $this->content_html = $content_html;
+        return $this;
+    }
+
+    public function getContentText(): ?string
+    {
+        return $this->content_text;
+    }
+
+    public function setContentText(?string $content_text): static
+    {
+        $this->content_text = $content_text;
+        return $this;
+    }
+
+    public function getSummary(): ?string
+    {
+        return $this->summary;
+    }
+
+    public function setSummary(?string $summary): static
+    {
+        $this->summary = $summary;
+        return $this;
+    }
+
+    public function getImage(): ?string
+    {
+        return $this->image;
+    }
+
+    public function setImage(?string $image): static
+    {
+        $this->image = $image;
+        return $this;
+    }
+
+    public function getPublishedAt(): ?\DateTimeImmutable
+    {
+        return $this->published_at;
+    }
+
+    public function setPublishedAt(?\DateTimeImmutable $published_at): static
+    {
+        $this->published_at = $published_at;
+        return $this;
+    }
+
+    public function getUpdatedAt(): ?\DateTimeImmutable
+    {
+        return $this->updated_at;
+    }
+
+    public function setUpdatedAt(?\DateTimeImmutable $updated_at): static
+    {
+        $this->updated_at = $updated_at;
+        return $this;
+    }
+
+    public function getAuthors(): array
+    {
+        return $this->authors;
+    }
+
+    public function setAuthors(array $authors): static
+    {
+        $this->authors = $authors;
+        return $this;
+    }
+
+    public function getTags(): array
+    {
+        return $this->tags;
+    }
+
+    public function setTags(array $tags): static
+    {
+        $this->tags = $tags;
+        return $this;
+    }
+
+    public function getLanguage(): ?string
+    {
+        return $this->language;
+    }
+
+    public function setLanguage(?string $language): static
+    {
+        $this->language = $language;
         return $this;
     }
 

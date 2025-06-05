@@ -1,8 +1,8 @@
 <script lang="ts">
-	import type { FeedItem } from '../types';
+	import type { Item } from '../types';
 
 	interface Props {
-		item: FeedItem;
+		item: Item;
 	}
 
 	let { item }: Props = $props();
@@ -11,7 +11,7 @@
 <div class="reader">
 	<div class="title">{item.title}</div>
 	<div class="metadata">
-		<span class="date"> {item.created_at} </span>
+		<span class="date"> {item.published_at} </span>
 	</div>
 	<div class="link">
 		<a href={item.url} target="_blank">

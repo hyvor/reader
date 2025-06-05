@@ -2,7 +2,7 @@
 
 namespace App\Api\App\Controller;
 
-use App\Entity\Collection;
+use App\Repository\PublicationRepository;
 use App\Repository\CollectionRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -11,40 +11,28 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Uid\Uuid;
 
-#[Route('/collections', name: 'app_api_collections_')]
-class CollectionController extends AbstractController
+#[Route('/publications', name: 'app_api_publications_')]
+class PublicationController extends AbstractController
 {
     public function __construct(
+        private readonly PublicationRepository $publicationRepository,
         private readonly CollectionRepository $collectionRepository,
     ) {
     }
 
     #[Route('', name: 'list', methods: ['GET'])]
-    public function getCollections(): JsonResponse
+    public function getPublications(Request $request): JsonResponse
     {
-        $collections = $this->collectionRepository->findAll();
-
-        $collectionsData = [];
-        foreach ($collections as $collection) {
-            $collectionsData[] = [
-                'id' => $collection->getId(),
-                'uuid' => $collection->getUuid()->toRfc4122(),
-                'name' => $collection->getName(),
-            ];
+        $collectionId = $request->query->get('collection_id');
+        
+        if (!$collectionId) {
+            return $this->json(['error' => 'collection_id parameter is required'], Response::HTTP_BAD_REQUEST);
         }
 
-        return $this->json([
-            'collections' => $collectionsData,
-        ]);
-    }
-
-    #[Route('/{uuid}', name: 'get', methods: ['GET'])]
-    public function getCollection(string $uuid): JsonResponse
-    {
         try {
-            $uuid = Uuid::fromString($uuid);
+            $uuid = Uuid::fromString($collectionId);
         } catch (\InvalidArgumentException $e) {
-            return $this->json(['error' => 'Invalid UUID format'], Response::HTTP_BAD_REQUEST);
+            return $this->json(['error' => 'Invalid UUID format for collection_id'], Response::HTTP_BAD_REQUEST);
         }
 
         $collection = $this->collectionRepository->findOneBy(['uuid' => $uuid]);
@@ -57,23 +45,18 @@ class CollectionController extends AbstractController
         foreach ($collection->getPublications() as $publication) {
             $publications[] = [
                 'id' => $publication->getId(),
+                'uuid' => $publication->getUuid()->toRfc4122(),
                 'title' => $publication->getTitle() ?? 'Untitled',
                 'url' => $publication->getUrl(),
                 'description' => $publication->getDescription() ?? '',
                 'subscribers' => $publication->getSubscribers(),
-                'uuid' => $publication->getUuid()->toRfc4122(),
+                'created_at' => $publication->getCreatedAt()->getTimestamp(),
+                'updated_at' => $publication->getUpdatedAt()->getTimestamp(),
             ];
         }
 
         return $this->json([
-            'collection' => [
-                'id' => $collection->getId(),
-                'name' => $collection->getName(),
-                'uuid' => $collection->getUuid()->toRfc4122(),
-            ],
             'publications' => $publications,
         ]);
     }
-
-
 } 

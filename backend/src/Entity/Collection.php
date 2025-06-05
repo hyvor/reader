@@ -9,6 +9,7 @@ use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Uid\Uuid;
 
 #[ORM\Entity(repositoryClass: CollectionRepository::class)]
+#[ORM\Table(name: 'collections')]
 class Collection
 {
     #[ORM\Id]
@@ -76,7 +77,6 @@ class Collection
     public function removePublication(Publication $publication): static
     {
         if ($this->publications->removeElement($publication)) {
-            // set the owning side to null (unless already changed)
             if ($publication->getCollection() === $this) {
                 $publication->setCollection(null);
             }
