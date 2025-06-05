@@ -1,9 +1,10 @@
 <script lang="ts">
-	import Nav from './Nav/Nav.svelte';
-	import { Loader, HyvorBar } from '@hyvor/design/components';
+	import { Loader } from '@hyvor/design/components';
 	import api from '../../lib/api';
 	import { collections } from './appStore';
 	import { onMount } from 'svelte';
+	import Feed from './Feed/Feed.svelte';
+
 	interface Props {
 		children?: import('svelte').Snippet;
 	}
@@ -37,10 +38,11 @@
 	</div>
 {:else}
 	<main>
-		<HyvorBar product="core" config={{ name: 'Hyvor Reader' }} />
+		<!-- <HyvorBar product="core" config={{ name: 'Hyvor Reader' }} /> -->
 		<div class="inner">
-			<Nav />
-			{@render children?.()}
+			<!-- <Nav /> -->
+			<Feed />
+			<!-- {@render children?.()} -->
 		</div>
 		<!-- <FeedList />
 		<Reader /> -->
@@ -57,6 +59,9 @@
 		display: flex;
 		flex: 1;
 		min-height: 0;
+		width: 900px;
+		margin: 0 auto;
+		padding: 15px;
 	}
 	.loader-wrap {
 		display: flex;
