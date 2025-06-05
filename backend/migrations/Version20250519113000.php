@@ -25,8 +25,8 @@ final class Version20250519113000 extends AbstractMigration
                 content_text TEXT DEFAULT NULL,
                 summary TEXT DEFAULT NULL,
                 image TEXT DEFAULT NULL,
-                published_at TIMESTAMPTZ WITHOUT TIME ZONE DEFAULT NULL,
-                updated_at TIMESTAMPTZ WITHOUT TIME ZONE DEFAULT NULL,
+                published_at TIMESTAMPTZ DEFAULT NULL,
+                updated_at TIMESTAMPTZ DEFAULT NULL,
                 authors TEXT NOT NULL,
                 tags TEXT NOT NULL,
                 language TEXT DEFAULT NULL

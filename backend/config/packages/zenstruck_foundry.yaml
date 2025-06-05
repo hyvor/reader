@@ -1,0 +1,6 @@
+when@dev: &dev
+    zenstruck_foundry:
+        persistence:
+            flush_once: true
+
+when@test: *dev

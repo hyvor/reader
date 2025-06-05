@@ -1,4 +1,8 @@
 import { writable } from "svelte/store";
-import type { Feed } from "./types";
+import type { Collection, Publication, Item } from "./types";
 
-export const feeds = writable<Feed[]>([]);
+export const collections = writable<Collection[]>([]);
+export const selectedCollection = writable<Collection | null>(null);
+export const publications = writable<Publication[]>([]);
+export const selectedPublication = writable<Publication | null>(null);
+export const items = writable<Item[]>([]);

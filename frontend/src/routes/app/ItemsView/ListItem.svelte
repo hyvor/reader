@@ -2,10 +2,10 @@
 	import { createBubbler } from 'svelte/legacy';
 
 	const bubble = createBubbler();
-	import type { FeedItem } from '../types';
+	import type { Item } from '../types';
 
 	interface Props {
-		item: FeedItem;
+		item: Item;
 		active?: boolean;
 	}
 
@@ -15,9 +15,9 @@
 <button class="item" class:active onclick={bubble('click')}>
 	<div class="title">{item.title}</div>
 
-	{#if item.description}
+	{#if item.summary}
 		<div class="description">
-			{item.description}
+			{item.summary}
 		</div>
 	{/if}
 </button>
