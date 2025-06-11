@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { Loader } from '@hyvor/design/components';
 	import api from '../../lib/api';
-	import { collections } from './appStore';
+	import { collections, items, publications, selectedCollection, selectedPublication } from './appStore';
 	import { onMount } from 'svelte';
 	import Feed from './Feed/Feed.svelte';
 
@@ -15,9 +15,13 @@
 
 	onMount(() => {
 		api
-			.get('/collections')
+			.get('/init')
 			.then((res) => {
 				collections.set(res.collections);
+                publications.set(res.collections);
+                items.set(res.items);
+                selectedCollection.set(res.selectedCollection);
+                selectedPublication.set(res.selectedPublication);
 			})
 			.catch((err) => {
 				console.error(err);

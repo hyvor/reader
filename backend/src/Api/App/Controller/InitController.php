@@ -26,40 +26,44 @@ class InitController extends AbstractController
     {
         $data = [
             "collections" => [],
-            "selCollection" => [],
-            "selPublication" => [],
-            "selPublicationItems" =>  []
+            "publications" => [],
+            "items" =>  [],
+            "selectedCollection" => null,
+            "selectedPublication" => null
         ];
 
         $collections = $this->collectionRepository->findAll();
-        $data["collections"] = $collections;
-        if (count($collections) > 0) {
-            $currentCollection = $collections[0];
-
-            $data["selCollection"] = [
-                'id' => $currentCollection->getId(),
-                'name' => $currentCollection->getName(),
-                'uuid' => $currentCollection->getUuid()->toRfc4122(),
+        foreach ($collections as $collection) {
+            $data["collections"][] = [
+                'id' => $collection->getId(),
+                'name' => $collection->getName(),
+                'uuid' => $collection->getUuid()->toRfc4122(),
             ];
+        }
 
-            $publications = $currentCollection->getPublications();
-            /** @var Publication|false $currentPublication */
-            $currentPublication = $publications->first();
+        $data["selectedCollection"] = $data["collections"][0];
 
-            if ($currentPublication instanceof Publication) {
-                $data["selPublication"] = [
-                    'id' => $currentPublication->getId(),
-                    'uuid' => $currentPublication->getUuid()->toRfc4122(),
-                    'title' => $currentPublication->getTitle() ?? 'Untitled',
-                    'url' => $currentPublication->getUrl(),
-                    'description' => $currentPublication->getDescription() ?? '',
-                    'subscribers' => $currentPublication->getSubscribers(),
-                    'created_at' => $currentPublication->getCreatedAt()->getTimestamp(),
-                    'updated_at' => $currentPublication->getUpdatedAt()->getTimestamp(),
+        if (count($collections) > 0) {
+            $publications = $collections[0]->getPublications();
+            foreach ($publications as $publication) {
+                $data["publications"][] = [
+                    'id' => $publication->getId(),
+                    'uuid' => $publication->getUuid()->toRfc4122(),
+                    'title' => $publication->getTitle() ?? 'Untitled',
+                    'url' => $publication->getUrl(),
+                    'description' => $publication->getDescription() ?? '',
+                    'subscribers' => $publication->getSubscribers(),
+                    'created_at' => $publication->getCreatedAt()->getTimestamp(),
+                    'updated_at' => $publication->getUpdatedAt()->getTimestamp(),
                 ];
+            }
 
-                foreach ($currentPublication->getItems() as $item) {
-                    $data["selPublicationItems"][] = [
+            $data["selectedPublication"] = $data["publications"][0];
+            
+            if (count($publications) > 0) {
+                $items = $publications[0]->getItems();
+                foreach ($items as $item) {
+                    $data["items"][] = [
                         'id' => $item->getId(),
                         'uuid' => $item->getUuid()->toRfc4122(),
                         'title' => $item->getTitle() ?? 'Untitled',
