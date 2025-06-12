@@ -58,10 +58,12 @@ class InitController extends AbstractController
                 ];
             }
 
-            $data["selectedPublication"] = $data["publications"][0];
-            
             if (count($publications) > 0) {
-                $items = $publications[0]->getItems();
+                $items = [];
+                foreach ($publications as $publication) {
+                    $items = array_merge($items, $publication->getItems()->toArray());
+                }
+
                 foreach ($items as $item) {
                     $data["items"][] = [
                         'id' => $item->getId(),
