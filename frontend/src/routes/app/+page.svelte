@@ -8,6 +8,7 @@
 
 	let items = $derived($itemsStore);
 	let selectedItem: Item | null = $state(null);
+	let currentArticleIndex = $state(-1);
 	let isInitialLoad = $state(true);
 
 	$effect(() => {
@@ -68,6 +69,8 @@
 	}
 
 	function handleItemClick(item: Item) {
+		const index = items.findIndex(i => i.id === item.id);
+		currentArticleIndex = index;
 		selectedItem = item;
 	}
 
@@ -77,8 +80,53 @@
 
 	function handleBackToItems() {
 		selectedItem = null;
+		currentArticleIndex = -1;
+	}
+
+	function goToPreviousArticle() {
+		if (currentArticleIndex > 0) {
+			const prevItem = items[currentArticleIndex - 1];
+			currentArticleIndex--;
+			selectedItem = prevItem;
+		}
+	}
+
+	function goToNextArticle() {
+		if (currentArticleIndex < items.length - 1) {
+			const nextItem = items[currentArticleIndex + 1];
+			currentArticleIndex++;
+			selectedItem = nextItem;
+		}
+	}
+
+	let canGoToPrevious = $derived(currentArticleIndex > 0);
+	let canGoToNext = $derived(currentArticleIndex < items.length - 1);
+
+	function handleKeydown(event: KeyboardEvent) {
+		if (!selectedItem) return;
+		
+		switch (event.key) {
+			case 'ArrowLeft':
+				if (canGoToPrevious) {
+					event.preventDefault();
+					goToPreviousArticle();
+				}
+				break;
+			case 'ArrowRight':
+				if (canGoToNext) {
+					event.preventDefault();
+					goToNextArticle();
+				}
+				break;
+			case 'Escape':
+				event.preventDefault();
+				handleBackToItems();
+				break;
+		}
 	}
 </script>
+
+<svelte:window on:keydown={handleKeydown} />
 
 <div class="app-container">
 	<div class="content-box">
@@ -93,6 +141,11 @@
 			{#if selectedItem}
 				<ArticleView 
 					item={selectedItem}
+					isLoading={false}
+					canGoToPrevious={canGoToPrevious}
+					canGoToNext={canGoToNext}
+					onPrevious={goToPreviousArticle}
+					onNext={goToNextArticle}
 				/>
 			{:else if items.length > 0}
 				<div class="items-grid">
@@ -145,8 +198,6 @@
 		flex-direction: column;
 		max-height: calc(100vh - 40px);
 	}
-
-
 
 	.content-area {
 		flex: 1;
