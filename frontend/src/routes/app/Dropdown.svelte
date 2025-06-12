@@ -45,15 +45,18 @@
 	}
 
 	:global(.dropdown-trigger) {
-		min-width: 180px;
-		justify-content: space-between;
+		display: inline-flex;
+		align-items: center;
+		gap: 8px;
+		white-space: nowrap;
+		padding: 8px 12px;
 	}
 
 	.dropdown-menu {
 		position: absolute;
 		top: 100%;
 		left: 0;
-		right: 0;
+		min-width: 200px;
 		background: white;
 		border: 1px solid var(--accent-lightest);
 		border-radius: 8px;

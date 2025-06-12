@@ -55,6 +55,7 @@
 			label={selectedCollectionText}
 			isOpen={showCollectionDropdown}
 			onToggle={() => showCollectionDropdown = !showCollectionDropdown}
+			class="dropdown-left"
 		>
 			{#each $collections as collection}
 				<Button 
@@ -71,6 +72,7 @@
 			label={selectedPublicationText}
 			isOpen={showPublicationDropdown}
 			onToggle={() => showPublicationDropdown = !showPublicationDropdown}
+			class="dropdown-right"
 		>
 			<Button 
 				variant={$selectedPublication === null ? 'fill' : 'invisible'}
@@ -107,5 +109,13 @@
 		display: flex;
 		align-items: center;
 		gap: 8px;
+	}
+
+	:global(.dropdown-left) {
+	}
+
+	:global(.dropdown-right .dropdown-menu) {
+		left: auto;
+		right: 0;
 	}
 </style> 

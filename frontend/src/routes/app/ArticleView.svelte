@@ -66,13 +66,13 @@
 		</div>
 	</header>
 
-	{#if item.image}
-		<div class="article-hero-image">
-			<img src={item.image} alt={item.title} />
-		</div>
-	{/if}
-
 	<main class="article-content">
+		{#if item.image}
+			<div class="article-hero-image">
+				<img src={item.image} alt={item.title} />
+			</div>
+		{/if}
+
 		{#if isLoading}
 			<div class="loading-state">
 				<p>Loading article content...</p>
@@ -134,7 +134,11 @@
 	.article-header {
 		padding: 0 0 24px 0;
 		border-bottom: 1px solid var(--accent-lightest);
-		margin-bottom: 32px;
+		background: var(--bg);
+		position: sticky;
+		top: 0;
+		z-index: 10;
+		flex-shrink: 0;
 	}
 
 	.article-meta {
@@ -175,6 +179,12 @@
 		gap: 12px;
 	}
 
+	.article-content {
+		flex: 1;
+		overflow-y: auto;
+		padding: 32px 0;
+	}
+
 	.article-hero-image {
 		margin-bottom: 32px;
 		border-radius: 12px;
@@ -188,12 +198,6 @@
 		max-height: 400px;
 		object-fit: cover;
 		display: block;
-	}
-
-	.article-content {
-		flex: 1;
-		overflow-y: auto;
-		margin-bottom: 32px;
 	}
 
 	.loading-state {
@@ -344,6 +348,10 @@
 
 		.article-body {
 			font-size: 15px;
+		}
+
+		.article-content {
+			padding: 24px 0;
 		}
 
 		.article-hero-image {
