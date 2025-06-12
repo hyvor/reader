@@ -8,6 +8,8 @@ doctrine:
 
         profiling_collect_backtrace: '%kernel.debug%'
         use_savepoints: true
+        types:
+            uuid: Symfony\Bridge\Doctrine\Types\UuidType
     orm:
         auto_generate_proxy_classes: true
         enable_lazy_ghost_objects: true

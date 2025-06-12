@@ -6,14 +6,19 @@ use App\Repository\CollectionRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection as DoctrineCollection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Uid\Uuid;
 
 #[ORM\Entity(repositoryClass: CollectionRepository::class)]
+#[ORM\Table(name: 'collections')]
 class Collection
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
     private int $id;
+
+    #[ORM\Column(type: 'uuid', unique: true)]
+    private ?Uuid $uuid = null;
 
     #[ORM\Column]
     private string $name;
@@ -27,6 +32,28 @@ class Collection
     public function __construct()
     {
         $this->publications = new ArrayCollection();
+        $this->uuid = Uuid::v4();
+    }
+
+    public function getId(): int
+    {
+        return $this->id;
+    }
+
+    public function getUuid(): ?Uuid
+    {
+        return $this->uuid;
+    }
+
+    public function getName(): string
+    {
+        return $this->name;
+    }
+
+    public function setName(string $name): static
+    {
+        $this->name = $name;
+        return $this;
     }
 
     /**
@@ -47,10 +74,9 @@ class Collection
         return $this;
     }
 
-    public function removeFeed(Publication $publication): static
+    public function removePublication(Publication $publication): static
     {
         if ($this->publications->removeElement($publication)) {
-            // set the owning side to null (unless already changed)
             if ($publication->getCollection() === $this) {
                 $publication->setCollection(null);
             }

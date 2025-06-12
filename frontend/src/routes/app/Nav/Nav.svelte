@@ -1,10 +1,9 @@
 <script lang="ts">
 	import { Button, NavLink } from '@hyvor/design/components';
-	import NavFeed from './NavFeed.svelte';
+	import NavCollection from './NavCollection.svelte';
 	import IconBook from '@hyvor/icons/IconBook';
-	import IconBookmark from '@hyvor/icons/IconBookmark';
 	import IconGear from '@hyvor/icons/IconGear';
-	import { feeds } from '../appStore';
+	import { collections } from '../appStore';
 	import { page } from '$app/stores';
 </script>
 
@@ -15,19 +14,13 @@
 				{#snippet start()}
 					<IconBook />
 				{/snippet}
-				All Feeds
-			</NavLink>
-			<NavLink href="/app/saved" active={$page.url.pathname === '/app/saved'}>
-				{#snippet start()}
-					<IconBookmark size={14} />
-				{/snippet}
-				Saved
+				All Collections
 			</NavLink>
 		</div>
 
-		<div class="feeds">
-			{#each $feeds as feed}
-				<NavFeed {feed} />
+		<div class="collections">
+			{#each $collections as collection}
+				<NavCollection {collection} />
 			{/each}
 		</div>
 
@@ -42,7 +35,7 @@
 
 		<div class="footer">
 			<Button small>
-				Add Feed <!-- <IconPlus slot="end" /> -->
+				Add Publication <!-- <IconPlus slot="end" /> -->
 			</Button>
 		</div>
 	</nav>
@@ -89,14 +82,14 @@
 		margin-top: 15px;
 	}
 
-	.feeds {
+	.collections {
 		padding: 15px 0;
 		flex: 1;
 		overflow: auto;
 	}
 
 	.main :global(a),
-	.feeds :global(a),
+	.collections :global(a),
 	.bottom :global(a) {
 		padding-top: 8px !important;
 		padding-bottom: 8px !important;
