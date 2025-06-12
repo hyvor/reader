@@ -1,28 +1,21 @@
 <script lang="ts">
+	import { Button } from '@hyvor/design/components';
+	import IconChevronDown from '@hyvor/icons/IconChevronDown';
+	import IconFilter from '@hyvor/icons/IconFilter';
+	import IconBoxArrowUpRight from '@hyvor/icons/IconBoxArrowUpRight';
+	import IconArrowLeft from '@hyvor/icons/IconArrowLeft';
 	import { collections, publications, selectedCollection, selectedPublication, items as itemsStore } from './appStore';
 	import api from '../../lib/api';
 	import type { Collection, Publication, Item } from './types';
-	import ListItem from './ListItem.svelte';
-	import AppHeader from './AppHeader.svelte';
 	import ArticleView from './ArticleView.svelte';
 
 	let items = $derived($itemsStore);
 	let selectedItem: Item | null = $state(null);
 	let currentArticleIndex = $state(-1);
-	let isInitialLoad = $state(true);
-
-	$effect(() => {
-		if ($selectedCollection && isInitialLoad) {
-			isInitialLoad = false;
-		}
-	});
+	let showCollectionDropdown = $state(false);
+	let showPublicationDropdown = $state(false);
 
 	function selectCollection(collection: Collection) {
-		if (isInitialLoad) {
-			selectedCollection.set(collection);
-			return;
-		}
-
 		selectedCollection.set(collection);
 		
 		api.get('/publications', { collection_id: collection.uuid })
@@ -43,19 +36,22 @@
 		
 		selectedPublication.set(null);
 		selectedItem = null;
+		showCollectionDropdown = false;
 	}
 
 	function selectPublication(publication: Publication | null) {
 		selectedPublication.set(publication);
 		
 		if (publication === null) {
-			api.get('/items', { collection_id: $selectedCollection!.uuid })
-				.then((res) => {
-					itemsStore.set(res.items);
-				})
-				.catch((err) => {
-					console.error('Failed to fetch all items:', err);
-				});
+			if ($selectedCollection) {
+				api.get('/items', { collection_id: $selectedCollection.uuid })
+					.then((res) => {
+						itemsStore.set(res.items);
+					})
+					.catch((err) => {
+						console.error('Failed to fetch all items:', err);
+					});
+			}
 		} else {
 			api.get('/items', { publication_id: publication.uuid })
 				.then((res) => {
@@ -66,6 +62,7 @@
 				});
 		}
 		selectedItem = null;
+		showPublicationDropdown = false;
 	}
 
 	function handleItemClick(item: Item) {
@@ -124,39 +121,154 @@
 				break;
 		}
 	}
+
+	function handleClickOutside(event: Event) {
+		const target = event.target as HTMLElement;
+		if (!target.closest('.dropdown-container')) {
+			showCollectionDropdown = false;
+			showPublicationDropdown = false;
+		}
+	}
+
+	function getRelativeTime(timestamp: number): string {
+		const now = Date.now();
+		const diff = now - (timestamp * 1000);
+		const minutes = Math.floor(diff / 60000);
+		const hours = Math.floor(diff / 3600000);
+		const days = Math.floor(diff / 86400000);
+
+		if (minutes < 60) return `${minutes}m ago`;
+		if (hours < 24) return `${hours}h ago`;
+		return `${days}d ago`;
+	}
 </script>
 
-<svelte:window on:keydown={handleKeydown} />
+<svelte:window on:keydown={handleKeydown} on:click={handleClickOutside} />
 
-<div class="app-container">
-	<div class="content-box">
-		<AppHeader 
-			onCollectionSelect={selectCollection}
-			onPublicationSelect={selectPublication}
-			isArticleView={!!selectedItem}
-			onBackToItems={handleBackToItems}
-		/>
-
-		<div class="content-area">
-			{#if selectedItem}
-				<ArticleView 
-					item={selectedItem}
-					isLoading={false}
-					canGoToPrevious={canGoToPrevious}
-					canGoToNext={canGoToNext}
-					onPrevious={goToPreviousArticle}
-					onNext={goToNextArticle}
-				/>
-			{:else if items.length > 0}
-				<div class="items-grid">
-					{#each items as item}
-						<ListItem 
-							{item} 
-							onclick={() => handleItemClick(item)}
-							onOpenClick={handleOpenItem}
-						/>
-					{/each}
+{#if selectedItem}
+	<ArticleView 
+		item={selectedItem}
+		isLoading={false}
+		canGoToPrevious={canGoToPrevious}
+		canGoToNext={canGoToNext}
+		onPrevious={goToPreviousArticle}
+		onNext={goToNextArticle}
+		onBackToItems={handleBackToItems}
+	/>
+{:else}
+	<div class="feed hds-box">
+		<div class="header">
+			<div class="collection">
+				<div class="dropdown-container">
+					<Button 
+						color="input" 
+						variant="invisible"
+						onclick={() => showCollectionDropdown = !showCollectionDropdown}
+					>
+						{$selectedCollection?.name || 'Select Collection'}
+						{#snippet end()}
+							<IconChevronDown size={10} />
+						{/snippet}
+					</Button>
+					
+					{#if showCollectionDropdown}
+						<div class="dropdown-menu">
+							{#each $collections as collection}
+								<button 
+									class="dropdown-item"
+									class:active={$selectedCollection?.uuid === collection.uuid}
+									onclick={() => selectCollection(collection)}
+								>
+									{collection.name}
+								</button>
+							{/each}
+						</div>
+					{/if}
 				</div>
+			</div>
+			<div class="feeds-filter">
+				<div class="dropdown-container">
+					<Button 
+						color="input" 
+						variant="invisible"
+						onclick={() => showPublicationDropdown = !showPublicationDropdown}
+					>
+						{#snippet start()}
+							<IconFilter size={12} />
+						{/snippet}
+						{$selectedPublication?.title || 'All Publications'}
+					</Button>
+					
+					{#if showPublicationDropdown}
+						<div class="dropdown-menu">
+							<button 
+								class="dropdown-item"
+								class:active={$selectedPublication === null}
+								onclick={() => selectPublication(null)}
+							>
+								All Publications
+							</button>
+							{#each $publications as publication}
+								<button 
+									class="dropdown-item"
+									class:active={$selectedPublication?.uuid === publication.uuid}
+									onclick={() => selectPublication(publication)}
+								>
+									{publication.title || 'Untitled'}
+								</button>
+							{/each}
+						</div>
+					{/if}
+				</div>
+			</div>
+		</div>
+		<div class="items">
+			{#if items.length > 0}
+				{#each items as item}
+					<button class="item" onclick={() => handleItemClick(item)}>
+						<div class="left">
+							<div class="top">
+								<img
+									src="https://picsum.photos/40?{item.publication_title}"
+									alt="Publication Logo"
+									class="logo"
+								/>
+								<div class="publication-name">
+									{item.publication_title || 'Unknown'}
+								</div>
+								<div class="publish-time">
+									&nbsp;&middot;&nbsp; {getRelativeTime(item.published_at || item.updated_at || 0)}
+								</div>
+							</div>
+							<div class="title">
+								{item.title}
+							</div>
+							<div class="description">
+								{item.summary || 'No description available'}
+							</div>
+							<div class="open-button">
+								<Button 
+									size="small" 
+									color="input"
+									onclick={(event: Event) => {
+										event.stopPropagation();
+										handleOpenItem(item);
+									}}
+								>
+									Open
+									{#snippet end()}
+										<IconBoxArrowUpRight size={12} />
+									{/snippet}
+								</Button>
+							</div>
+						</div>
+						{#if item.image}
+							<div class="featured-image">
+								<img src={item.image} alt={item.title} class="item-image" />
+							</div>
+						{/if}
+					</button>
+				{/each}
 			{:else}
 				<div class="empty-state">
 					<h3>No items found</h3>
@@ -166,54 +278,144 @@
 						{:else if $selectedCollection}
 							No items available in the selected collection.
 						{:else}
-							Please select a collection or publication to view items.
+							Please select a collection to view items.
 						{/if}
 					</p>
 				</div>
 			{/if}
 		</div>
 	</div>
-</div>
+{/if}
 
 <style>
-	.app-container {
-		flex: 1;
-		display: flex;
-		justify-content: center;
-		padding: 20px;
-		background: var(--bg);
-		height: 100vh;
-		overflow: hidden;
-	}
-
-	.content-box {
-		width: 50%;
-		max-width: 800px;
-		min-width: 500px;
-		background: var(--bg);
-		border-radius: 12px;
-		box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-		overflow: hidden;
+	.feed {
+		width: 100%;
 		display: flex;
 		flex-direction: column;
-		max-height: calc(100vh - 40px);
 	}
-
-	.content-area {
+	.header {
+		padding: 15px 30px;
+		border-bottom: 1px solid var(--border);
+		display: flex;
+		align-items: center;
+		gap: 20px;
+	}
+	.collection {
 		flex: 1;
+	}
+	.items {
+		padding: 15px 24px;
+		overflow: auto;
+	}
+	.item {
+		padding: 15px 20px;
+		border-radius: 20px;
+		cursor: pointer;
+		text-align: left;
+		display: flex;
+		width: 100%;
+		align-items: center;
+		gap: 10px;
+		background: none;
+		border: none;
+		margin-bottom: 8px;
+		transition: background-color 0.2s ease;
+	}
+	.item:hover {
+		background-color: var(--hover);
+	}
+	.left {
+		flex: 1;
+	}
+	img.logo {
+		width: 15px;
+		height: 15px;
+		border-radius: 50%;
+	}
+	.top {
+		flex: 1;
+		display: flex;
+		align-items: center;
+		gap: 4px;
+		margin-bottom: 3px;
+	}
+	.publication-name {
+		font-size: 12px;
+		font-weight: 500;
+	}
+	.publish-time {
+		font-size: 12px;
+		color: var(--text-light);
+	}
+	.title {
+		font-weight: 600;
+		margin-bottom: 4px;
+		line-height: 1.3;
+	}
+	.description {
+		font-size: 14px;
+		color: var(--text-light);
+		margin-top: 2px;
+		line-height: 1.4;
+	}
+	.featured-image img {
+		max-width: 200px;
+		max-height: 100px;
+		border-radius: 10px;
+		object-fit: cover;
+	}
+	.open-button {
+		margin-top: 8px;
+	}
+	
+	.dropdown-container {
+		position: relative;
+	}
+	
+	.dropdown-menu {
+		position: absolute;
+		top: 100%;
+		left: 0;
+		min-width: 200px;
+		background: white;
+		border: 1px solid var(--border);
+		border-radius: 8px;
+		box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+		z-index: 1000;
+		max-height: 300px;
 		overflow-y: auto;
-		padding: 20px;
+		margin-top: 6px;
+		padding: 8px;
 	}
-
-	.items-grid {
-		display: flex;
-		flex-direction: column;
-		gap: 16px;
+	
+	.dropdown-item {
+		width: 100%;
+		text-align: left;
+		padding: 12px 16px;
+		background: none;
+		border: none;
+		border-radius: 6px;
+		cursor: pointer;
+		transition: background-color 0.2s ease;
+		margin-bottom: 2px;
+	}
+	
+	.dropdown-item:hover {
+		background-color: var(--hover);
+	}
+	
+	.dropdown-item.active {
+		background-color: var(--accent-lightest);
+		font-weight: 500;
+	}
+	
+	.dropdown-item:last-child {
+		margin-bottom: 0;
 	}
 
 	.empty-state {
 		text-align: center;
-		padding: 40px 20px;
+		padding: 60px 20px;
 		color: var(--text-light);
 	}
 
@@ -228,4 +430,6 @@
 		font-size: 14px;
 		line-height: 1.5;
 	}
+
+
 </style>

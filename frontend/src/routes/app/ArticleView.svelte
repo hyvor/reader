@@ -3,6 +3,7 @@
 	import IconChevronLeft from '@hyvor/icons/IconChevronLeft';
 	import IconChevronRight from '@hyvor/icons/IconChevronRight';
 	import IconBoxArrowUpRight from '@hyvor/icons/IconBoxArrowUpRight';
+	import IconArrowLeft from '@hyvor/icons/IconArrowLeft';
 	import type { Item } from './types';
 
 	interface Props {
@@ -12,9 +13,10 @@
 		canGoToNext?: boolean;
 		onPrevious?: () => void;
 		onNext?: () => void;
+		onBackToItems?: () => void;
 	}
 
-	let { item, isLoading = false, canGoToPrevious = false, canGoToNext = false, onPrevious, onNext }: Props = $props();
+	let { item, isLoading = false, canGoToPrevious = false, canGoToNext = false, onPrevious, onNext, onBackToItems }: Props = $props();
 
 	function getRelativeTime(timestamp: number): string {
 		const now = Date.now();
@@ -39,9 +41,23 @@
 	}
 </script>
 
-<div class="article-reader">
+<div class="article-reader hds-box">
+	<header class="back-header">
+		<Button variant="invisible" onclick={onBackToItems} class="back-button">
+			{#snippet start()}
+				<IconArrowLeft size={16} />
+			{/snippet}
+			Back to feed
+		</Button>
+	</header>
+
 	<header class="article-header">
 		<div class="article-meta">
+			<img
+				src="https://picsum.photos/40?{item.publication_title}"
+				alt="Publication Logo"
+				class="logo"
+			/>
 			<span class="publication">{item.publication_title}</span>
 			<span class="separator">•</span>
 			<span class="time">{getRelativeTime(item.published_at || item.updated_at || 0)}</span>
@@ -57,11 +73,11 @@
 			</div>
 		{/if}
 		<div class="article-actions">
-			<Button variant="invisible" size="small" onclick={openOriginal}>
-				{#snippet start()}
-					<IconBoxArrowUpRight size={16} />
-				{/snippet}
+			<Button size="small" color="input" onclick={openOriginal}>
 				Read Original
+				{#snippet end()}
+					<IconBoxArrowUpRight size={12} />
+				{/snippet}
 			</Button>
 		</div>
 	</header>
@@ -124,20 +140,28 @@
 
 <style>
 	.article-reader {
-		height: 100%;
+		width: 100%;
 		display: flex;
 		flex-direction: column;
-		max-width: 800px;
-		margin: 0 auto;
+		height: 100%;
+	}
+
+	.back-header {
+		padding: 15px 30px;
+		border-bottom: 1px solid var(--border);
+		background: var(--bg);
+	}
+
+	:global(.back-button) {
+		display: flex;
+		align-items: center;
+		gap: 8px;
 	}
 
 	.article-header {
-		padding: 0 0 24px 0;
-		border-bottom: 1px solid var(--accent-lightest);
+		padding: 15px 30px;
+		border-bottom: 1px solid var(--border);
 		background: var(--bg);
-		position: sticky;
-		top: 0;
-		z-index: 10;
 		flex-shrink: 0;
 	}
 
@@ -145,9 +169,15 @@
 		display: flex;
 		align-items: center;
 		gap: 8px;
-		font-size: 14px;
+		font-size: 12px;
 		color: var(--text-light);
-		margin-bottom: 16px;
+		margin-bottom: 12px;
+	}
+
+	.logo {
+		width: 15px;
+		height: 15px;
+		border-radius: 50%;
 	}
 
 	.separator {
@@ -156,21 +186,26 @@
 
 	.publication {
 		font-weight: 500;
-		color: var(--accent);
+		font-size: 12px;
+	}
+
+	.time, .reading-time {
+		font-size: 12px;
+		color: var(--text-light);
 	}
 
 	.article-title {
-		margin: 0 0 16px 0;
-		font-size: 32px;
-		font-weight: 700;
-		line-height: 1.2;
+		margin: 0 0 12px 0;
+		font-size: 24px;
+		font-weight: 600;
+		line-height: 1.3;
 		color: var(--text);
 	}
 
 	.article-authors {
-		font-size: 16px;
+		font-size: 14px;
 		color: var(--text-light);
-		margin-bottom: 16px;
+		margin-bottom: 12px;
 		font-style: italic;
 	}
 
@@ -182,20 +217,19 @@
 	.article-content {
 		flex: 1;
 		overflow-y: auto;
-		padding: 32px 0;
+		padding: 15px 24px;
 	}
 
 	.article-hero-image {
-		margin-bottom: 32px;
-		border-radius: 12px;
+		margin-bottom: 20px;
+		border-radius: 10px;
 		overflow: hidden;
-		box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
 	}
 
 	.article-hero-image img {
 		width: 100%;
 		height: auto;
-		max-height: 400px;
+		max-height: 300px;
 		object-fit: cover;
 		display: block;
 	}
@@ -209,7 +243,7 @@
 	}
 
 	.article-body {
-		line-height: 1.7;
+		line-height: 1.6;
 		font-size: 16px;
 		color: var(--text);
 	}
@@ -220,15 +254,15 @@
 	.article-body :global(h4),
 	.article-body :global(h5),
 	.article-body :global(h6) {
-		margin: 32px 0 16px 0;
+		margin: 24px 0 12px 0;
 		font-weight: 600;
 		line-height: 1.3;
 	}
 
-	.article-body :global(h1) { font-size: 28px; }
-	.article-body :global(h2) { font-size: 24px; }
-	.article-body :global(h3) { font-size: 20px; }
-	.article-body :global(h4) { font-size: 18px; }
+	.article-body :global(h1) { font-size: 24px; }
+	.article-body :global(h2) { font-size: 20px; }
+	.article-body :global(h3) { font-size: 18px; }
+	.article-body :global(h4) { font-size: 16px; }
 
 	.article-body :global(p) {
 		margin: 0 0 16px 0;
@@ -238,20 +272,20 @@
 		max-width: 100%;
 		height: auto;
 		border-radius: 8px;
-		margin: 24px 0;
+		margin: 20px 0;
 	}
 
 	.article-body :global(blockquote) {
-		margin: 24px 0;
-		padding: 16px 24px;
-		border-left: 4px solid var(--accent);
-		background: var(--accent-lightest);
-		border-radius: 0 8px 8px 0;
+		margin: 20px 0;
+		padding: 12px 20px;
+		border-left: 3px solid var(--border);
+		background: var(--hover);
+		border-radius: 0 6px 6px 0;
 		font-style: italic;
 	}
 
 	.article-body :global(code) {
-		background: var(--accent-lightest);
+		background: var(--hover);
 		padding: 2px 6px;
 		border-radius: 4px;
 		font-family: 'SF Mono', Monaco, monospace;
@@ -259,7 +293,7 @@
 	}
 
 	.article-body :global(pre) {
-		background: var(--accent-lightest);
+		background: var(--hover);
 		padding: 16px;
 		border-radius: 8px;
 		overflow-x: auto;
@@ -273,37 +307,39 @@
 	}
 
 	.article-body :global(li) {
-		margin: 8px 0;
+		margin: 6px 0;
 	}
 
 	.article-body :global(a) {
-		color: var(--accent);
-		text-decoration: none;
-	}
-
-	.article-body :global(a:hover) {
+		color: var(--text);
 		text-decoration: underline;
 	}
 
-	.article-summary {
-		padding: 24px;
-		background: var(--accent-lightest);
-		border-radius: 8px;
-		border-left: 4px solid var(--accent);
-	}
-
-	.no-content-message {
-		margin-top: 16px;
-		font-style: italic;
+	.article-body :global(a:hover) {
 		color: var(--text-light);
 	}
 
+	.article-summary {
+		padding: 20px;
+		background: var(--hover);
+		border-radius: 10px;
+		border-left: 3px solid var(--border);
+	}
+
+	.no-content-message {
+		margin-top: 12px;
+		font-style: italic;
+		color: var(--text-light);
+		font-size: 14px;
+	}
+
 	.no-content-message button {
-		color: var(--accent);
+		color: var(--text);
 		background: none;
 		border: none;
 		text-decoration: underline;
 		cursor: pointer;
+		font-size: 14px;
 	}
 
 	.no-content {
@@ -316,9 +352,10 @@
 		display: flex;
 		justify-content: space-between;
 		align-items: center;
-		padding: 24px 0 0 0;
-		border-top: 1px solid var(--accent-lightest);
+		padding: 15px 30px;
+		border-top: 1px solid var(--border);
 		gap: 16px;
+		background: var(--bg);
 	}
 
 	:global(.nav-button) {
@@ -334,16 +371,12 @@
 	}
 
 	:global(.nav-button:not(:disabled):hover) {
-		background: var(--accent-lightest);
+		background: var(--hover);
 	}
 
 	@media (max-width: 768px) {
-		.article-reader {
-			max-width: 100%;
-		}
-
 		.article-title {
-			font-size: 24px;
+			font-size: 20px;
 		}
 
 		.article-body {
@@ -351,21 +384,26 @@
 		}
 
 		.article-content {
-			padding: 24px 0;
+			padding: 15px 20px;
+		}
+
+		.article-header, .back-header {
+			padding: 15px 20px;
+		}
+
+		.article-navigation {
+			padding: 15px 20px;
+			flex-direction: column;
+			gap: 12px;
 		}
 
 		.article-hero-image {
-			margin-bottom: 24px;
+			margin-bottom: 16px;
 			border-radius: 8px;
 		}
 
 		.article-hero-image img {
-			max-height: 250px;
-		}
-
-		.article-navigation {
-			flex-direction: column;
-			gap: 12px;
+			max-height: 200px;
 		}
 	}
 </style> 
