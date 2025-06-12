@@ -1,9 +1,8 @@
 <script lang="ts">
-	import { Loader } from '@hyvor/design/components';
+	import { Loader, HyvorBar } from '@hyvor/design/components';
 	import api from '../../lib/api';
-	import { collections } from './appStore';
+	import { collections, items, publications, selectedCollection, selectedPublication } from './appStore';
 	import { onMount } from 'svelte';
-	import Feed from './Feed/Feed.svelte';
 
 	interface Props {
 		children?: import('svelte').Snippet;
@@ -15,9 +14,13 @@
 
 	onMount(() => {
 		api
-			.get('/collections')
+			.get('/init')
 			.then((res) => {
 				collections.set(res.collections);
+                publications.set(res.publications || []);
+                items.set(res.items || []);
+                selectedCollection.set(res.selectedCollection);
+                selectedPublication.set(res.selectedPublication);
 			})
 			.catch((err) => {
 				console.error(err);
@@ -38,14 +41,10 @@
 	</div>
 {:else}
 	<main>
-		<!-- <HyvorBar product="core" config={{ name: 'Hyvor Reader' }} /> -->
-		<div class="inner">
-			<!-- <Nav /> -->
-			<Feed />
-			<!-- {@render children?.()} -->
+		<HyvorBar product="core" config={{ name: 'Hyvor Reader' }} />
+		<div class="content">
+			{@render children?.()}
 		</div>
-		<!-- <FeedList />
-		<Reader /> -->
 	</main>
 {/if}
 
@@ -55,9 +54,10 @@
 		flex-direction: column;
 		height: 100vh;
 	}
-	.inner {
-		display: flex;
+	.content {
 		flex: 1;
+		display: flex;
+		flex-direction: column;
 		min-height: 0;
 		width: 900px;
 		margin: 0 auto;

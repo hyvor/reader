@@ -33,5 +33,7 @@ export interface Item {
     publication_id: number;
     publication_uuid: string;
     publication_title: string;
+    reading_time?: number;
+    word_count?: number;
 }
 
