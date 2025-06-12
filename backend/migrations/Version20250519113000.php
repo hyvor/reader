@@ -29,7 +29,11 @@ final class Version20250519113000 extends AbstractMigration
                 updated_at TIMESTAMPTZ DEFAULT NULL,
                 authors TEXT NOT NULL,
                 tags TEXT NOT NULL,
-                language TEXT DEFAULT NULL
+                language TEXT DEFAULT NULL,
+                uuid UUID NOT NULL DEFAULT gen_random_uuid(),
+                publication_id INT NOT NULL,
+                CONSTRAINT UNIQ_items_uuid UNIQUE (uuid),
+                CONSTRAINT FK_E11EE94D38B217A7 FOREIGN KEY (publication_id) REFERENCES publications (id)
             )
         SQL);
     }
