@@ -11,7 +11,6 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
-#[Route('/init', name: 'app_api_init_')]
 class InitController extends AbstractController
 {
     public function __construct(
@@ -21,7 +20,7 @@ class InitController extends AbstractController
     ) {
     }
 
-    #[Route('', name: 'default', methods: ['GET'])]
+    #[Route('/init', methods: ['GET'])]
     public function getInit(Request $request): JsonResponse
     {
         $data = [
