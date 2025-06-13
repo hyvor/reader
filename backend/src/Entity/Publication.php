@@ -59,6 +59,12 @@ class Publication
     #[ORM\OneToMany(targetEntity: Item::class, mappedBy: 'publication', orphanRemoval: true)]
     private DoctrineCollection $items;
 
+    /**
+     * @var DoctrineCollection<int, PublicationFetch>
+     */
+    #[ORM\OneToMany(targetEntity: PublicationFetch::class, mappedBy: 'publication', orphanRemoval: true)]
+    private DoctrineCollection $fetches;
+
     #[ORM\ManyToOne(inversedBy: 'publications')]
     #[ORM\JoinColumn(nullable: false)]
     private ?Collection $collection = null;
@@ -66,6 +72,7 @@ class Publication
     public function __construct()
     {
         $this->items = new ArrayCollection();
+        $this->fetches = new ArrayCollection();
         $this->uuid = Uuid::v4();
         $this->createdAt = new \DateTime();
         $this->updatedAt = new \DateTime();
@@ -243,5 +250,64 @@ class Publication
         $this->collection = $collection;
 
         return $this;
+    }
+
+    /**
+     * @return DoctrineCollection<int, PublicationFetch>
+     */
+    public function getFetches(): DoctrineCollection
+    {
+        return $this->fetches;
+    }
+
+    public function addFetch(PublicationFetch $fetch): static
+    {
+        if (!$this->fetches->contains($fetch)) {
+            $this->fetches->add($fetch);
+            $fetch->setPublication($this);
+        }
+
+        return $this;
+    }
+
+    public function removeFetch(PublicationFetch $fetch): static
+    {
+        if ($this->fetches->removeElement($fetch)) {
+            if ($fetch->getPublication() === $this) {
+                $fetch->setPublication(null);
+            }
+        }
+
+        return $this;
+    }
+
+    public function getLatestFetch(): ?PublicationFetch
+    {
+        if ($this->fetches->isEmpty()) {
+            return null;
+        }
+
+        $latestFetch = null;
+        foreach ($this->fetches as $fetch) {
+            if ($latestFetch === null || $fetch->getCreatedAt() > $latestFetch->getCreatedAt()) {
+                $latestFetch = $fetch;
+            }
+        }
+
+        return $latestFetch;
+    }
+
+    /**
+     * @return PublicationFetch[]
+     */
+    public function getRecentFetches(int $limit = 10): array
+    {
+        $fetches = $this->fetches->toArray();
+        
+        usort($fetches, function(PublicationFetch $a, PublicationFetch $b) {
+            return $b->getCreatedAt() <=> $a->getCreatedAt();
+        });
+
+        return array_slice($fetches, 0, $limit);
     }
 }
