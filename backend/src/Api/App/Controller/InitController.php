@@ -2,7 +2,9 @@
 
 namespace App\Api\App\Controller;
 
-use App\Entity\Publication;
+use App\Api\App\Object\CollectionObject;
+use App\Api\App\Object\PublicationObject;
+use App\Api\App\Object\ItemObject;
 use App\Repository\ItemRepository;
 use App\Repository\PublicationRepository;
 use App\Repository\CollectionRepository;
@@ -32,57 +34,21 @@ class InitController extends AbstractController
         ];
 
         $collections = $this->collectionRepository->findAll();
-        foreach ($collections as $collection) {
-            $data["collections"][] = [
-                'id' => $collection->getId(),
-                'name' => $collection->getName(),
-                'uuid' => $collection->getUuid()->toRfc4122(),
-            ];
-        }
+        $data["collections"] = array_map(fn($collection) => new CollectionObject($collection), $collections);
 
         $data["selectedCollection"] = $data["collections"][0];
 
         if (count($collections) > 0) {
             $publications = $collections[0]->getPublications();
-            foreach ($publications as $publication) {
-                $data["publications"][] = [
-                    'id' => $publication->getId(),
-                    'uuid' => $publication->getUuid()->toRfc4122(),
-                    'title' => $publication->getTitle() ?? 'Untitled',
-                    'url' => $publication->getUrl(),
-                    'description' => $publication->getDescription() ?? '',
-                    'subscribers' => $publication->getSubscribers(),
-                    'created_at' => $publication->getCreatedAt()->getTimestamp(),
-                    'updated_at' => $publication->getUpdatedAt()->getTimestamp(),
-                ];
-            }
+            $data["publications"] = array_map(fn($publication) => new PublicationObject($publication), $publications->toArray());
 
             if (count($publications) > 0) {
                 $items = [];
                 foreach ($publications as $publication) {
                     $items = array_merge($items, $publication->getItems()->toArray());
                 }
-
-                foreach ($items as $item) {
-                    $data["items"][] = [
-                        'id' => $item->getId(),
-                        'uuid' => $item->getUuid()->toRfc4122(),
-                        'title' => $item->getTitle() ?? 'Untitled',
-                        'url' => $item->getUrl(),
-                        'content_html' => $item->getContentHtml(),
-                        'content_text' => $item->getContentText(),
-                        'summary' => $item->getSummary(),
-                        'image' => $item->getImage(),
-                        'published_at' => $item->getPublishedAt()?->getTimestamp(),
-                        'updated_at' => $item->getUpdatedAt()?->getTimestamp(),
-                        'authors' => $item->getAuthors(),
-                        'tags' => $item->getTags(),
-                        'language' => $item->getLanguage(),
-                        'publication_id' => $item->getPublication()?->getId(),
-                        'publication_uuid' => $item->getPublication()?->getUuid()->toRfc4122(),
-                        'publication_title' => $item->getPublication()?->getTitle() ?? 'Untitled',
-                    ];
-                }
+                
+                $data["items"] = array_map(fn($item) => new ItemObject($item), $items);
             }
         }
 
