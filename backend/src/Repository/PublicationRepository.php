@@ -16,28 +16,17 @@ class PublicationRepository extends ServiceEntityRepository
         parent::__construct($registry, Publication::class);
     }
 
-    //    /**
-    //     * @return Publication[] Returns an array of Publication objects
-    //     */
-    //    public function findByExampleField($value): array
-    //    {
-    //        return $this->createQueryBuilder('f')
-    //            ->andWhere('f.exampleField = :val')
-    //            ->setParameter('val', $value)
-    //            ->orderBy('f.id', 'ASC')
-    //            ->setMaxResults(10)
-    //            ->getQuery()
-    //            ->getResult()
-    //        ;
-    //    }
-
-    //    public function findOneBySomeField($value): ?Publication
-    //    {
-    //        return $this->createQueryBuilder('f')
-    //            ->andWhere('f.exampleField = :val')
-    //            ->setParameter('val', $value)
-    //            ->getQuery()
-    //            ->getOneOrNullResult()
-    //        ;
-    //    }
+    /**
+     * @param \DateTime $before
+     * @return Publication[]
+     */
+    public function findDueForFetching(\DateTime $before): array
+    {
+        return $this->createQueryBuilder('p')
+            ->where('p.nextFetchAt <= :before')
+            ->setParameter('before', $before)
+            ->orderBy('p.nextFetchAt', 'ASC')
+            ->getQuery()
+            ->getResult();
+    }
 }

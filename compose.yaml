@@ -47,6 +47,27 @@ services:
       test: ls
       disable: true
 
+  hyvor-reader-scheduler:
+    container_name: hyvor-reader-scheduler
+    build:
+      context: .
+      target: backend-dev
+    volumes:
+      - ./backend:/app/backend
+      - ./internal:/app/backend/vendor/hyvor/internal:ro
+      - ./shared:/app/shared
+    command: bash -c "while true; do php bin/console debug:messenger && php bin/console messenger:consume scheduler_default -vv --time-limit=60; sleep 2; done"
+    networks:
+      - hyvor-network
+    depends_on:
+      postgres:
+        condition: service_healthy
+      hyvor-reader-backend:
+        condition: service_started
+    environment:
+      - APP_ENV=dev
+    restart: unless-stopped
+
   postgres:
     image: postgres:16
     container_name: hyvor-reader-postgres
@@ -77,8 +98,6 @@ services:
       - "80:80"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
-    profiles:
-      - traefik
     networks:
       - hyvor-network
 
