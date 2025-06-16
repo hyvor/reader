@@ -33,7 +33,7 @@ class CheckAndFetchAllFeedsHandler
         $duePublications = $this->publicationRepository->findDueForFetching(new \DateTime());
         
         if (empty($duePublications)) {
-            $this->logger->debug('No publications due for fetching');
+            $this->logger->info('No publications due for fetching');
             return;
         }
 

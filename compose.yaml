@@ -56,7 +56,7 @@ services:
       - ./backend:/app/backend
       - ./internal:/app/backend/vendor/hyvor/internal:ro
       - ./shared:/app/shared
-    command: bash -c "while true; do php bin/console debug:messenger && php bin/console messenger:consume scheduler_default -vv --time-limit=60; sleep 2; done"
+    command: php bin/console messenger:consume scheduler_default -vv
     networks:
       - hyvor-network
     depends_on:
