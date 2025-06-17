@@ -35,7 +35,7 @@ final class ItemFactory extends PersistentProxyObjectFactory
             'content_html' => '<p>' . self::faker()->paragraphs(self::faker()->numberBetween(2, 5), true) . '</p>',
             'content_text' => self::faker()->paragraphs(self::faker()->numberBetween(2, 5), true),
             'summary' => self::faker()->sentence(10),
-            'image' => self::faker()->imageUrl(800, 400),
+            'image' => 'https://picsum.photos/800/400?random=' . self::faker()->numberBetween(1, 1000),
             'published_at' => self::faker()->dateTimeBetween('-30 days', '-1 day'),
             'authors' => [self::faker()->name()],
             'tags' => self::faker()->words(self::faker()->numberBetween(2, 5)),

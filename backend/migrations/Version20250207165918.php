@@ -24,6 +24,7 @@ final class Version20250207165918 extends AbstractMigration
                 id bigserial NOT NULL PRIMARY KEY, 
                 created_at timestamptz DEFAULT CURRENT_TIMESTAMP NOT NULL, 
                 updated_at timestamptz DEFAULT CURRENT_TIMESTAMP NOT NULL, 
+                uuid UUID NOT NULL DEFAULT gen_random_uuid(),
                 url text NOT NULL UNIQUE, 
                 title text DEFAULT NULL, 
                 description text DEFAULT NULL, 
@@ -33,7 +34,6 @@ final class Version20250207165918 extends AbstractMigration
                 subscribers INT DEFAULT 0 NOT NULL,
                 conditional_get_last_modified text DEFAULT NULL, 
                 conditional_get_etag text DEFAULT NULL,
-                uuid UUID NOT NULL DEFAULT gen_random_uuid(),
                 collection_id INT NOT NULL,
                 CONSTRAINT UNIQ_publications_uuid UNIQUE (uuid)
           )
