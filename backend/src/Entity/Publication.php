@@ -17,8 +17,8 @@ class Publication
     #[ORM\Column(type: 'integer')]
     private int $id;
 
-    #[ORM\Column(type: 'uuid', unique: true)]
-    private ?Uuid $uuid = null;
+    #[ORM\Column(unique: true)]
+    private string $uuid;
 
     #[ORM\Column(type: 'datetime', options: ['default' => 'CURRENT_TIMESTAMP'])]
     private \DateTime $createdAt;
@@ -66,7 +66,7 @@ class Publication
     public function __construct()
     {
         $this->items = new ArrayCollection();
-        $this->uuid = Uuid::v4();
+        $this->uuid =  (string) Uuid::v4();
         $this->createdAt = new \DateTime();
         $this->updatedAt = new \DateTime();
         $this->nextFetchAt = new \DateTime();
@@ -77,7 +77,7 @@ class Publication
         return $this->id;
     }
 
-    public function getUuid(): ?Uuid
+    public function getUuid(): string
     {
         return $this->uuid;
     }

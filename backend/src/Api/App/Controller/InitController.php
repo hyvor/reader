@@ -8,6 +8,7 @@ use App\Api\App\Object\ItemObject;
 use App\Repository\ItemRepository;
 use App\Repository\PublicationRepository;
 use App\Repository\CollectionRepository;
+use App\Service\Collection\CollectionService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -19,6 +20,7 @@ class InitController extends AbstractController
         private readonly ItemRepository $itemRepository,
         private readonly PublicationRepository $publicationRepository,
         private readonly CollectionRepository $collectionRepository,
+        private CollectionService $collectionService
     ) {
     }
 
@@ -33,10 +35,10 @@ class InitController extends AbstractController
             "selectedPublication" => null
         ];
 
-        $collections = $this->collectionRepository->findAll();
-        $data["collections"] = array_map(fn($collection) => new CollectionObject($collection), $collections);
+        // TODO: call CollectionService
+        $collections = $this->collectionService->getUserCollections();
 
-        $data["selectedCollection"] = $data["collections"][0];
+        // $data["selectedCollection"] = $data["collections"][0];
 
         if (count($collections) > 0) {
             $publications = $collections[0]->getPublications();
@@ -52,6 +54,8 @@ class InitController extends AbstractController
             }
         }
 
-        return $this->json($data);
+        return $this->json([
+            'collections' => array_map(fn($collection) => new CollectionObject($collection), $collections)
+        ] + $data);
     }
 } 

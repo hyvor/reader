@@ -26,7 +26,7 @@ class ItemObject
     public function __construct(Item $item)
     {
         $this->id = $item->getId();
-        $this->uuid = $item->getUuid()->toRfc4122();
+        $this->uuid = $item->getUuid();
         $this->title = $item->getTitle() ?? 'Untitled';
         $this->url = $item->getUrl();
         $this->content_html = $item->getContentHtml();
@@ -39,7 +39,7 @@ class ItemObject
         $this->tags = $item->getTags();
         $this->language = $item->getLanguage();
         $this->publication_id = $item->getPublication()?->getId();
-        $this->publication_uuid = $item->getPublication()?->getUuid()->toRfc4122();
+        $this->publication_uuid = $item->getPublication()?->getUuid();
         $this->publication_title = $item->getPublication()?->getTitle() ?? 'Untitled';
     }
 } 

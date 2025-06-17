@@ -18,7 +18,7 @@ class PublicationObject
     public function __construct(Publication $publication)
     {
         $this->id = $publication->getId();
-        $this->uuid = $publication->getUuid()->toRfc4122();
+        $this->uuid = $publication->getUuid();
         $this->title = $publication->getTitle() ?? 'Untitled';
         $this->url = $publication->getUrl();
         $this->description = $publication->getDescription() ?? '';
