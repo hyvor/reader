@@ -39,24 +39,24 @@ final class Version20250207165918 extends AbstractMigration
           )
         ');
 
-        $this->addSql('
+
+        $this->addSql("CREATE TYPE publication_status AS ENUM ('pending', 'completed', 'failed')");
+        $this->addSql(<<<SQL
             CREATE TABLE publication_fetches (
                 id bigserial NOT NULL PRIMARY KEY,
                 uuid UUID NOT NULL DEFAULT gen_random_uuid() UNIQUE,
                 created_at timestamptz DEFAULT CURRENT_TIMESTAMP NOT NULL,
                 updated_at timestamptz DEFAULT CURRENT_TIMESTAMP NOT NULL,
-                publication_id bigint NOT NULL,
-                status varchar(20) NOT NULL CHECK (status IN (\'pending\', \'completed\', \'failed\')),
+                publication_id bigint NOT NULL REFERENCES publications(id) ON DELETE CASCADE,
+                status publication_status NOT NULL,
                 status_code integer NULL,
-                error varchar(255) NULL,
+                error text NULL,
                 error_private text NULL,
                 new_items_count integer DEFAULT 0 NOT NULL,
                 updated_items_count integer DEFAULT 0 NOT NULL,
-                latency_ms integer NULL,
-                FOREIGN KEY (publication_id) REFERENCES publications(id) ON DELETE CASCADE,
-                CONSTRAINT UNIQ_publication_fetches_uuid UNIQUE (uuid)
+                latency_ms integer NULL
             )
-        ');
+        SQL);
 
         $this->addSql('CREATE INDEX idx_publication_fetches_publication_id ON publication_fetches(publication_id)');
         $this->addSql('CREATE INDEX idx_publication_fetches_created_at ON publication_fetches(created_at)');
@@ -65,7 +65,6 @@ final class Version20250207165918 extends AbstractMigration
 
     public function down(Schema $schema): void
     {
-        $this->addSql('CREATE SCHEMA public');
         $this->addSql('DROP TABLE publication_fetches');
         $this->addSql('DROP TABLE publications');
     }
