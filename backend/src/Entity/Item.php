@@ -16,8 +16,8 @@ class Item
     #[ORM\Column]
     private int $id;
 
-    #[ORM\Column(type: 'uuid', unique: true)]
-    private ?Uuid $uuid = null;
+    #[ORM\Column(unique: true)]
+    private string $uuid;
 
     #[ORM\Column]
     private string $url;
@@ -58,7 +58,7 @@ class Item
 
     public function __construct()
     {
-        $this->uuid = Uuid::v4();
+        $this->uuid = (string) Uuid::v4();
     }
 
     public function getId(): int
@@ -66,7 +66,7 @@ class Item
         return $this->id;
     }
 
-    public function getUuid(): ?Uuid
+    public function getUuid(): string
     {
         return $this->uuid;
     }
