@@ -16,9 +16,11 @@
         "nesbot/carbon": "^3.9.1",
         "runtime/frankenphp-symfony": "^0.2.0",
         "symfony/console": "7.2.*",
+        "symfony/doctrine-messenger": "7.2.*",
         "symfony/dotenv": "7.2.*",
         "symfony/flex": "^2.7.1",
         "symfony/framework-bundle": "7.2.*",
+        "symfony/http-client": "7.2.*",
         "symfony/messenger": "7.2.*",
         "symfony/runtime": "7.2.*",
         "symfony/scheduler": "7.2.*",
@@ -86,4 +88,3 @@
         "zenstruck/foundry": "^2.5.4"
     }
 }
-

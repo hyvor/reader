@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Message;
+namespace App\Service\Fetch\Message;
 
-class CheckAndFetchAllFeedsMessage
+class FetchMessage
 {
     public function __construct()
     {

@@ -47,27 +47,6 @@ services:
       test: ls
       disable: true
 
-  hyvor-reader-scheduler:
-    container_name: hyvor-reader-scheduler
-    build:
-      context: .
-      target: backend-dev
-    volumes:
-      - ./backend:/app/backend
-      - ./internal:/app/backend/vendor/hyvor/internal:ro
-      - ./shared:/app/shared
-    command: php bin/console messenger:consume scheduler_default -vv
-    networks:
-      - hyvor-network
-    depends_on:
-      postgres:
-        condition: service_healthy
-      hyvor-reader-backend:
-        condition: service_started
-    environment:
-      - APP_ENV=dev
-    restart: unless-stopped
-
   postgres:
     image: postgres:16
     container_name: hyvor-reader-postgres

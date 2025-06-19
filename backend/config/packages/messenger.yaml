@@ -1,12 +1,8 @@
 framework:
     messenger:
-        # failure_transport: failed
-
         transports:
-            # scheduler_default will be auto-created for schedule 'default'
-
-        routing:
-            # No explicit routing needed - scheduler messages will use the default transport
+            async:
+                dsn: doctrine://default
 
 when@test:
     framework:

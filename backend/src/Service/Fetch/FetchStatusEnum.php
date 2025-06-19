@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Enum;
+namespace App\Service\Fetch;
 
 enum FetchStatusEnum: string
 {
