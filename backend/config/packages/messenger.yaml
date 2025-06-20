@@ -1,0 +1,11 @@
+framework:
+    messenger:
+        transports:
+            async:
+                dsn: doctrine://default
+
+when@test:
+    framework:
+        messenger:
+            transports:
+                scheduler_default: 'sync://'
