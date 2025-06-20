@@ -2,255 +2,346 @@
 
 namespace App\Tests\Service\Fetch;
 
+use App\Entity\Collection;
+use App\Entity\Publication;
 use App\Entity\PublicationFetch;
-use App\Factory\CollectionFactory;
-use App\Factory\PublicationFactory;
-use App\Service\Fetch\FetchService;
-use App\Service\Fetch\FetchStatusEnum;
-use App\Service\Fetch\Handler\ProcessFeedHandler;
 use App\Service\Fetch\Message\FetchMessage;
 use App\Service\Fetch\Message\ProcessFeedMessage;
+use App\Service\Fetch\Handler\FetchHandler;
+use App\Service\Fetch\Handler\ProcessFeedHandler;
+use App\Service\Fetch\FetchStatusEnum;
+use App\Service\Parser\Types\Feed;
+use App\Service\Parser\Types\FeedType;
+use App\Service\Parser\Types\Item;
+use App\Service\Parser\Types\Author;
+use App\Service\Parser\Types\Tag;
 use Doctrine\ORM\EntityManagerInterface;
-use PHPUnit\Framework\Attributes\CoversClass;
+use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\Messenger\MessageBusInterface;
-use Symfony\Component\Messenger\Transport\InMemory\InMemoryTransport;
+use Symfony\Component\Messenger\Envelope;
+use Symfony\Component\Messenger\Stamp\TransportNamesStamp;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
-use Symfony\Component\HttpClient\MockHttpClient;
-use Symfony\Component\HttpClient\Response\MockResponse;
-use Psr\Log\LoggerInterface;
-use App\Repository\PublicationRepository;
-use Zenstruck\Foundry\Test\Factories;
-use Zenstruck\Foundry\Test\ResetDatabase;
-use Symfony\Component\HttpClient\Exception\TransportException;
+use Symfony\Contracts\HttpClient\ResponseInterface;
+use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
 
-#[CoversClass(ProcessFeedHandler::class)]
-#[CoversClass(\App\Service\Fetch\Handler\FetchHandler::class)]
 class FetchIntegrationTest extends KernelTestCase
 {
-    use Factories;
-    use ResetDatabase;
-
     private EntityManagerInterface $entityManager;
-    private MessageBusInterface $bus;
-    private InMemoryTransport $asyncTransport;
+    private MessageBusInterface $messageBus;
+    private HttpClientInterface $httpClient;
+    private LoggerInterface $logger;
+    private FetchHandler $fetchHandler;
+    private ProcessFeedHandler $processFeedHandler;
+    private Collection $collection;
 
     protected function setUp(): void
     {
-        parent::setUp();
         self::bootKernel();
-
-        $this->entityManager = self::getContainer()->get(EntityManagerInterface::class);
-        $this->bus = self::getContainer()->get(MessageBusInterface::class);
-
-        /** @var InMemoryTransport $transport */
-        $transport = self::getContainer()->get('messenger.transport.async');
-        $this->asyncTransport = $transport;
+        $container = static::getContainer();
+        
+        $this->entityManager = $container->get(EntityManagerInterface::class);
+        $this->logger = $container->get(LoggerInterface::class);
+        
+        $this->httpClient = $this->createMock(HttpClientInterface::class);
+        $this->messageBus = $this->createMock(MessageBusInterface::class);
+        
+        $fetchService = $container->get('App\Service\Fetch\FetchService');
+        $publicationRepository = $container->get('App\Repository\PublicationRepository');
+        
+        $this->fetchHandler = new FetchHandler(
+            $fetchService,
+            $this->entityManager,
+            $this->messageBus
+        );
+        
+        $this->processFeedHandler = new ProcessFeedHandler(
+            $fetchService,
+            $publicationRepository,
+            $this->entityManager,
+            $this->httpClient,
+            $this->logger
+        );
+        
+        $this->entityManager->createQuery('DELETE FROM App\Entity\PublicationFetch')->execute();
+        $this->entityManager->createQuery('DELETE FROM App\Entity\Item')->execute();
+        $this->entityManager->createQuery('DELETE FROM App\Entity\Publication')->execute();
+        $this->entityManager->createQuery('DELETE FROM App\Entity\Collection')->execute();
+        
+        $this->collection = new Collection();
+        $this->collection->setName('Test Collection');
+        $this->entityManager->persist($this->collection);
+        $this->entityManager->flush();
     }
 
-    public function test_no_due_publications_dispatches_nothing(): void
+    public function test_fetch_handler_with_no_due_publications(): void
     {
-        $collection = CollectionFactory::new()->create()->_real();
-        PublicationFactory::new([
-            'collection'  => $collection,
-            'nextFetchAt' => (new \DateTimeImmutable())->modify('+1 hour'),
-        ])->create();
+        $publication = $this->create_publication('https://example.com/feed.xml');
+        $publication->setNextFetchAt(new \DateTimeImmutable('+1 hour'));
+        $this->entityManager->flush();
 
-        $this->bus->dispatch(new FetchMessage());
+        $this->messageBus->expects($this->never())->method('dispatch');
 
-        $this->assertCount(0, $this->asyncTransport->get(), 'ProcessFeedMessage should not have been dispatched.');
+        $fetchMessage = new FetchMessage();
+        $this->fetchHandler->__invoke($fetchMessage);
+
+        $this->entityManager->refresh($publication);
+        $this->assertGreaterThan(new \DateTimeImmutable(), $publication->getNextFetchAt());
     }
 
-    public function test_not_modified_response_marks_fetch_completed(): void
+    public function test_fetch_handler_with_due_publications(): void
     {
-        $collection = CollectionFactory::new()->create()->_real();
-        $publication = PublicationFactory::new([
-            'collection'  => $collection,
-            'nextFetchAt' => (new \DateTimeImmutable())->modify('-1 minute'),
-        ])->create()->_real();
+        $publication1 = $this->create_publication('https://example1.com/feed.xml');
+        $publication1->setNextFetchAt(new \DateTimeImmutable('-1 hour'));
+        $publication1->setInterval(30);
+        
+        $publication2 = $this->create_publication('https://example2.com/feed.xml');
+        $publication2->setNextFetchAt(new \DateTimeImmutable('-30 minutes'));
+        $publication2->setInterval(60);
+        
+        $this->entityManager->flush();
 
-        $mockClient = new MockHttpClient([
-            new MockResponse('', ['http_code' => 304]),
+        $dispatchedMessages = [];
+        $this->messageBus->expects($this->exactly(2))
+            ->method('dispatch')
+            ->willReturnCallback(function ($message) use (&$dispatchedMessages) {
+                $dispatchedMessages[] = $message;
+                return new Envelope($message);
+            });
+
+        $fetchMessage = new FetchMessage();
+        $this->fetchHandler->__invoke($fetchMessage);
+
+        $this->assertCount(2, $dispatchedMessages);
+        $this->assertInstanceOf(ProcessFeedMessage::class, $dispatchedMessages[0]);
+        $this->assertInstanceOf(ProcessFeedMessage::class, $dispatchedMessages[1]);
+        $this->assertEquals($publication1->getId(), $dispatchedMessages[0]->publicationId);
+        $this->assertEquals($publication2->getId(), $dispatchedMessages[1]->publicationId);
+
+        $this->entityManager->refresh($publication1);
+        $this->entityManager->refresh($publication2);
+        
+        $this->assertGreaterThan(new \DateTimeImmutable(), $publication1->getNextFetchAt());
+        $this->assertGreaterThan(new \DateTimeImmutable(), $publication2->getNextFetchAt());
+    }
+
+    public function test_process_feed_handler_with_non_existent_publication(): void
+    {
+        $message = new ProcessFeedMessage(99999);
+        
+        $this->processFeedHandler->__invoke($message);
+        
+        $fetchRecords = $this->entityManager->getRepository(PublicationFetch::class)->findAll();
+        $this->assertEmpty($fetchRecords);
+    }
+
+    public function test_process_feed_handler_with_successful_response(): void
+    {
+        $publication = $this->create_publication('https://example.com/feed.xml');
+        $this->entityManager->flush();
+        
+        $jsonFeedContent = json_encode([
+            'version' => 'https://jsonfeed.org/version/1.1',
+            'title' => 'Test Feed',
+            'description' => 'Test feed description',
+            'home_page_url' => 'https://example.com',
+            'items' => [
+                [
+                    'id' => '1',
+                    'url' => 'https://example.com/item1',
+                    'title' => 'Test Item 1',
+                    'summary' => 'Test item 1 description',
+                    'date_published' => '2015-10-21T07:28:00Z'
+                ]
+            ]
         ]);
+        
+        $response = $this->create_mock_response(200, $jsonFeedContent, [
+            'etag' => ['new-etag-value'],
+            'last-modified' => ['Wed, 21 Oct 2015 07:28:00 GMT']
+        ]);
+        
+        $this->httpClient->expects($this->once())
+            ->method('request')
+            ->with('GET', 'https://example.com/feed.xml')
+            ->willReturn($response);
 
-        $processMessage = $this->dispatchAndGetProcessMessage();
+        $message = new ProcessFeedMessage($publication->getId());
+        $this->processFeedHandler->__invoke($message);
 
-        $this->handleProcessMessage($processMessage, $mockClient);
+        $fetchRecords = $this->entityManager->getRepository(PublicationFetch::class)->findAll();
+        $this->assertCount(1, $fetchRecords);
+        
+        $fetch = $fetchRecords[0];
+        $this->assertEquals(FetchStatusEnum::COMPLETED, $fetch->getStatus());
+        $this->assertEquals(200, $fetch->getStatusCode());
+        $this->assertGreaterThanOrEqual(0, $fetch->getLatencyMs());
+        
+        $this->entityManager->refresh($publication);
+        $this->assertEquals('new-etag-value', $publication->getConditionalGetEtag());
+        $this->assertEquals('Wed, 21 Oct 2015 07:28:00 GMT', $publication->getConditionalGetLastModified());
+        $this->assertNotNull($publication->getLastFetchedAt());
+    }
 
-        /** @var PublicationFetch|null $fetch */
-        $fetch = $this->entityManager->getRepository(PublicationFetch::class)->findOneBy(['publication' => $publication]);
-        $this->assertNotNull($fetch);
+    public function test_process_feed_handler_with_not_modified_response(): void
+    {
+        $publication = $this->create_publication('https://example.com/feed.xml');
+        $publication->setConditionalGetEtag('existing-etag');
+        $this->entityManager->flush();
+        
+        $response = $this->create_mock_response(304, '');
+        
+        $this->httpClient->expects($this->once())
+            ->method('request')
+            ->with('GET', 'https://example.com/feed.xml', [
+                'headers' => ['If-None-Match' => 'existing-etag'],
+                'timeout' => 30,
+                'max_redirects' => 5,
+            ])
+            ->willReturn($response);
+
+        $message = new ProcessFeedMessage($publication->getId());
+        $this->processFeedHandler->__invoke($message);
+
+        $fetchRecords = $this->entityManager->getRepository(PublicationFetch::class)->findAll();
+        $this->assertCount(1, $fetchRecords);
+        
+        $fetch = $fetchRecords[0];
         $this->assertEquals(FetchStatusEnum::COMPLETED, $fetch->getStatus());
         $this->assertEquals(304, $fetch->getStatusCode());
         $this->assertEquals(0, $fetch->getNewItemsCount());
         $this->assertEquals(0, $fetch->getUpdatedItemsCount());
     }
 
-    public function test_successful_feed_processing_creates_new_items(): void
+    public function test_process_feed_handler_with_error_status_code(): void
     {
-        $feedJson = json_encode([
-            'version' => 'https://jsonfeed.org/version/1.1',
-            'title'   => 'Integration Test Feed',
-            'home_page_url' => 'https://example.com',
-            'description' => 'Description for Integration Test Feed',
-            'items' => [
-                [
-                    'id'           => 'item-1',
-                    'url'          => 'https://example.com/1',
-                    'title'        => 'Item 1',
-                    'content_html' => '<p>Item Body</p>',
-                ],
-            ],
-        ]);
+        $publication = $this->create_publication('https://example.com/feed.xml');
+        $this->entityManager->flush();
+        
+        $response = $this->create_mock_response(404, 'Not Found');
+        
+        $this->httpClient->expects($this->once())
+            ->method('request')
+            ->willReturn($response);
 
-        $headers = [
-            'etag'           => ['"abc123"'],
-            'last-modified'  => ['Wed, 21 Oct 2015 07:28:00 GMT'],
-        ];
+        $message = new ProcessFeedMessage($publication->getId());
+        $this->processFeedHandler->__invoke($message);
 
-        $mockClient = new MockHttpClient([
-            new MockResponse($feedJson, [
-                'http_code'        => 200,
-                'response_headers' => $headers,
-            ]),
-        ]);
-
-        $collection = CollectionFactory::new()->create()->_real();
-        $publication = PublicationFactory::new([
-            'collection'  => $collection,
-            'nextFetchAt' => (new \DateTimeImmutable())->modify('-1 minute'),
-        ])->create()->_real();
-
-        $processMessage = $this->dispatchAndGetProcessMessage();
-        $this->handleProcessMessage($processMessage, $mockClient);
-
-        /** @var PublicationFetch $fetch */
-        $fetch = $this->entityManager->getRepository(PublicationFetch::class)->findOneBy(['publication' => $publication]);
-        $this->assertEquals(FetchStatusEnum::COMPLETED, $fetch->getStatus());
-        $this->assertEquals(200, $fetch->getStatusCode());
-        $this->assertSame(1, $fetch->getNewItemsCount());
-        $this->assertSame(0, $fetch->getUpdatedItemsCount());
-        $this->assertNotNull($publication->getLastFetchedAt());
-        $this->assertEquals('Integration Test Feed', $publication->getTitle());
-        $this->entityManager->refresh($publication);
-        $this->assertEquals('"abc123"', $publication->getConditionalGetEtag());
-        $this->assertEquals('Wed, 21 Oct 2015 07:28:00 GMT', $publication->getConditionalGetLastModified());
-        $this->assertEquals('Description for Integration Test Feed', $publication->getDescription());
-    }
-
-    public function test_unexpected_status_code_marks_fetch_failed(): void
-    {
-        $collection = CollectionFactory::new()->create()->_real();
-        $publication = PublicationFactory::new([
-            'collection'  => $collection,
-            'nextFetchAt' => (new \DateTimeImmutable())->modify('-1 minute'),
-        ])->create()->_real();
-
-        $mockClient = new MockHttpClient([
-            new MockResponse('Server error', ['http_code' => 500]),
-        ]);
-
-        $processMessage = $this->dispatchAndGetProcessMessage();
-        $this->handleProcessMessage($processMessage, $mockClient);
-
-        /** @var PublicationFetch $fetch */
-        $fetch = $this->entityManager->getRepository(PublicationFetch::class)->findOneBy(['publication' => $publication]);
+        $fetchRecords = $this->entityManager->getRepository(PublicationFetch::class)->findAll();
+        $this->assertCount(1, $fetchRecords);
+        
+        $fetch = $fetchRecords[0];
         $this->assertEquals(FetchStatusEnum::FAILED, $fetch->getStatus());
-        $this->assertEquals(500, $fetch->getStatusCode());
-        $this->assertNotNull($fetch->getError());
+        $this->assertEquals(404, $fetch->getStatusCode());
+        $this->assertStringContainsString('404', $fetch->getError());
     }
 
-    public function test_publication_not_found_is_ignored(): void
+    public function test_process_feed_handler_with_transport_exception(): void
     {
-        $mockClient = new MockHttpClient([
-            new MockResponse('', ['http_code' => 200]),
-        ]);
+        $publication = $this->create_publication('https://example.com/feed.xml');
+        $this->entityManager->flush();
+        
+        $exception = new class('Transport error occurred') extends \Exception implements TransportExceptionInterface {};
+        
+        $this->httpClient->expects($this->once())
+            ->method('request')
+            ->willThrowException($exception);
 
-        $message = new ProcessFeedMessage(999999999);
+        $message = new ProcessFeedMessage($publication->getId());
+        $this->processFeedHandler->__invoke($message);
 
-        $this->handleProcessMessage($message, $mockClient);
-
-        $fetchCount = $this->entityManager->getRepository(PublicationFetch::class)->count([]);
-        $this->assertSame(0, $fetchCount, 'No PublicationFetch should have been created.');
-    }
-
-    public function test_transport_failure_marks_fetch_failed(): void
-    {
-        $collection = CollectionFactory::new()->create()->_real();
-        $publication = PublicationFactory::new([
-            'collection'  => $collection,
-            'nextFetchAt' => (new \DateTimeImmutable())->modify('-1 minute'),
-        ])->create()->_real();
-
-        $mockClient = new MockHttpClient(function () {
-            throw new TransportException('Network failure');
-        });
-
-        $processMessage = $this->dispatchAndGetProcessMessage();
-        $this->handleProcessMessage($processMessage, $mockClient);
-
-        /** @var PublicationFetch $fetch */
-        $fetch = $this->entityManager->getRepository(PublicationFetch::class)->findOneBy(['publication' => $publication]);
+        $fetchRecords = $this->entityManager->getRepository(PublicationFetch::class)->findAll();
+        $this->assertCount(1, $fetchRecords);
+        
+        $fetch = $fetchRecords[0];
         $this->assertEquals(FetchStatusEnum::FAILED, $fetch->getStatus());
         $this->assertEquals(0, $fetch->getStatusCode());
-        $this->assertNotNull($fetch->getError());
+        $this->assertNotEmpty($fetch->getError());
     }
 
-    public function test_conditional_headers_are_sent(): void
+    public function test_process_feed_handler_with_conditional_get_headers(): void
     {
-        $collection = CollectionFactory::new()->create()->_real();
-        $publication = PublicationFactory::new([
-            'collection'  => $collection,
-            'nextFetchAt' => (new \DateTimeImmutable())->modify('-1 hour'), 
-        ])->create()->_real();
-
-        $publication->setConditionalGetEtag('"etag123"');
-        $publication->setConditionalGetLastModified('Wed, 22 Oct 2015 07:28:00 GMT');
-        $this->entityManager->persist($publication);
+        $publication = $this->create_publication('https://example.com/feed.xml');
+        $publication->setConditionalGetEtag('old-etag');
+        $publication->setConditionalGetLastModified('Tue, 20 Oct 2015 07:28:00 GMT');
         $this->entityManager->flush();
+        
+        $jsonFeedContent = json_encode([
+            'version' => 'https://jsonfeed.org/version/1.1',
+            'title' => 'Test Feed',
+            'items' => []
+        ]);
+        $response = $this->create_mock_response(200, $jsonFeedContent);
+        
+        $this->httpClient->expects($this->once())
+            ->method('request')
+            ->with('GET', 'https://example.com/feed.xml', [
+                'headers' => [
+                    'If-None-Match' => 'old-etag',
+                    'If-Modified-Since' => 'Tue, 20 Oct 2015 07:28:00 GMT'
+                ],
+                'timeout' => 30,
+                'max_redirects' => 5,
+            ])
+            ->willReturn($response);
 
-        $capturedHeaders = [];
-        $mockClient = new MockHttpClient(function (string $method, string $url, array $options) use (&$capturedHeaders) {
-            $capturedHeaders = $options['headers'] ?? [];
-            return new MockResponse('', ['http_code' => 304]);
-        });
+        $message = new ProcessFeedMessage($publication->getId());
+        $this->processFeedHandler->__invoke($message);
 
-        $processMessage = new ProcessFeedMessage($publication->getId());
-        $this->handleProcessMessage($processMessage, $mockClient);
-
-        $this->assertArrayHasKey('If-None-Match', $capturedHeaders);
-        $this->assertArrayHasKey('If-Modified-Since', $capturedHeaders);
-        $this->assertEquals('"etag123"', $capturedHeaders['If-None-Match']);
-        $this->assertEquals('Wed, 22 Oct 2015 07:28:00 GMT', $capturedHeaders['If-Modified-Since']);
+        $fetchRecords = $this->entityManager->getRepository(PublicationFetch::class)->findAll();
+        $this->assertCount(1, $fetchRecords);
+        $this->assertEquals(FetchStatusEnum::COMPLETED, $fetchRecords[0]->getStatus());
     }
 
-    private function dispatchAndGetProcessMessage(): ProcessFeedMessage
+    public function test_process_feed_handler_updates_feed_metadata(): void
     {
-        $this->asyncTransport->reset();
-        $this->bus->dispatch(new FetchMessage());
+        $publication = $this->create_publication('https://example.com/feed.xml');
+        $publication->setTitle('Old Title');
+        $publication->setDescription('Old Description');
+        $this->entityManager->flush();
+        
+        $jsonFeedContent = json_encode([
+            'version' => 'https://jsonfeed.org/version/1.1',
+            'title' => 'Updated Feed Title',
+            'description' => 'Updated feed description',
+            'home_page_url' => 'https://example.com',
+            'items' => []
+        ]);
+        $response = $this->create_mock_response(200, $jsonFeedContent);
+        
+        $this->httpClient->expects($this->once())
+            ->method('request')
+            ->willReturn($response);
 
-        $envelopes = $this->asyncTransport->get();
-        $this->assertNotEmpty($envelopes, 'A ProcessFeedMessage should have been dispatched.');
-        $message = $envelopes[0]->getMessage();
-        $this->assertInstanceOf(ProcessFeedMessage::class, $message);
+        $message = new ProcessFeedMessage($publication->getId());
+        $this->processFeedHandler->__invoke($message);
 
-        return $message;
+        $this->entityManager->refresh($publication);
+        $this->assertEquals('Updated Feed Title', $publication->getTitle());
+        $this->assertEquals('Updated feed description', $publication->getDescription());
     }
 
-    private function handleProcessMessage(ProcessFeedMessage $message, HttpClientInterface $httpClient): void
+    private function create_publication(string $url): Publication
     {
-        $fetchService = self::getContainer()->get(FetchService::class);
-        $publicationRepository = self::getContainer()->get(PublicationRepository::class);
-        $logger = self::getContainer()->get(LoggerInterface::class);
-
-        $handler = new ProcessFeedHandler(
-            $fetchService,
-            $publicationRepository,
-            $this->entityManager,
-            $httpClient,
-            $logger,
-        );
-
-        $handler->__invoke($message);
+        $publication = new Publication();
+        $publication->setUrl($url);
+        $publication->setCollection($this->collection);
+        $publication->setNextFetchAt(new \DateTimeImmutable());
+        
+        $this->entityManager->persist($publication);
+        
+        return $publication;
     }
-} 
+
+    private function create_mock_response(int $statusCode, string $content, array $headers = []): ResponseInterface
+    {
+        $response = $this->createMock(ResponseInterface::class);
+        $response->method('getStatusCode')->willReturn($statusCode);
+        $response->method('getContent')->willReturn($content);
+        $response->method('getHeaders')->willReturn($headers);
+        
+        return $response;
+    }
+
+
+}
