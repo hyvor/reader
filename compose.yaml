@@ -47,27 +47,6 @@ services:
       test: ls
       disable: true
 
-  hyvor-reader-scheduler:
-    container_name: hyvor-reader-scheduler
-    build:
-      context: .
-      target: backend-dev
-    volumes:
-      - ./backend:/app/backend
-      - ./internal:/app/backend/vendor/hyvor/internal:ro
-      - ./shared:/app/shared
-    command: php bin/console messenger:consume scheduler_default -vv
-    networks:
-      - hyvor-network
-    depends_on:
-      postgres:
-        condition: service_healthy
-      hyvor-reader-backend:
-        condition: service_started
-    environment:
-      - APP_ENV=dev
-    restart: unless-stopped
-
   postgres:
     image: postgres:16
     container_name: hyvor-reader-postgres
@@ -87,19 +66,19 @@ services:
       timeout: 5s
       retries: 5
 
-#  traefik:
-#    image: traefik:v3.4
-#    container_name: hyvor-reader-traefik
-#    command:
-#      - "--providers.docker=true"
-#      - "--providers.docker.exposedbydefault=false"
-#      - "--entrypoints.http.address=:80"
-#    ports:
-#      - "80:80"
-#    volumes:
-#      - /var/run/docker.sock:/var/run/docker.sock:ro
-#    networks:
-#      - hyvor-network
+  traefik:
+    image: traefik:v3.4
+    container_name: hyvor-reader-traefik
+    command:
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--entrypoints.http.address=:80"
+    ports:
+      - "80:80"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    networks:
+      - hyvor-network
 
 networks:
   hyvor-network:
