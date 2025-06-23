@@ -13,6 +13,9 @@ class Parser implements ParserInterface
         $this->content = $content;
     }
 
+    /**
+     * @throws ParserException
+     */
     public function parse(): Feed
     {
         $parser = $this->detectParser();
