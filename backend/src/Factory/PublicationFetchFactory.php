@@ -3,7 +3,7 @@
 namespace App\Factory;
 
 use App\Entity\PublicationFetch;
-use App\Enum\FetchStatusEnum;
+use App\Service\Fetch\FetchStatusEnum;
 use Zenstruck\Foundry\Persistence\PersistentProxyObjectFactory;
 
 /**

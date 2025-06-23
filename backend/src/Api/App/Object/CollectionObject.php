@@ -14,6 +14,6 @@ class CollectionObject
     {
         $this->id = $collection->getId();
         $this->name = $collection->getName();
-        $this->uuid = $collection->getUuid()->toRfc4122();
+        $this->uuid = $collection->getUuid();
     }
 } 

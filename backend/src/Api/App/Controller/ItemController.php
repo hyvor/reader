@@ -40,13 +40,11 @@ class ItemController extends AbstractController
         $items = [];
         
         if ($publicationId) {
-            try {
-                $uuid = Uuid::fromString($publicationId);
-            } catch (\InvalidArgumentException $e) {
+            if (!Uuid::isValid($publicationId)) {
                 return $this->json(['error' => 'Invalid UUID format for publication_id'], Response::HTTP_BAD_REQUEST);
             }
 
-            $publication = $this->publicationRepository->findOneBy(['uuid' => $uuid]);
+            $publication = $this->publicationRepository->findOneBy(['uuid' => $publicationId]);
             if (!$publication) {
                 return $this->json(['error' => 'Publication not found'], Response::HTTP_NOT_FOUND);
             }
@@ -57,13 +55,11 @@ class ItemController extends AbstractController
             }
             
         } else if ($collectionId) {
-            try {
-                $uuid = Uuid::fromString($collectionId);
-            } catch (\InvalidArgumentException $e) {
+            if (!Uuid::isValid($collectionId)) {
                 return $this->json(['error' => 'Invalid UUID format for collection_id'], Response::HTTP_BAD_REQUEST);
             }
 
-            $collection = $this->collectionRepository->findOneBy(['uuid' => $uuid]);
+            $collection = $this->collectionRepository->findOneBy(['uuid' => $collectionId]);
             if (!$collection) {
                 return $this->json(['error' => 'Collection not found'], Response::HTTP_NOT_FOUND);
             }
@@ -93,7 +89,7 @@ class ItemController extends AbstractController
     {
         return [
             'id' => $item->getId(),
-            'uuid' => $item->getUuid()->toRfc4122(),
+            'uuid' => $item->getUuid(),
             'title' => $item->getTitle() ?? 'Untitled',
             'url' => $item->getUrl(),
             'content_html' => $item->getContentHtml(),
@@ -106,7 +102,7 @@ class ItemController extends AbstractController
             'tags' => $item->getTags(),
             'language' => $item->getLanguage(),
             'publication_id' => $item->getPublication()?->getId(),
-            'publication_uuid' => $item->getPublication()?->getUuid()->toRfc4122(),
+            'publication_uuid' => $item->getPublication()?->getUuid(),
             'publication_title' => $item->getPublication()?->getTitle() ?? 'Untitled',
         ];
     }
