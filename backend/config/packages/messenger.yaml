@@ -8,4 +8,5 @@ when@test:
     framework:
         messenger:
             transports:
-                scheduler_default: 'sync://'
+                async: test://
+                scheduler_default: test://
