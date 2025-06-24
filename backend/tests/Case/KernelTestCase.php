@@ -24,5 +24,4 @@ class KernelTestCase extends \Symfony\Bundle\FrameworkBundle\Test\KernelTestCase
         $em = $this->container->get(EntityManagerInterface::class);
         $this->em = $em;
     }
-
 }

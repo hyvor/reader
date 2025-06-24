@@ -1,8 +1,7 @@
 framework:
     messenger:
         transports:
-            async:
-                dsn: doctrine://default
+            async: doctrine://default
 
 when@test:
     framework:
