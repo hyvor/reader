@@ -35,7 +35,7 @@ class Parser implements ParserInterface
         }
 
         if ($xml->getName() === 'rss') {
-            return new RSSParser($this->content);
+            return new RssParser($this->content);
         }
 
         if ($xml->getName() === 'feed') {

@@ -19,12 +19,12 @@ final class Version20250207165918 extends AbstractMigration
 
     public function up(Schema $schema): void
     {
-        $this->addSql('
+        $this->addSql(<<<'SQL'
             CREATE TABLE publications (
                 id bigserial NOT NULL PRIMARY KEY, 
                 created_at timestamptz DEFAULT CURRENT_TIMESTAMP NOT NULL, 
                 updated_at timestamptz DEFAULT CURRENT_TIMESTAMP NOT NULL, 
-                uuid UUID NOT NULL DEFAULT gen_random_uuid(),
+                uuid UUID NOT NULL DEFAULT gen_random_uuid() UNIQUE,
                 url text NOT NULL UNIQUE, 
                 title text DEFAULT NULL, 
                 description text DEFAULT NULL, 
@@ -34,13 +34,13 @@ final class Version20250207165918 extends AbstractMigration
                 subscribers INT DEFAULT 0 NOT NULL,
                 conditional_get_last_modified text DEFAULT NULL, 
                 conditional_get_etag text DEFAULT NULL,
-                collection_id INT NOT NULL,
-                CONSTRAINT UNIQ_publications_uuid UNIQUE (uuid)
-          )
-        ');
+                collection_id INT NOT NULL REFERENCES collections (id)
+            )
+        SQL);
 
 
         $this->addSql("CREATE TYPE publication_status AS ENUM ('pending', 'completed', 'failed')");
+
         $this->addSql(<<<SQL
             CREATE TABLE publication_fetches (
                 id bigserial NOT NULL PRIMARY KEY,
@@ -57,15 +57,12 @@ final class Version20250207165918 extends AbstractMigration
                 latency_ms integer NULL
             )
         SQL);
-
-        $this->addSql('CREATE INDEX idx_publication_fetches_publication_id ON publication_fetches(publication_id)');
-        $this->addSql('CREATE INDEX idx_publication_fetches_created_at ON publication_fetches(created_at)');
-        $this->addSql('CREATE INDEX idx_publication_fetches_status ON publication_fetches(status)');
     }
 
     public function down(Schema $schema): void
     {
-        $this->addSql('DROP TABLE publication_fetches');
-        $this->addSql('DROP TABLE publications');
+        $this->addSql('DROP TABLE IF EXISTS publication_fetches');
+        $this->addSql('DROP TYPE IF EXISTS publication_status');
+        $this->addSql('DROP TABLE IF EXISTS publications');
     }
 }

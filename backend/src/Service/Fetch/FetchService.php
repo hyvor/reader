@@ -5,7 +5,9 @@ namespace App\Service\Fetch;
 use App\Repository\PublicationRepository;
 use App\Repository\ItemRepository;
 use App\Entity\Publication;
+use App\Entity\Item;
 use App\Service\Parser\Types\Feed;
+use App\Service\Parser\Types\Item as ParsedItem;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
 
@@ -15,7 +17,6 @@ class FetchService
         private PublicationRepository $publicationRepository,
         private ItemRepository $itemRepository,
         private EntityManagerInterface $entityManager,
-        private LoggerInterface $logger,
     ) {
     }
 
@@ -51,72 +52,16 @@ class FetchService
         foreach ($feed->items as $item) {
             $existingItem = $this->itemRepository->findOneBy([
                 'publication' => $publication,
-                'url' => $item->url, // assuming URL is unique identifier
+                'guid' => $item->id, 
             ]);
 
             if ($existingItem) {
-                $hasChanges = false;
-
-                if ($existingItem->getTitle() !== $item->title) {
-                    $existingItem->setTitle($item->title);
-                    $hasChanges = true;
-                }
-
-                if ($existingItem->getSummary() !== $item->summary) {
-                    $existingItem->setSummary($item->summary);
-                    $hasChanges = true;
-                }
-
-                if ($item->content_html && $existingItem->getContentHtml() !== $item->content_html) {
-                    $existingItem->setContentHtml($item->content_html);
-                    $hasChanges = true;
-                }
-
-                if ($hasChanges) {
-                    $existingItem->setUpdatedAt(new \DateTimeImmutable());
+                if ($this->updateExistingItem($existingItem, $item)) {
                     $updatedItemsCount++;
-
-                    $this->logger->debug('Updated existing item', [
-                        'publication_id' => $publication->getId(),
-                        'item_url' => $item->url,
-                        'item_title' => $item->title,
-                    ]);
                 }
             } else {
-                $newItem = new \App\Entity\Item();
-                $newItem->setPublication($publication);
-                $newItem->setTitle($item->title);
-                $newItem->setUrl($item->url);
-                $newItem->setSummary($item->summary);
-
-                if ($item->content_html) {
-                    $newItem->setContentHtml($item->content_html);
-                }
-
-                if ($item->published_at) {
-                    $newItem->setPublishedAt(\DateTimeImmutable::createFromInterface($item->published_at));
-                }
-
-                if ($item->updated_at) {
-                    $newItem->setUpdatedAt(\DateTimeImmutable::createFromInterface($item->updated_at));
-                } else {
-                    $newItem->setUpdatedAt(new \DateTimeImmutable());
-                }
-
-                $authorNames = array_map(fn($author) => $author->name, $item->authors);
-                $tagNames = array_map(fn($tag) => $tag->name, $item->tags);
-
-                $newItem->setAuthors($authorNames);
-                $newItem->setTags($tagNames);
-
-                $this->entityManager->persist($newItem);
+                $this->addNewItem($publication, $item);
                 $newItemsCount++;
-
-                $this->logger->debug('Created new item', [
-                    'publication_id' => $publication->getId(),
-                    'item_url' => $item->url,
-                    'item_title' => $item->title,
-                ]);
             }
         }
 
@@ -124,5 +69,127 @@ class FetchService
             'new_items' => $newItemsCount,
             'updated_items' => $updatedItemsCount,
         ];
+    }
+
+    /**
+     * Update an existing item with new data from the parsed feed
+     * 
+     * @param Item $existingItem
+     * @param ParsedItem $parsedItem
+     * @return bool True if the item was updated, false if no changes were made
+     */
+    private function updateExistingItem(Item $existingItem, ParsedItem $parsedItem): bool
+    {
+        $hasChanges = false;
+
+        if ($existingItem->getTitle() !== $parsedItem->title) {
+            $existingItem->setTitle($parsedItem->title);
+            $hasChanges = true;
+        }
+
+        if ($existingItem->getSummary() !== $parsedItem->summary) {
+            $existingItem->setSummary($parsedItem->summary);
+            $hasChanges = true;
+        }
+
+        if ($parsedItem->content_html && $existingItem->getContentHtml() !== $parsedItem->content_html) {
+            $existingItem->setContentHtml($parsedItem->content_html);
+            $hasChanges = true;
+        }
+
+        if ($parsedItem->content_text && $existingItem->getContentText() !== $parsedItem->content_text) {
+            $existingItem->setContentText($parsedItem->content_text);
+            $hasChanges = true;
+        }
+
+        if ($parsedItem->image && $existingItem->getImage() !== $parsedItem->image) {
+            $existingItem->setImage($parsedItem->image);
+            $hasChanges = true;
+        }
+
+        if ($parsedItem->language && $existingItem->getLanguage() !== $parsedItem->language) {
+            $existingItem->setLanguage($parsedItem->language);
+            $hasChanges = true;
+        }
+
+        if ($existingItem->getUrl() !== $parsedItem->url) {
+            $existingItem->setUrl($parsedItem->url);
+            $hasChanges = true;
+        }
+
+        if ($existingItem->getPublishedAt()?->getTimestamp() !== $parsedItem->published_at?->getTimestamp()) {
+            $existingItem->setPublishedAt($parsedItem->published_at);
+            $hasChanges = true;
+        }
+
+        $newAuthorNames = array_map(fn($author) => $author->name, $parsedItem->authors);
+        $newTagNames = array_map(fn($tag) => $tag->name, $parsedItem->tags);
+        
+        if ($existingItem->getAuthors() !== $newAuthorNames) {
+            $existingItem->setAuthors($newAuthorNames);
+            $hasChanges = true;
+        }
+
+        if ($existingItem->getTags() !== $newTagNames) {
+            $existingItem->setTags($newTagNames);
+            $hasChanges = true;
+        }
+
+        if ($hasChanges) {
+            $existingItem->setUpdatedAt(new \DateTimeImmutable());
+        }
+
+        return $hasChanges;
+    }
+
+    /**
+     * Add a new item from the parsed feed
+     * 
+     * @param Publication $publication
+     * @param ParsedItem $parsedItem
+     * @return void
+     */
+    private function addNewItem(Publication $publication, ParsedItem $parsedItem): void
+    {
+        $newItem = new Item();
+        $newItem->setPublication($publication);
+        $newItem->setGuid($parsedItem->id);
+        $newItem->setTitle($parsedItem->title);
+        $newItem->setUrl($parsedItem->url);
+        $newItem->setSummary($parsedItem->summary);
+
+        if ($parsedItem->content_html) {
+            $newItem->setContentHtml($parsedItem->content_html);
+        }
+
+        if ($parsedItem->content_text) {
+            $newItem->setContentText($parsedItem->content_text);
+        }
+
+        if ($parsedItem->image) {
+            $newItem->setImage($parsedItem->image);
+        }
+
+        if ($parsedItem->language) {
+            $newItem->setLanguage($parsedItem->language);
+        }
+
+        if ($parsedItem->published_at) {
+            $newItem->setPublishedAt($parsedItem->published_at);
+        }
+
+        if ($parsedItem->updated_at) {
+            $newItem->setUpdatedAt($parsedItem->updated_at);
+        } else {
+            $newItem->setUpdatedAt(new \DateTimeImmutable());
+        }
+
+        $authorNames = array_map(fn($author) => $author->name, $parsedItem->authors);
+        $tagNames = array_map(fn($tag) => $tag->name, $parsedItem->tags);
+
+        $newItem->setAuthors($authorNames);
+        $newItem->setTags($tagNames);
+
+        $this->entityManager->persist($newItem);
     }
 } 

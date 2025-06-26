@@ -89,6 +89,7 @@ class ItemController extends AbstractController
     {
         return [
             'id' => $item->getId(),
+            'guid' => $item->getGuid(),
             'uuid' => $item->getUuid(),
             'title' => $item->getTitle() ?? 'Untitled',
             'url' => $item->getUrl(),

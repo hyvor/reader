@@ -19,6 +19,7 @@ final class Version20250519113000 extends AbstractMigration
         $this->addSql(<<<'SQL'
             CREATE TABLE items (
                 id BIGSERIAL NOT NULL PRIMARY KEY,
+                guid TEXT NOT NULL,
                 url TEXT NOT NULL,
                 title TEXT NOT NULL,
                 content_html TEXT DEFAULT NULL,
@@ -30,10 +31,9 @@ final class Version20250519113000 extends AbstractMigration
                 authors TEXT NOT NULL,
                 tags TEXT NOT NULL,
                 language TEXT DEFAULT NULL,
-                uuid UUID NOT NULL DEFAULT gen_random_uuid(),
-                publication_id INT NOT NULL,
-                CONSTRAINT UNIQ_items_uuid UNIQUE (uuid),
-                CONSTRAINT FK_E11EE94D38B217A7 FOREIGN KEY (publication_id) REFERENCES publications (id)
+                uuid UUID NOT NULL DEFAULT gen_random_uuid() UNIQUE,
+                publication_id INT NOT NULL REFERENCES publications (id),
+                CONSTRAINT UNIQ_items_publication_guid UNIQUE (publication_id, guid)
             )
         SQL);
     }
