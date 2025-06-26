@@ -121,6 +121,10 @@ class ProcessFeedHandler
               ->setLatencyMs($latencyMs)
               ->setNewItemsCount(0)
               ->setUpdatedItemsCount(0);
+
+        $publication = $fetch->getPublication();
+        $publication->setLastFetchedAt(new \DateTimeImmutable());
+        $this->fetchService->updateNextFetchTime($publication);
     }
 
     private function markFetchCompleted(PublicationFetch $fetch, int $statusCode, int $latencyMs, array $result): void
@@ -151,5 +155,7 @@ class ProcessFeedHandler
         if ($feed->description && $publication->getDescription() !== $feed->description) {
             $publication->setDescription($feed->description);
         }
+
+        $this->fetchService->updateNextFetchTime($publication);
     }
 } 

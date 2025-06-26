@@ -26,10 +26,5 @@ class FetchHandler
         }
     }
 
-    /*private function updateNextFetchTime($publication): void
-    {
-        $nextFetchAt = (new \DateTimeImmutable())->modify("+{$publication->getInterval()} minutes");
-        $publication->setNextFetchAt($nextFetchAt);
-        $publication->setUpdatedAt(new \DateTimeImmutable());
-    }*/
+
 } 

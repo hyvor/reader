@@ -65,10 +65,88 @@ class FetchService
             }
         }
 
+        if ($newItemsCount > 0) {
+            $this->updateAdaptiveInterval($publication);
+        }
+
         return [
             'new_items' => $newItemsCount,
             'updated_items' => $updatedItemsCount,
         ];
+    }
+
+    /**
+     * Calculate and update the publication's interval based on the average frequency of new items.
+     * 
+     * @param Publication $publication
+     * @return void
+     */
+    public function updateAdaptiveInterval(Publication $publication): void
+    {
+        $averageInterval = $this->calculateAveragePublicationInterval($publication);
+        
+        if ($averageInterval !== null) {
+            $minInterval = 15;
+            $maxInterval = 24 * 60;
+            
+            $publication->setInterval(max($minInterval, min($maxInterval, $averageInterval)));
+        }
+    }
+
+    /**
+     * Calculate the average interval between publications based on published_at timestamps.
+     * 
+     * @param Publication $publication
+     * @return int|null Average interval in minutes, or null if not enough data
+     */
+    public function calculateAveragePublicationInterval(Publication $publication): ?int
+    {
+        $items = $this->itemRepository->createQueryBuilder('i')
+            ->where('i.publication = :publication')
+            ->andWhere('i.published_at IS NOT NULL')
+            ->setParameter('publication', $publication)
+            ->orderBy('i.published_at', 'DESC')
+            ->setMaxResults(20)
+            ->getQuery()
+            ->getResult();
+
+        if (count($items) < 2) {
+            return null;
+        }
+
+        $intervals = [];
+        
+        for ($i = 0; $i < count($items) - 1; $i++) {
+            $newerDate = $items[$i]->getPublishedAt();
+            $olderDate = $items[$i + 1]->getPublishedAt();
+            
+            if ($newerDate && $olderDate) {
+                $intervals[] = ($newerDate->getTimestamp() - $olderDate->getTimestamp()) / 60;
+            }
+        }
+
+        if (empty($intervals)) {
+            return null;
+        }
+
+        // Calculate average interval
+        $averageInterval = array_sum($intervals) / count($intervals);
+        
+        return (int) round($averageInterval);
+    }
+
+    /**
+     * Update the next fetch time for a publication based on its interval.
+     * 
+     * @param Publication $publication
+     * @return void
+     */
+    public function updateNextFetchTime(Publication $publication): void
+    {
+        $interval = $publication->getInterval();
+        $nextFetchAt = (new \DateTimeImmutable())->modify("+{$interval} minutes");
+        
+        $publication->setNextFetchAt($nextFetchAt);
     }
 
     /**
