@@ -126,7 +126,7 @@ class FetchService
             }
         }
 
-        if (empty($intervals)) {
+        if (count($intervals) === 0) {
             return null;
         }
 

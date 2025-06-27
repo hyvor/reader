@@ -25,11 +25,6 @@ class FetchServiceTest extends KernelTestCase
 
         $this->fetchService = $this->container->get(FetchService::class);
 
-        $this->em->createQuery('DELETE FROM App\Entity\PublicationFetch')->execute();
-        $this->em->createQuery('DELETE FROM App\Entity\Item')->execute();
-        $this->em->createQuery('DELETE FROM App\Entity\Publication')->execute();
-        $this->em->createQuery('DELETE FROM App\Entity\Collection')->execute();
-
         /** @var CollectionFactory $collectionFactory */
         $collectionFactory = $this->container->get(CollectionFactory::class);
         $this->collection = $collectionFactory->createOne();
@@ -37,10 +32,7 @@ class FetchServiceTest extends KernelTestCase
 
     public function test_calculate_average_publication_interval_with_insufficient_data(): void
     {
-        /** @var Publication $publication */
-        $publication = PublicationFactory::createOne([
-            'collection' => $this->collection,
-        ]);
+        $publication = PublicationFactory::createOne();
 
         ItemFactory::createOne([
             'publication' => $publication,
