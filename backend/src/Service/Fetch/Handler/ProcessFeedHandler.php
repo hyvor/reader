@@ -11,6 +11,7 @@ use App\Service\Fetch\FetchStatusEnum;
 use App\Service\Parser\Parser;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
+use Symfony\Component\Clock\ClockAwareTrait;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
@@ -19,6 +20,9 @@ use App\Service\Fetch\Exception\UnexpectedStatusCodeException;
 #[AsMessageHandler]
 class ProcessFeedHandler
 {
+
+    use ClockAwareTrait;
+
     public function __construct(
         private FetchService $fetchService,
         private PublicationRepository $publicationRepository,
@@ -57,7 +61,7 @@ class ProcessFeedHandler
                 throw new UnexpectedStatusCodeException($statusCode);
             }
 
-            $feed = (new Parser($response->getContent()))->parse();
+            $feed = new Parser($response->getContent())->parse();
             $result = $this->fetchService->processItems($publication, $feed);
 
             $this->markFetchCompleted($fetch, $statusCode, $latencyMs, $result);
@@ -80,6 +84,8 @@ class ProcessFeedHandler
             $fetch->setStatusCode($status)
                   ->setLatencyMs($latencyMs);
         }
+
+        // TODO: handle ParseException
 
         $this->entityManager->flush();
     }
@@ -123,7 +129,7 @@ class ProcessFeedHandler
               ->setUpdatedItemsCount(0);
 
         $publication = $fetch->getPublication();
-        $publication->setLastFetchedAt(new \DateTimeImmutable());
+        $publication->setLastFetchedAt($this->now());
         $this->fetchService->updateNextFetchTime($publication);
     }
 
@@ -138,7 +144,7 @@ class ProcessFeedHandler
 
     private function updatePublication(Publication $publication, array $responseHeaders, $feed): void
     {
-        $publication->setLastFetchedAt(new \DateTimeImmutable());
+        $publication->setLastFetchedAt($this->now());
 
         if (isset($responseHeaders['etag'][0])) {
             $publication->setConditionalGetEtag($responseHeaders['etag'][0]);

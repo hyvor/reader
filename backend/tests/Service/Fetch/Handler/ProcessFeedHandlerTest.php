@@ -2,50 +2,33 @@
 
 namespace App\Tests\Service\Fetch\Handler;
 
-use App\Entity\Collection;
-use App\Factory\CollectionFactory;
+use App\Entity\PublicationFetch;
 use App\Factory\PublicationFactory;
-use App\Repository\PublicationFetchRepository;
+use App\Service\Fetch\FetchService;
+use App\Service\Fetch\Handler\ProcessFeedHandler;
 use App\Service\Fetch\Message\ProcessFeedMessage;
 use App\Service\Fetch\FetchStatusEnum;
 use App\Tests\Case\KernelTestCase;
+use PHPUnit\Framework\Attributes\CoversClass;
+use Symfony\Component\Clock\Clock;
+use Symfony\Component\Clock\MockClock;
 use Symfony\Component\HttpClient\Exception\TransportException;
 use Symfony\Component\HttpClient\MockHttpClient;
 use Symfony\Component\HttpClient\Response\JsonMockResponse;
 use Symfony\Component\HttpClient\Response\MockResponse;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
-use Zenstruck\Foundry\Test\Factories;
 use Zenstruck\Messenger\Test\Transport\TestTransport;
 
+#[CoversClass(ProcessFeedHandler::class)]
+#[CoversClass(FetchService::class)]
 class ProcessFeedHandlerTest extends KernelTestCase
 {
-    use Factories;
-
-    private Collection $collection;
     private TestTransport $asyncTransport;
-    private PublicationFactory $publicationFactory;
-    private PublicationFetchRepository $publicationFetchRepository;
 
     protected function setUp(): void
     {
         parent::setUp();
-
         $this->asyncTransport = $this->transport('async');
-
-        $this->em->createQuery('DELETE FROM App\Entity\PublicationFetch')->execute();
-        $this->em->createQuery('DELETE FROM App\Entity\Item')->execute();
-        $this->em->createQuery('DELETE FROM App\Entity\Publication')->execute();
-        $this->em->createQuery('DELETE FROM App\Entity\Collection')->execute();
-
-        /** @var CollectionFactory $collectionFactory */
-        $collectionFactory = $this->container->get(CollectionFactory::class);
-        $this->collection = $collectionFactory->createOne();
-
-        /** @var PublicationFactory $publicationFactory */
-        $this->publicationFactory = $this->container->get(PublicationFactory::class);
-
-        /** @var PublicationFetchRepository $publicationFetchRepository */
-        $this->publicationFetchRepository = $this->container->get(PublicationFetchRepository::class);
     }
 
     public function test_process_feed_handler_with_non_existent_publication(): void
@@ -53,11 +36,13 @@ class ProcessFeedHandlerTest extends KernelTestCase
         $this->asyncTransport->send(new ProcessFeedMessage(99999));
         $this->asyncTransport->process();
 
-        $this->assertEquals(0, $this->publicationFetchRepository->count());
+        $this->assertEquals(0, $this->em->getRepository(PublicationFetch::class)->count());
     }
 
     public function test_process_feed_handler_with_successful_response(): void
     {
+        Clock::set(new MockClock('2025-06-24 00:00:00'));
+
         $client = new MockHttpClient([
             new JsonMockResponse([
                 'version' => 'https://jsonfeed.org/version/1.1',
@@ -84,46 +69,42 @@ class ProcessFeedHandlerTest extends KernelTestCase
 
         $this->container->set(HttpClientInterface::class, $client);
 
-        $publication = $this->publicationFactory->createOne([
-            'collection' => $this->collection,
-        ]);
+        $publication = PublicationFactory::createOne();
 
-        $beforeProcessing = new \DateTimeImmutable();
         $this->asyncTransport->send(new ProcessFeedMessage($publication->getId()));
         $this->asyncTransport->process();
-        $afterProcessing = new \DateTimeImmutable();
 
-        $fetch = $this->publicationFetchRepository->findOneBy(['publication' => $publication->getId()]);
+        $fetch = $this->em->getRepository(PublicationFetch::class)->findOneBy(['publication' => $publication->getId()]);
         $this->assertNotNull($fetch);
         $this->assertEquals(FetchStatusEnum::COMPLETED, $fetch->getStatus());
         $this->assertEquals(200, $fetch->getStatusCode());
         
         $this->assertEquals('new-etag', $publication->getConditionalGetEtag());
         $this->assertEquals('Mon, 24 Jun 2025 00:00:00 GMT', $publication->getConditionalGetLastModified());
+
+        // TODO: check items
         
         $this->assertNotNull($publication->getLastFetchedAt());
-        $this->assertGreaterThanOrEqual($beforeProcessing->getTimestamp(), $publication->getLastFetchedAt()->getTimestamp());
-        $this->assertLessThanOrEqual($afterProcessing->getTimestamp(), $publication->getLastFetchedAt()->getTimestamp());
+        $this->assertSame('2025-06-24 00:00:00', $publication->getLastFetchedAt()->format('Y-m-d H:i:s'));
+        $this->assertSame('2025-06-24 00:00:00', $publication->getLastFetchedAt()->format('Y-m-d H:i:s'));
     }
 
     public function test_process_feed_handler_with_not_modified_response(): void
     {
         $client = new MockHttpClient([
             new MockResponse('', [
-            'http_code' => 304,
+                'http_code' => 304,
             ])
         ]);
 
         $this->container->set(HttpClientInterface::class, $client);
 
-        $publication = $this->publicationFactory->createOne([
-            'collection' => $this->collection,
-        ]);
+        $publication = PublicationFactory::createOne();
 
         $this->asyncTransport->send(new ProcessFeedMessage($publication->getId()));
         $this->asyncTransport->process();
 
-        $fetch = $this->publicationFetchRepository->findOneBy(['publication' => $publication->getId()]);
+        $fetch = $this->em->getRepository(PublicationFetch::class)->findOneBy(['publication' => $publication->getId()]);
         $this->assertNotNull($fetch);
         $this->assertEquals(FetchStatusEnum::COMPLETED, $fetch->getStatus());
         $this->assertEquals(304, $fetch->getStatusCode());
@@ -133,9 +114,7 @@ class ProcessFeedHandlerTest extends KernelTestCase
 
     public function test_process_feed_handler_with_error_status_code(): void
     {
-        $publication = $this->publicationFactory->createOne([
-            'collection' => $this->collection,
-        ]);
+        $publication = PublicationFactory::createOne();
         
         $client = new MockHttpClient([
             new MockResponse('', [
@@ -148,7 +127,7 @@ class ProcessFeedHandlerTest extends KernelTestCase
         $this->asyncTransport->send(new ProcessFeedMessage($publication->getId()));
         $this->asyncTransport->process();
 
-        $fetch = $this->publicationFetchRepository->findOneBy(['publication' => $publication->getId()]);
+        $fetch = $this->em->getRepository(PublicationFetch::class)->findOneBy(['publication' => $publication->getId()]);
         $this->assertNotNull($fetch);
         $this->assertEquals(FetchStatusEnum::FAILED, $fetch->getStatus());
         $this->assertEquals(404, $fetch->getStatusCode());
@@ -164,14 +143,12 @@ class ProcessFeedHandlerTest extends KernelTestCase
 
         $this->container->set(HttpClientInterface::class, $client);
 
-        $publication = $this->publicationFactory->createOne([
-            'collection' => $this->collection,
-        ]);
+        $publication = PublicationFactory::createOne();
 
         $this->asyncTransport->send(new ProcessFeedMessage($publication->getId()));
         $this->asyncTransport->process();
 
-        $fetch = $this->publicationFetchRepository->findOneBy(['publication' => $publication->getId()]);
+        $fetch = $this->em->getRepository(PublicationFetch::class)->findOneBy(['publication' => $publication->getId()]);
         $this->assertNotNull($fetch);
         $this->assertEquals(FetchStatusEnum::FAILED, $fetch->getStatus());
         $this->assertEquals(0, $fetch->getStatusCode());
@@ -181,8 +158,7 @@ class ProcessFeedHandlerTest extends KernelTestCase
 
     public function test_process_feed_handler_with_conditional_get_headers(): void
     {
-        $publication = $this->publicationFactory->createOne([
-            'collection' => $this->collection,
+        $publication = PublicationFactory::createOne([
             'conditionalGetEtag' => 'old-etag',
             'conditionalGetLastModified' => 'Mon, 23 Jun 2025 00:00:00 GMT',
         ]);
@@ -216,7 +192,7 @@ class ProcessFeedHandlerTest extends KernelTestCase
         $this->asyncTransport->send(new ProcessFeedMessage($publication->getId()));
         $this->asyncTransport->process();
 
-        $fetch = $this->publicationFetchRepository->findOneBy(['publication' => $publication->getId()]);
+        $fetch = $this->em->getRepository(PublicationFetch::class)->findOneBy(['publication' => $publication->getId()]);
         $this->assertNotNull($fetch);
         $this->assertEquals(FetchStatusEnum::COMPLETED, $fetch->getStatus());
         $this->assertEquals(200, $fetch->getStatusCode());
@@ -226,8 +202,7 @@ class ProcessFeedHandlerTest extends KernelTestCase
 
     public function test_process_feed_handler_updates_feed_metadata(): void
     {
-        $publication = $this->publicationFactory->createOne([
-            'collection' => $this->collection,
+        $publication = PublicationFactory::createOne([
             'title' => 'Old Title',
             'description' => 'Old Description',
             'conditionalGetEtag' => 'old-etag',

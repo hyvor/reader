@@ -13,7 +13,6 @@ use Zenstruck\Messenger\Test\Transport\TestTransport;
 
 class FetchHandlerTest extends KernelTestCase
 {
-    use Factories;
 
     private Collection $collection;
     private TestTransport $schedulerTransport;
@@ -26,24 +25,13 @@ class FetchHandlerTest extends KernelTestCase
 
         $this->schedulerTransport = $this->transport('scheduler_default');
         $this->asyncTransport = $this->transport('async');
-
-        $this->em->createQuery('DELETE FROM App\Entity\PublicationFetch')->execute();
-        $this->em->createQuery('DELETE FROM App\Entity\Item')->execute();
-        $this->em->createQuery('DELETE FROM App\Entity\Publication')->execute();
-        $this->em->createQuery('DELETE FROM App\Entity\Collection')->execute();
-
-        /** @var CollectionFactory $collectionFactory */
-        $collectionFactory = $this->container->get(CollectionFactory::class);
-        $this->collection = $collectionFactory->createOne();
-
-        /** @var PublicationFactory $publicationFactory */
-        $this->publicationFactory = $this->container->get(PublicationFactory::class);
     }
 
     public function test_not_dispatches_process_feed_message_for_not_due_publications(): void
     {
-        $publication = $this->publicationFactory->createOne([
-            'collection' => $this->collection,
+        $collection = CollectionFactory::createOne();
+        $publication = PublicationFactory::createOne([
+            'collection' => $collection,
             'nextFetchAt' => new \DateTimeImmutable('+30 minutes'),
             'interval' => 60,
         ]);
@@ -55,10 +43,7 @@ class FetchHandlerTest extends KernelTestCase
 
     public function test_dispatches_process_feed_message_for_due_publications(): void
     {
-        /** @var PublicationFactory $publicationFactory */
-        $publicationFactory = $this->container->get(PublicationFactory::class);
-        $publication = $this->publicationFactory->createOne([
-            'collection' => $this->collection,
+        $publication = PublicationFactory::createOne([
             'nextFetchAt' => new \DateTimeImmutable('-30 minutes'),
             'interval' => 60,
         ]);
