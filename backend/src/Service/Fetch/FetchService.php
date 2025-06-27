@@ -33,6 +33,7 @@ class FetchService
             ->where('p.nextFetchAt <= :before')
             ->setParameter('before', $before)
             ->orderBy('p.nextFetchAt', 'ASC')
+            ->setMaxResults(250)
             ->getQuery()
             ->getResult();
     }

@@ -5,6 +5,7 @@ namespace App\Api\App\Controller;
 use App\Repository\ItemRepository;
 use App\Repository\PublicationRepository;
 use App\Repository\CollectionRepository;
+use App\Service\Item\ItemService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -19,6 +20,7 @@ class ItemController extends AbstractController
         private readonly ItemRepository $itemRepository,
         private readonly PublicationRepository $publicationRepository,
         private readonly CollectionRepository $collectionRepository,
+        private readonly ItemService $itemService,
     ) {
     }
 
@@ -44,7 +46,7 @@ class ItemController extends AbstractController
                 return $this->json(['error' => 'Invalid UUID format for publication_id'], Response::HTTP_BAD_REQUEST);
             }
 
-            $publication = $this->publicationRepository->findOneBy(['uuid' => $publicationId]);
+            $publication = $this->itemService->findPublicationByUuid($publicationId);
             if (!$publication) {
                 return $this->json(['error' => 'Publication not found'], Response::HTTP_NOT_FOUND);
             }

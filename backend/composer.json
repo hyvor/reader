@@ -21,6 +21,7 @@
         "symfony/flex": "^2.7.1",
         "symfony/framework-bundle": "7.2.*",
         "symfony/http-client": "7.2.*",
+        "symfony/lock": "7.2.*",
         "symfony/messenger": "7.2.*",
         "symfony/runtime": "7.2.*",
         "symfony/scheduler": "7.2.*",
