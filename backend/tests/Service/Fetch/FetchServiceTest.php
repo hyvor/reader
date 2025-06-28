@@ -2,199 +2,194 @@
 
 namespace App\Tests\Service\Fetch;
 
-use App\Entity\Collection;
-use App\Entity\Publication;
 use App\Entity\Item;
-use App\Service\Fetch\FetchService;
-use App\Factory\PublicationFactory;
-use App\Factory\CollectionFactory;
+use App\Entity\Publication;
 use App\Factory\ItemFactory;
+use App\Factory\PublicationFactory;
+use App\Service\Fetch\FetchService;
+use App\Service\Parser\Types\Feed;
+use App\Service\Parser\Types\FeedType;
+use App\Service\Parser\Types\Item as ParsedItem;
+use App\Service\Parser\Types\Author;
+use App\Service\Parser\Types\Tag;
 use App\Tests\Case\KernelTestCase;
-use Zenstruck\Foundry\Test\Factories;
 
 class FetchServiceTest extends KernelTestCase
 {
-    use Factories;
-
-    private Collection $collection;
     private FetchService $fetchService;
 
     protected function setUp(): void
     {
         parent::setUp();
-
         $this->fetchService = $this->container->get(FetchService::class);
-
-        /** @var CollectionFactory $collectionFactory */
-        $collectionFactory = $this->container->get(CollectionFactory::class);
-        $this->collection = $collectionFactory->createOne();
     }
 
-    public function test_calculate_average_publication_interval_with_insufficient_data(): void
+    public function test_findDueForFetching_finds_due_publications(): void
     {
-        $publication = PublicationFactory::createOne();
+        $duePublication = PublicationFactory::createOne([
+            'nextFetchAt' => new \DateTimeImmutable('-30 minutes'),
+        ]);
+        
+        PublicationFactory::createOne([
+            'nextFetchAt' => new \DateTimeImmutable('+30 minutes'),
+        ]);
 
-        ItemFactory::createOne([
+        $before = new \DateTimeImmutable();
+        $result = $this->fetchService->findDueForFetching($before);
+
+        $this->assertCount(1, $result);
+        $this->assertContainsOnlyInstancesOf(Publication::class, $result);
+        $this->assertEquals($duePublication->getId(), $result[0]->getId());
+    }
+
+    public function test_processItems_adds_new_items_with_correct_values(): void
+    {
+        $publicationProxy = PublicationFactory::createOne();
+        
+        $this->em->flush();
+        $publication = $this->em->getRepository(Publication::class)->find($publicationProxy->getId());
+        
+        $publishedAt = new \DateTimeImmutable('-2 hours');
+        
+        $feed = $this->createTestFeed([
+            $this->createTestParsedItem(
+                id: 'new-item',
+                title: 'Test Item Title',
+                url: 'https://example.com/test-item',
+                summary: 'Test summary',
+                contentHtml: '<p>Test HTML content</p>',
+                contentText: 'Test text content',
+                image: 'https://example.com/image.jpg',
+                language: 'en',
+                publishedAt: $publishedAt,
+                authors: [new Author('Test Author', null, null)],
+                tags: [new Tag('test-tag')]
+            ),
+        ]);
+
+        $result = $this->fetchService->processItems($publication, $feed);
+
+        $this->assertEquals(1, $result['new_items']);
+        $this->assertEquals(0, $result['updated_items']);
+
+        $this->em->flush();
+        
+        $freshPublication = $this->em->getRepository(Publication::class)->find($publication->getId());
+        $item = $freshPublication->getItems()->first();
+        
+        $this->assertEquals('new-item', $item->getGuid());
+        $this->assertEquals('Test Item Title', $item->getTitle());
+        $this->assertEquals('https://example.com/test-item', $item->getUrl());
+        $this->assertEquals('Test summary', $item->getSummary());
+        $this->assertEquals('<p>Test HTML content</p>', $item->getContentHtml());
+        $this->assertEquals('Test text content', $item->getContentText());
+        $this->assertEquals('https://example.com/image.jpg', $item->getImage());
+        $this->assertEquals('en', $item->getLanguage());
+        $this->assertEquals($publishedAt->getTimestamp(), $item->getPublishedAt()->getTimestamp());
+        $this->assertEquals(['Test Author'], $item->getAuthors());
+        $this->assertEquals(['test-tag'], $item->getTags());
+        $this->assertEquals($publication->getId(), $item->getPublication()->getId());
+    }
+
+    public function test_processItems_updates_existing_items_with_correct_values(): void
+    {
+        $publicationProxy = PublicationFactory::createOne();
+        
+        $this->em->flush();
+        $publication = $this->em->getRepository(Publication::class)->find($publicationProxy->getId());
+        
+        $existingItem = ItemFactory::createOne([
             'publication' => $publication,
-            'publishedAt' => new \DateTimeImmutable('-1 hour'),
+            'guid' => 'existing-item',
+            'title' => 'Old Title',
+            'url' => 'https://example.com/old-url',
+            'summary' => 'Old summary',
+            'content_html' => '<p>Old content</p>',
+            'image' => 'https://example.com/old-image.jpg',
+            'language' => 'en',
+            'authors' => ['Old Author'],
+            'tags' => ['old-tag'],
         ]);
 
-        $result = $this->fetchService->calculateAveragePublicationInterval($publication->_real());
+        $this->em->flush();
 
-        $this->assertNull($result);
-    }
-
-    public function test_calculate_average_publication_interval_with_no_items(): void
-    {
-        /** @var Publication $publication */
-        $publication = PublicationFactory::createOne([
-            'collection' => $this->collection,
-        ]);
-
-        $result = $this->fetchService->calculateAveragePublicationInterval($publication->_real());
-
-        $this->assertNull($result);
-    }
-
-    public function test_calculate_average_publication_interval_with_regular_posting(): void
-    {
-        /** @var Publication $publication */
-        $publication = PublicationFactory::createOne([
-            'collection' => $this->collection,
-        ]);
-
-        $baseTime = new \DateTimeImmutable();
-        for ($i = 0; $i < 5; $i++) {
-            ItemFactory::createOne([
-                'publication' => $publication,
-                'publishedAt' => $baseTime->modify("-{$i} * 2 hours"),
-            ]);
-        }
-
-        $result = $this->fetchService->calculateAveragePublicationInterval($publication->_real());
-
-        $this->assertEqualsWithDelta(120, $result, 5);
-    }
-
-    public function test_calculate_average_publication_interval_ignores_items_without_published_at(): void
-    {
-        /** @var Publication $publication */
-        $publication = PublicationFactory::createOne([
-            'collection' => $this->collection,
-        ]);
-
-        for ($i = 0; $i < 3; $i++) {
-            ItemFactory::createOne([
-                'publication' => $publication,
-                'publishedAt' => null,
-            ]);
-        }
-
-        $baseTime = new \DateTimeImmutable();
-        for ($i = 0; $i < 4; $i++) {
-            ItemFactory::createOne([
-                'publication' => $publication,
-                'publishedAt' => $baseTime->modify("-{$i} * 3 hours"),
-            ]);
-        }
-
-        $result = $this->fetchService->calculateAveragePublicationInterval($publication->_real());
-
-        $this->assertEqualsWithDelta(180, $result, 5);
-    }
-
-    public function test_update_adaptive_interval_with_bounds_minimum(): void
-    {
-        /** @var Publication $publication */
-        $publication = PublicationFactory::createOne([
-            'collection' => $this->collection,
-        ]);
-
-        $baseTime = new \DateTimeImmutable();
-        for ($i = 0; $i < 10; $i++) {
-            ItemFactory::createOne([
-                'publication' => $publication,
-                'publishedAt' => $baseTime->modify("-{$i} * 5 minutes"),
-            ]);
-        }
-
-        $this->fetchService->updateAdaptiveInterval($publication->_real());
-
-        $this->assertEquals(15, $publication->getInterval());
-    }
-
-    public function test_update_adaptive_interval_with_bounds_maximum(): void
-    {
-        /** @var Publication $publication */
-        $publication = PublicationFactory::createOne([
-            'collection' => $this->collection,
-        ]);
-
-        $baseTime = new \DateTimeImmutable();
-        for ($i = 0; $i < 5; $i++) {
-            ItemFactory::createOne([
-                'publication' => $publication,
-                'publishedAt' => $baseTime->modify("-{$i} * 48 hours"),
-            ]);
-        }
-
-        $this->fetchService->updateAdaptiveInterval($publication->_real());
-
-        $this->assertEquals(1440, $publication->getInterval());
-    }
-
-    public function test_update_next_fetch_time(): void
-    {
-        /** @var Publication $publication */
-        $publication = PublicationFactory::createOne([
-            'collection' => $this->collection,
-            'interval' => 120, 
-        ]);
-
-        $beforeUpdate = new \DateTimeImmutable();
+        $newPublishedAt = new \DateTimeImmutable('-1 hour');
         
-        $this->fetchService->updateNextFetchTime($publication->_real());
+        $feed = $this->createTestFeed([
+            $this->createTestParsedItem(
+                id: 'existing-item',
+                title: 'Updated Title',
+                url: 'https://example.com/updated-url',
+                summary: 'Updated summary',
+                contentHtml: '<p>Updated content</p>',
+                image: 'https://example.com/updated-image.jpg',
+                language: 'fr',
+                publishedAt: $newPublishedAt,
+                authors: [new Author('Updated Author', null, null)],
+                tags: [new Tag('updated-tag')]
+            ),
+        ]);
 
-        $afterUpdate = new \DateTimeImmutable();
+        $result = $this->fetchService->processItems($publication, $feed);
+
+        $this->assertEquals(0, $result['new_items']);
+        $this->assertEquals(1, $result['updated_items']);
+
+        $this->em->flush();
         
-        $expectedNextFetch = $beforeUpdate->modify('+120 minutes');
-        $actualNextFetch = $publication->getNextFetchAt();
+        $freshItem = $this->em->getRepository(Item::class)->find($existingItem->getId());
+        
+        $this->assertEquals('Updated Title', $freshItem->getTitle());
+        $this->assertEquals('https://example.com/updated-url', $freshItem->getUrl());
+        $this->assertEquals('Updated summary', $freshItem->getSummary());
+        $this->assertEquals('<p>Updated content</p>', $freshItem->getContentHtml());
+        $this->assertEquals('https://example.com/updated-image.jpg', $freshItem->getImage());
+        $this->assertEquals('fr', $freshItem->getLanguage());
+        $this->assertEquals($newPublishedAt->getTimestamp(), $freshItem->getPublishedAt()->getTimestamp());
+        $this->assertEquals(['Updated Author'], $freshItem->getAuthors());
+        $this->assertEquals(['updated-tag'], $freshItem->getTags());
+    }
 
-        $this->assertGreaterThan($beforeUpdate, $actualNextFetch);
-        $this->assertLessThan($afterUpdate->modify('+125 minutes'), $actualNextFetch);
-        $this->assertEqualsWithDelta(
-            $expectedNextFetch->getTimestamp(),
-            $actualNextFetch->getTimestamp(),
-            60
+    private function createTestFeed(array $items): Feed
+    {
+        return new Feed(
+            type: FeedType::RSS,
+            version: '2.0',
+            title: 'Test Feed',
+            homepage_url: 'https://example.com',
+            feed_url: 'https://example.com/feed',
+            description: 'Test Description',
+            items: $items
         );
     }
 
-    public function test_find_due_for_fetching(): void
-    {
-        $now = new \DateTimeImmutable();
-
-        $duePub1 = PublicationFactory::createOne([
-            'collection' => $this->collection,
-            'nextFetchAt' => $now->modify('-30 minutes'),
-        ]);
-
-        $duePub2 = PublicationFactory::createOne([
-            'collection' => $this->collection,
-            'nextFetchAt' => $now->modify('-1 minute'),
-        ]);
-
-        $notDuePub = PublicationFactory::createOne([
-            'collection' => $this->collection,
-            'nextFetchAt' => $now->modify('+30 minutes'),
-        ]);
-
-        $duePublications = $this->fetchService->findDueForFetching($now);
-
-        $this->assertCount(2, $duePublications);
-        
-        $dueIds = array_map(fn($pub) => $pub->getId(), $duePublications);
-        $this->assertContains($duePub1->getId(), $dueIds);
-        $this->assertContains($duePub2->getId(), $dueIds);
-        $this->assertNotContains($notDuePub->getId(), $dueIds);
+    private function createTestParsedItem(
+        string $id,
+        string $title,
+        ?string $url = null,
+        ?string $summary = null,
+        ?string $contentHtml = null,
+        ?string $contentText = null,
+        ?string $image = null,
+        ?string $language = null,
+        ?\DateTimeImmutable $publishedAt = null,
+        ?\DateTimeImmutable $updatedAt = null,
+        array $authors = [],
+        array $tags = []
+    ): ParsedItem {
+        return new ParsedItem(
+            id: $id,
+            url: $url ?? 'https://example.com/items/' . $id,
+            title: $title,
+            content_html: $contentHtml,
+            content_text: $contentText,
+            summary: $summary,
+            image: $image,
+            published_at: $publishedAt,
+            updated_at: $updatedAt,
+            authors: $authors,
+            tags: $tags,
+            language: $language
+        );
     }
-} 
+}

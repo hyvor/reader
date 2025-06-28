@@ -9,7 +9,6 @@ use App\Entity\Item;
 use App\Service\Parser\Types\Feed;
 use App\Service\Parser\Types\Item as ParsedItem;
 use Doctrine\ORM\EntityManagerInterface;
-use Psr\Log\LoggerInterface;
 
 class FetchService
 {
@@ -21,17 +20,17 @@ class FetchService
     }
 
     /**
-     * Get publications that are due for fetching.
-     *
-     * @param \DateTimeImmutable $before Timestamp to compare against publications' nextFetchAt.
-     * @return Publication[] Returns an array of Publication entities that should be fetched.
+     * @param \DateTimeImmutable $before
+     * @return Publication[]
      */
     public function findDueForFetching(\DateTimeImmutable $before): array
     {
         return $this->publicationRepository
             ->createQueryBuilder('p')
             ->where('p.nextFetchAt <= :before')
+            ->andWhere('p.isFetching = :isFetching')
             ->setParameter('before', $before)
+            ->setParameter('isFetching', false)
             ->orderBy('p.nextFetchAt', 'ASC')
             ->setMaxResults(250)
             ->getQuery()
@@ -39,8 +38,6 @@ class FetchService
     }
 
     /**
-     * Process items in a parsed feed and persist new/updated items for the given publication.
-     *
      * @param Publication $publication
      * @param Feed $feed
      * @return array{new_items: int, updated_items: int}
@@ -49,10 +46,12 @@ class FetchService
     {
         $newItemsCount = 0;
         $updatedItemsCount = 0;
+        $intervals = [];
+        $previousDate = null;
 
         foreach ($feed->items as $item) {
             $existingItem = $this->itemRepository->findOneBy([
-                'publication' => $publication,
+                'publication' => $publication->getId(),
                 'guid' => $item->id, 
             ]);
 
@@ -64,10 +63,26 @@ class FetchService
                 $this->addNewItem($publication, $item);
                 $newItemsCount++;
             }
+
+            if ($item->published_at) {
+                if ($previousDate !== null) {
+                    $intervalMinutes = abs($item->published_at->getTimestamp() - $previousDate->getTimestamp()) / 60;
+                    if ($intervalMinutes > 0) {
+                        $intervals[] = $intervalMinutes;
+                    }
+                }
+                $previousDate = $item->published_at;
+            }
         }
 
-        if ($newItemsCount > 0) {
-            $this->updateAdaptiveInterval($publication);
+        if ($newItemsCount > 0 && count($intervals) > 0) {
+            $averageInterval = array_sum($intervals) / count($intervals);
+            
+            $minInterval = 15;
+            $maxInterval = 24 * 60;
+            $clampedInterval = max($minInterval, min($maxInterval, (int) round($averageInterval)));
+            
+            $publication->setInterval($clampedInterval);
         }
 
         return [
@@ -77,68 +92,6 @@ class FetchService
     }
 
     /**
-     * Calculate and update the publication's interval based on the average frequency of new items.
-     * 
-     * @param Publication $publication
-     * @return void
-     */
-    public function updateAdaptiveInterval(Publication $publication): void
-    {
-        $averageInterval = $this->calculateAveragePublicationInterval($publication);
-        
-        if ($averageInterval !== null) {
-            $minInterval = 15;
-            $maxInterval = 24 * 60;
-            
-            $publication->setInterval(max($minInterval, min($maxInterval, $averageInterval)));
-        }
-    }
-
-    /**
-     * Calculate the average interval between publications based on published_at timestamps.
-     * 
-     * @param Publication $publication
-     * @return int|null Average interval in minutes, or null if not enough data
-     */
-    public function calculateAveragePublicationInterval(Publication $publication): ?int
-    {
-        $items = $this->itemRepository->createQueryBuilder('i')
-            ->where('i.publication = :publication')
-            ->andWhere('i.published_at IS NOT NULL')
-            ->setParameter('publication', $publication)
-            ->orderBy('i.published_at', 'DESC')
-            ->setMaxResults(20)
-            ->getQuery()
-            ->getResult();
-
-        if (count($items) < 2) {
-            return null;
-        }
-
-        $intervals = [];
-        
-        for ($i = 0; $i < count($items) - 1; $i++) {
-            $newerDate = $items[$i]->getPublishedAt();
-            $olderDate = $items[$i + 1]->getPublishedAt();
-            
-            if ($newerDate && $olderDate) {
-                $intervals[] = ($newerDate->getTimestamp() - $olderDate->getTimestamp()) / 60;
-            }
-        }
-
-        if (count($intervals) === 0) {
-            return null;
-        }
-
-        // Calculate average interval
-        $averageInterval = array_sum($intervals) / count($intervals);
-        
-        return (int) round($averageInterval);
-    }
-
-    /**
-     * Update the next fetch time for a publication based on its interval.
-     * 
      * @param Publication $publication
      * @return void
      */
@@ -151,11 +104,9 @@ class FetchService
     }
 
     /**
-     * Update an existing item with new data from the parsed feed
-     * 
      * @param Item $existingItem
      * @param ParsedItem $parsedItem
-     * @return bool True if the item was updated, false if no changes were made
+     * @return bool
      */
     private function updateExistingItem(Item $existingItem, ParsedItem $parsedItem): bool
     {
@@ -222,8 +173,6 @@ class FetchService
     }
 
     /**
-     * Add a new item from the parsed feed
-     * 
      * @param Publication $publication
      * @param ParsedItem $parsedItem
      * @return void

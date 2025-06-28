@@ -34,6 +34,7 @@ final class Version20250207165918 extends AbstractMigration
                 subscribers INT DEFAULT 0 NOT NULL,
                 conditional_get_last_modified text DEFAULT NULL, 
                 conditional_get_etag text DEFAULT NULL,
+                is_fetching boolean DEFAULT false NOT NULL,
                 collection_id INT NOT NULL REFERENCES collections (id)
             )
         SQL);

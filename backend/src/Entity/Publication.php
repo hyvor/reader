@@ -53,6 +53,9 @@ class Publication
     #[ORM\Column(type: 'string', nullable: true)]
     private ?string $conditionalGetEtag = null;
 
+    #[ORM\Column(type: 'boolean', options: ['default' => false])]
+    private bool $isFetching = false;
+
     /**
      * @var DoctrineCollection<int, Item>
      */
@@ -200,6 +203,17 @@ class Publication
     public function setConditionalGetEtag(?string $conditionalGetEtag): static
     {
         $this->conditionalGetEtag = $conditionalGetEtag;
+        return $this;
+    }
+
+    public function getIsFetching(): bool
+    {
+        return $this->isFetching;
+    }
+
+    public function setIsFetching(bool $isFetching): static
+    {
+        $this->isFetching = $isFetching;
         return $this;
     }
 

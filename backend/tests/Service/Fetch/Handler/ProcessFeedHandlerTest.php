@@ -55,6 +55,7 @@ class ProcessFeedHandlerTest extends KernelTestCase
                         'url' => 'https://example.com/items/1',
                         'title' => 'Item 1',
                         'summary' => 'Item 1 description',
+                        'content_html' => '<p>Item 1 content</p>',
                         'date_published' => '2016-11-23T07:28:00Z'
                     ]
                 ]
@@ -82,10 +83,10 @@ class ProcessFeedHandlerTest extends KernelTestCase
         $this->assertEquals('new-etag', $publication->getConditionalGetEtag());
         $this->assertEquals('Mon, 24 Jun 2025 00:00:00 GMT', $publication->getConditionalGetLastModified());
 
-        // TODO: check items
+        $this->assertEquals(1, $fetch->getNewItemsCount());
+        $this->assertEquals(0, $fetch->getUpdatedItemsCount());
         
         $this->assertNotNull($publication->getLastFetchedAt());
-        $this->assertSame('2025-06-24 00:00:00', $publication->getLastFetchedAt()->format('Y-m-d H:i:s'));
         $this->assertSame('2025-06-24 00:00:00', $publication->getLastFetchedAt()->format('Y-m-d H:i:s'));
     }
 
@@ -171,10 +172,11 @@ class ProcessFeedHandlerTest extends KernelTestCase
                 'home_page_url' => 'https://example.com',
                 'items' => [
                     [
-                        'id' => '1',
-                        'url' => 'https://example.com/items/1',
-                        'title' => 'Item 1',
-                        'summary' => 'Item 1 description',
+                        'id' => 'conditional-get-test-item',
+                        'url' => 'https://example.com/items/conditional-get-test',
+                        'title' => 'Conditional Get Test Item',
+                        'summary' => 'Item for conditional get test',
+                        'content_html' => '<p>Conditional get test content</p>',
                         'date_published' => '2016-11-23T07:28:00Z'
                     ]
                 ]
@@ -232,5 +234,27 @@ class ProcessFeedHandlerTest extends KernelTestCase
 
         $this->assertEquals('Updated Feed Title', $publication->getTitle());
         $this->assertEquals('Updated feed description', $publication->getDescription());
+    }
+
+    public function test_is_fetching_flag(): void
+    {
+        $publication = PublicationFactory::createOne();
+        
+        $this->assertFalse($publication->getIsFetching());
+
+        $client = new MockHttpClient([
+            new JsonMockResponse([
+                'version' => 'https://jsonfeed.org/version/1.1',
+                'title' => 'Test Feed',
+                'items' => []
+            ])
+        ]);
+
+        $this->container->set(HttpClientInterface::class, $client);
+
+        $this->asyncTransport->send(new ProcessFeedMessage($publication->getId()));
+        $this->asyncTransport->process();
+
+        $this->assertFalse($publication->getIsFetching());
     }
 }

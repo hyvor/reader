@@ -1,11 +1,11 @@
 <?php
 
-namespace App\Service\Item;
+namespace App\Service\Publication;
 
 use App\Entity\Publication;
 use App\Repository\PublicationRepository;
 
-class ItemService
+class PublicationService
 {
     public function __construct(
         private readonly PublicationRepository $publicationRepository,
