@@ -28,7 +28,7 @@ class CollectionController extends AbstractController
         foreach ($collections as $collection) {
             $collectionsData[] = [
                 'id' => $collection->getId(),
-                'uuid' => $collection->getUuid()->toRfc4122(),
+                'uuid' => $collection->getUuid(),
                 'name' => $collection->getName(),
             ];
         }
@@ -41,9 +41,7 @@ class CollectionController extends AbstractController
     #[Route('/{uuid}', name: 'get', methods: ['GET'])]
     public function getCollection(string $uuid): JsonResponse
     {
-        try {
-            $uuid = Uuid::fromString($uuid);
-        } catch (\InvalidArgumentException $e) {
+        if (!Uuid::isValid($uuid)) {
             return $this->json(['error' => 'Invalid UUID format'], Response::HTTP_BAD_REQUEST);
         }
 
@@ -61,7 +59,7 @@ class CollectionController extends AbstractController
                 'url' => $publication->getUrl(),
                 'description' => $publication->getDescription() ?? '',
                 'subscribers' => $publication->getSubscribers(),
-                'uuid' => $publication->getUuid()->toRfc4122(),
+                'uuid' => $publication->getUuid(),
             ];
         }
 
@@ -69,7 +67,7 @@ class CollectionController extends AbstractController
             'collection' => [
                 'id' => $collection->getId(),
                 'name' => $collection->getName(),
-                'uuid' => $collection->getUuid()->toRfc4122(),
+                'uuid' => $collection->getUuid(),
             ],
             'publications' => $publications,
         ]);

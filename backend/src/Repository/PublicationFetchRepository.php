@@ -2,17 +2,17 @@
 
 namespace App\Repository;
 
-use App\Entity\Publication;
+use App\Entity\PublicationFetch;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
- * @extends ServiceEntityRepository<Publication>
+ * @extends ServiceEntityRepository<PublicationFetch>
  */
-class PublicationRepository extends ServiceEntityRepository
+class PublicationFetchRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)
     {
-        parent::__construct($registry, Publication::class);
+        parent::__construct($registry, PublicationFetch::class);
     }
-}
+} 

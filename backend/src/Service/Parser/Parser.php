@@ -13,6 +13,9 @@ class Parser implements ParserInterface
         $this->content = $content;
     }
 
+    /**
+     * @throws ParserException
+     */
     public function parse(): Feed
     {
         $parser = $this->detectParser();
@@ -32,7 +35,7 @@ class Parser implements ParserInterface
         }
 
         if ($xml->getName() === 'rss') {
-            return new RSSParser($this->content);
+            return new RssParser($this->content);
         }
 
         if ($xml->getName() === 'feed') {
