@@ -44,11 +44,9 @@ class FetchServiceTest extends KernelTestCase
 
     public function test_processItems_adds_new_items_with_correct_values(): void
     {
-        $publicationProxy = PublicationFactory::createOne();
-        
+        $publication = PublicationFactory::createOne()->_real();
         $this->em->flush();
-        $publication = $this->em->getRepository(Publication::class)->find($publicationProxy->getId());
-        
+
         $publishedAt = new \DateTimeImmutable('-2 hours');
         
         $feed = $this->createTestFeed([
@@ -68,14 +66,16 @@ class FetchServiceTest extends KernelTestCase
         ]);
 
         $result = $this->fetchService->processItems($publication, $feed);
-
+        
         $this->assertEquals(1, $result['new_items']);
         $this->assertEquals(0, $result['updated_items']);
 
         $this->em->flush();
+
+        $items = $publication->getItems();
+        $this->assertCount(1, $items);
         
-        $freshPublication = $this->em->getRepository(Publication::class)->find($publication->getId());
-        $item = $freshPublication->getItems()->first();
+        $item = $items->first();
         
         $this->assertEquals('new-item', $item->getGuid());
         $this->assertEquals('Test Item Title', $item->getTitle());
@@ -85,19 +85,22 @@ class FetchServiceTest extends KernelTestCase
         $this->assertEquals('Test text content', $item->getContentText());
         $this->assertEquals('https://example.com/image.jpg', $item->getImage());
         $this->assertEquals('en', $item->getLanguage());
-        $this->assertEquals($publishedAt->getTimestamp(), $item->getPublishedAt()->getTimestamp());
+        
+        $itemPublishedAt = $item->getPublishedAt();
+        $this->assertEquals($publishedAt->getTimestamp(), $itemPublishedAt->getTimestamp());
+        
         $this->assertEquals(['Test Author'], $item->getAuthors());
         $this->assertEquals(['test-tag'], $item->getTags());
-        $this->assertEquals($publication->getId(), $item->getPublication()->getId());
+        
+        $itemPublication = $item->getPublication();
+        $this->assertEquals($publication->getId(), $itemPublication->getId());
     }
 
     public function test_processItems_updates_existing_items_with_correct_values(): void
     {
-        $publicationProxy = PublicationFactory::createOne();
-        
+        $publication = PublicationFactory::createOne()->_real();
         $this->em->flush();
-        $publication = $this->em->getRepository(Publication::class)->find($publicationProxy->getId());
-        
+
         $existingItem = ItemFactory::createOne([
             'publication' => $publication,
             'guid' => 'existing-item',
@@ -145,9 +148,15 @@ class FetchServiceTest extends KernelTestCase
         $this->assertEquals('<p>Updated content</p>', $freshItem->getContentHtml());
         $this->assertEquals('https://example.com/updated-image.jpg', $freshItem->getImage());
         $this->assertEquals('fr', $freshItem->getLanguage());
-        $this->assertEquals($newPublishedAt->getTimestamp(), $freshItem->getPublishedAt()->getTimestamp());
+        
+        $freshPublishedAt = $freshItem->getPublishedAt();
+        $this->assertEquals($newPublishedAt->getTimestamp(), $freshPublishedAt->getTimestamp());
+        
         $this->assertEquals(['Updated Author'], $freshItem->getAuthors());
         $this->assertEquals(['updated-tag'], $freshItem->getTags());
+        
+        $itemPublication = $freshItem->getPublication();
+        $this->assertEquals($publication->getId(), $itemPublication->getId());
     }
 
     private function createTestFeed(array $items): Feed

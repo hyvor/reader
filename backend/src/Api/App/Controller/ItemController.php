@@ -2,8 +2,6 @@
 
 namespace App\Api\App\Controller;
 
-use App\Repository\ItemRepository;
-use App\Repository\PublicationRepository;
 use App\Repository\CollectionRepository;
 use App\Service\Publication\PublicationService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -17,8 +15,6 @@ use Symfony\Component\Uid\Uuid;
 class ItemController extends AbstractController
 {
     public function __construct(
-        private readonly ItemRepository        $itemRepository,
-        private readonly PublicationRepository $publicationRepository,
         private readonly CollectionRepository  $collectionRepository,
         private readonly PublicationService    $publicationService,
     ) {

@@ -15,6 +15,7 @@ use Symfony\Component\Uid\Uuid;
 class CollectionController extends AbstractController
 {
     public function __construct(
+        // TODO: move to service
         private readonly CollectionRepository $collectionRepository,
     ) {
     }

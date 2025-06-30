@@ -41,8 +41,6 @@ class ProcessFeedHandler
             return;
         }
 
-        $publication->setIsFetching(true);
-
         $fetch = new PublicationFetch();
         $fetch->setPublication($publication);
         $fetch->setStatus(FetchStatusEnum::PENDING);

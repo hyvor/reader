@@ -7,6 +7,7 @@ use App\Service\Fetch\Message\ProcessFeedMessage;
 use App\Service\Fetch\FetchService;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 use Symfony\Component\Messenger\MessageBusInterface;
+use Doctrine\ORM\EntityManagerInterface;
 
 #[AsMessageHandler]
 class FetchHandler
@@ -14,6 +15,7 @@ class FetchHandler
     public function __construct(
         private FetchService $fetchService,
         private MessageBusInterface $messageBus,
+        private EntityManagerInterface $entityManager,
     ) {
     }
 
@@ -22,8 +24,11 @@ class FetchHandler
         $duePublications = $this->fetchService->findDueForFetching(new \DateTimeImmutable());
 
         foreach ($duePublications as $publication) {
+            $publication->setIsFetching(true);
             $this->messageBus->dispatch(new ProcessFeedMessage($publication->getId()));
         }
+
+        $this->entityManager->flush();
     }
 
 
