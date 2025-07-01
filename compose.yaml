@@ -15,12 +15,22 @@ services:
       - ./shared:/app/shared
     labels:
       traefik.enable: true
-      traefik.http.routers.hyvor-reader-frontend.rule: Host(`localhost`)
-      traefik.http.routers.hyvor-reader-frontend.entrypoints: http
+      traefik.http.routers.hyvor-reader-frontend.rule: Host(`reader.hyvor.localhost`)
+      traefik.http.routers.hyvor-reader-frontend.tls: true
+      traefik.http.routers.hyvor-reader-frontend.middlewares: vite-retry@file
+      traefik.http.routers.hyvor-reader-frontend.entrypoints: https
       traefik.http.services.hyvor-reader-frontend.loadbalancer.server.port: 80
     networks:
       - hyvor-network
     # profiles: [dev]
+    develop:
+      watch:
+        - action: sync
+          path: ./frontend
+          target: /app/frontend
+        - action: sync
+          path: ./shared
+          target: /app/shared
 
   hyvor-reader-backend:
     container_name: hyvor-reader-backend
@@ -33,58 +43,64 @@ services:
       - ./shared:/app/shared
     labels:
       traefik.enable: true
-      traefik.http.routers.hyvor-reader-backend.rule: Host(`localhost`) && PathPrefix(`/api`)
-      traefik.http.routers.hyvor-reader-backend.entrypoints: http
+      traefik.http.routers.hyvor-reader-backend.rule: Host(`reader.hyvor.localhost`) && PathPrefix(`/api`)
+      traefik.http.routers.hyvor-reader-backend.entrypoints: https
+      traefik.http.routers.hyvor-reader-backend.tls: true
       traefik.http.routers.hyvor-reader-backend.service: hyvor-reader-backend
       traefik.http.services.hyvor-reader-backend.loadbalancer.server.port: 80
     networks:
       - hyvor-network
-    depends_on:
-      postgres:
-        condition: service_healthy
     # profiles: [dev]
     healthcheck:
       test: ls
       disable: true
+    develop:
+      watch:
+        - action: sync
+          path: ./backend
+          target: /app/backend
+        - action: sync
+          path: ./shared
+          target: /app/shared
 
-  postgres:
-    image: postgres:16
-    container_name: hyvor-reader-postgres
-    environment:
-      POSTGRES_DB: hyvor_reader
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-    ports:
-      - "5432:5432"
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-    networks:
-      - hyvor-network
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
-      interval: 5s
-      timeout: 5s
-      retries: 5
+  # postgres:
+  #   image: postgres:16
+  #   container_name: hyvor-reader-postgres
+  #   environment:
+  #     POSTGRES_DB: hyvor_reader
+  #     POSTGRES_USER: postgres
+  #     POSTGRES_PASSWORD: postgres
+  #   ports:
+  #     - "5432:5432"
+  #   volumes:
+  #     - postgres_data:/var/lib/postgresql/data
+  #   networks:
+  #     - hyvor-network
+  #   healthcheck:
+  #     test: ["CMD-SHELL", "pg_isready -U postgres"]
+  #     interval: 5s
+  #     timeout: 5s
+  #     retries: 5
 
-  traefik:
-    image: traefik:v3.4
-    container_name: hyvor-reader-traefik
-    command:
-      - "--providers.docker=true"
-      - "--providers.docker.exposedbydefault=false"
-      - "--entrypoints.http.address=:80"
-    ports:
-      - "80:80"
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock:ro
-    profiles:
-      - traefik
-    networks:
-      - hyvor-network
+  # traefik:
+  #   image: traefik:v3.4
+  #   container_name: hyvor-reader-traefik
+  #   command:
+  #     - "--providers.docker=true"
+  #     - "--providers.docker.exposedbydefault=false"
+  #     - "--entrypoints.http.address=:80"
+  #   ports:
+  #     - "80:80"
+  #   volumes:
+  #     - /var/run/docker.sock:/var/run/docker.sock:ro
+  #   profiles:
+  #     - traefik
+  #   networks:
+  #     - hyvor-network
 
 networks:
   hyvor-network:
     external: true
 
-volumes:
-  postgres_data:
+# volumes:
+#   postgres_data:
