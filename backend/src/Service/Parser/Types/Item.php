@@ -77,14 +77,14 @@ class Item
          * RSS: <item><pubDate>
          * JSON Feed: item.date_published
          */
-        public ?DateTimeInterface $published_at,
+        public ?\DateTimeImmutable $published_at,
 
         /**
          * Atom: <entry><updated>
          * RSS: null
          * JSON Feed: item.date_modified
          */
-        public ?DateTimeInterface $updated_at,
+        public ?\DateTimeImmutable $updated_at,
 
         /**
          * @var Author[]

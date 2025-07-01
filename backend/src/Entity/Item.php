@@ -16,6 +16,9 @@ class Item
     #[ORM\Column]
     private int $id;
 
+    #[ORM\Column(type: 'text')]
+    private string $guid;
+
     #[ORM\Column(unique: true)]
     private string $uuid;
 
@@ -69,6 +72,17 @@ class Item
     public function getUuid(): string
     {
         return $this->uuid;
+    }
+
+    public function getGuid(): string
+    {
+        return $this->guid;
+    }
+
+    public function setGuid(string $guid): static
+    {
+        $this->guid = $guid;
+        return $this;
     }
 
     public function getUrl(): string

@@ -20,11 +20,11 @@ class Publication
     #[ORM\Column(unique: true)]
     private string $uuid;
 
-    #[ORM\Column(type: 'datetime', options: ['default' => 'CURRENT_TIMESTAMP'])]
-    private \DateTime $createdAt;
+    #[ORM\Column(type: 'datetime_immutable', options: ['default' => 'CURRENT_TIMESTAMP'])]
+    private \DateTimeImmutable $createdAt;
 
-    #[ORM\Column(type: 'datetime', options: ['default' => 'CURRENT_TIMESTAMP'])]
-    private \DateTime $updatedAt;
+    #[ORM\Column(type: 'datetime_immutable', options: ['default' => 'CURRENT_TIMESTAMP'])]
+    private \DateTimeImmutable $updatedAt;
 
     #[ORM\Column(type: 'string', unique: true)]
     private string $url;
@@ -38,11 +38,11 @@ class Publication
     #[ORM\Column(type: 'integer', options: ['default' => 60])]
     private int $interval = 60;
 
-    #[ORM\Column(type: 'datetime', nullable: true)]
-    private ?\DateTime $lastFetchedAt = null;
+    #[ORM\Column(type: 'datetime_immutable', nullable: true)]
+    private ?\DateTimeImmutable $lastFetchedAt = null;
 
-    #[ORM\Column(type: 'datetime')]
-    private \DateTime $nextFetchAt;
+    #[ORM\Column(type: 'datetime_immutable')]
+    private \DateTimeImmutable $nextFetchAt;
 
     #[ORM\Column(type: 'integer', options: ['default' => 0])]
     private int $subscribers = 0;
@@ -52,6 +52,9 @@ class Publication
 
     #[ORM\Column(type: 'string', nullable: true)]
     private ?string $conditionalGetEtag = null;
+
+    #[ORM\Column(type: 'boolean', options: ['default' => false])]
+    private bool $isFetching = false;
 
     /**
      * @var DoctrineCollection<int, Item>
@@ -67,9 +70,9 @@ class Publication
     {
         $this->items = new ArrayCollection();
         $this->uuid =  (string) Uuid::v4();
-        $this->createdAt = new \DateTime();
-        $this->updatedAt = new \DateTime();
-        $this->nextFetchAt = new \DateTime();
+        $this->createdAt = new \DateTimeImmutable();
+        $this->updatedAt = new \DateTimeImmutable();
+        $this->nextFetchAt = new \DateTimeImmutable();
     }
 
     public function getId(): int
@@ -126,23 +129,23 @@ class Publication
         return $this;
     }
 
-    public function getCreatedAt(): \DateTime
+    public function getCreatedAt(): \DateTimeImmutable
     {
         return $this->createdAt;
     }
 
-    public function setCreatedAt(\DateTime $createdAt): static
+    public function setCreatedAt(\DateTimeImmutable $createdAt): static
     {
         $this->createdAt = $createdAt;
         return $this;
     }
 
-    public function getUpdatedAt(): \DateTime
+    public function getUpdatedAt(): \DateTimeImmutable
     {
         return $this->updatedAt;
     }
 
-    public function setUpdatedAt(\DateTime $updatedAt): static
+    public function setUpdatedAt(\DateTimeImmutable $updatedAt): static
     {
         $this->updatedAt = $updatedAt;
         return $this;
@@ -159,23 +162,23 @@ class Publication
         return $this;
     }
 
-    public function getLastFetchedAt(): ?\DateTime
+    public function getLastFetchedAt(): ?\DateTimeImmutable
     {
         return $this->lastFetchedAt;
     }
 
-    public function setLastFetchedAt(?\DateTime $lastFetchedAt): static
+    public function setLastFetchedAt(?\DateTimeImmutable $lastFetchedAt): static
     {
         $this->lastFetchedAt = $lastFetchedAt;
         return $this;
     }
 
-    public function getNextFetchAt(): \DateTime
+    public function getNextFetchAt(): \DateTimeImmutable
     {
         return $this->nextFetchAt;
     }
 
-    public function setNextFetchAt(\DateTime $nextFetchAt): static
+    public function setNextFetchAt(\DateTimeImmutable $nextFetchAt): static
     {
         $this->nextFetchAt = $nextFetchAt;
         return $this;
@@ -200,6 +203,17 @@ class Publication
     public function setConditionalGetEtag(?string $conditionalGetEtag): static
     {
         $this->conditionalGetEtag = $conditionalGetEtag;
+        return $this;
+    }
+
+    public function getIsFetching(): bool
+    {
+        return $this->isFetching;
+    }
+
+    public function setIsFetching(bool $isFetching): static
+    {
+        $this->isFetching = $isFetching;
         return $this;
     }
 
@@ -244,4 +258,5 @@ class Publication
 
         return $this;
     }
+
 }

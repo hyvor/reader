@@ -15,6 +15,7 @@ use Symfony\Component\Uid\Uuid;
 class PublicationController extends AbstractController
 {
     public function __construct(
+        // TODO: move to service
         private readonly PublicationRepository $publicationRepository,
         private readonly CollectionRepository $collectionRepository,
     ) {
@@ -29,13 +30,11 @@ class PublicationController extends AbstractController
             return $this->json(['error' => 'collection_id parameter is required'], Response::HTTP_BAD_REQUEST);
         }
 
-        try {
-            $uuid = Uuid::fromString($collectionId);
-        } catch (\InvalidArgumentException $e) {
+        if (!Uuid::isValid($collectionId)) {
             return $this->json(['error' => 'Invalid UUID format for collection_id'], Response::HTTP_BAD_REQUEST);
         }
 
-        $collection = $this->collectionRepository->findOneBy(['uuid' => $uuid]);
+        $collection = $this->collectionRepository->findOneBy(['uuid' => $collectionId]);
 
         if (!$collection) {
             return $this->json(['error' => 'Collection not found'], Response::HTTP_NOT_FOUND);
@@ -45,7 +44,7 @@ class PublicationController extends AbstractController
         foreach ($collection->getPublications() as $publication) {
             $publications[] = [
                 'id' => $publication->getId(),
-                'uuid' => $publication->getUuid()->toRfc4122(),
+                'uuid' => $publication->getUuid(),
                 'title' => $publication->getTitle() ?? 'Untitled',
                 'url' => $publication->getUrl(),
                 'description' => $publication->getDescription() ?? '',

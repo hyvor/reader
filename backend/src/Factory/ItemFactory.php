@@ -30,6 +30,7 @@ final class ItemFactory extends PersistentProxyObjectFactory
     protected function defaults(): array|callable
     {
         return [
+            'guid' => self::faker()->uuid(),
             'url' => self::faker()->url(),
             'title' => self::faker()->sentence(6),
             'content_html' => '<p>' . self::faker()->paragraphs(self::faker()->numberBetween(2, 5), true) . '</p>',
