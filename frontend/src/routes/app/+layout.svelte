@@ -1,7 +1,13 @@
 <script lang="ts">
-	import { Loader, HyvorBar } from '@hyvor/design/components';
+	import { Loader } from '@hyvor/design/components';
 	import api from '../../lib/api';
-	import { collections, items, publications, selectedCollection, selectedPublication } from './appStore';
+	import {
+		collections,
+		items,
+		publications,
+		selectedCollection,
+		selectedPublication
+	} from './appStore';
 	import { onMount } from 'svelte';
 
 	interface Props {
@@ -17,10 +23,10 @@
 			.get('/init')
 			.then((res) => {
 				collections.set(res.collections);
-                publications.set(res.publications || []);
-                items.set(res.items || []);
-                selectedCollection.set(res.selectedCollection);
-                selectedPublication.set(res.selectedPublication);
+				publications.set(res.publications || []);
+				items.set(res.items || []);
+				selectedCollection.set(res.selectedCollection);
+				selectedPublication.set(res.selectedPublication);
 			})
 			.catch((err) => {
 				console.error(err);
@@ -40,29 +46,10 @@
 		<Loader full />
 	</div>
 {:else}
-	<main>
-		<HyvorBar product="core" config={{ name: 'Hyvor Reader' }} />
-		<div class="content">
-			{@render children?.()}
-		</div>
-	</main>
+	{@render children?.()}
 {/if}
 
 <style>
-	main {
-		display: flex;
-		flex-direction: column;
-		height: 100vh;
-	}
-	.content {
-		flex: 1;
-		display: flex;
-		flex-direction: column;
-		min-height: 0;
-		width: 900px;
-		margin: 0 auto;
-		padding: 15px;
-	}
 	.loader-wrap {
 		display: flex;
 		justify-content: center;
