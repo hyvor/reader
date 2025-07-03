@@ -9,10 +9,12 @@ use App\Repository\ItemRepository;
 use App\Repository\PublicationRepository;
 use App\Repository\CollectionRepository;
 use App\Service\Collection\CollectionService;
+use Hyvor\Internal\Auth\AuthUser;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Security\Http\Attribute\CurrentUser;
 
 class InitController extends AbstractController
 {
@@ -25,7 +27,7 @@ class InitController extends AbstractController
     }
 
     #[Route('/init', methods: ['GET'])]
-    public function getInit(Request $request): JsonResponse
+    public function getInit(#[CurrentUser] AuthUser $user, Request $request): JsonResponse
     {
         $data = [
             "collections" => [],
@@ -35,8 +37,7 @@ class InitController extends AbstractController
             "selectedPublication" => null
         ];
 
-        // TODO: call CollectionService
-        $collections = $this->collectionService->getUserCollections();
+        $collections = $this->collectionService->getUserCollections($user);
 
         // $data["selectedCollection"] = $data["collections"][0];
 

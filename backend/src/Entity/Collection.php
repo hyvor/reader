@@ -7,6 +7,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection as DoctrineCollection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Uid\Uuid;
+use App\Entity\CollectionUser;
 
 #[ORM\Entity(repositoryClass: CollectionRepository::class)]
 #[ORM\Table(name: 'collections')]
@@ -20,6 +21,15 @@ class Collection
     #[ORM\Column(unique: true)]
     private string $uuid;
 
+    #[ORM\Column(unique: true)]
+    private string $slug;
+
+    #[ORM\Column(name: 'is_public', options: ['default' => false])]
+    private bool $public = false;
+
+    #[ORM\Column(name: 'owner_id')]
+    private int $ownerId;
+
     #[ORM\Column]
     private string $name;
 
@@ -29,9 +39,16 @@ class Collection
     #[ORM\OneToMany(targetEntity: Publication::class, mappedBy: 'collection', orphanRemoval: true)]
     private DoctrineCollection $publications;
 
+    /**
+     * @var DoctrineCollection<int, CollectionUser>
+     */
+    #[ORM\OneToMany(targetEntity: CollectionUser::class, mappedBy: 'collection', orphanRemoval: true)]
+    private DoctrineCollection $collectionUsers;
+
     public function __construct()
     {
         $this->publications = new ArrayCollection();
+        $this->collectionUsers = new ArrayCollection();
         $this->uuid = Uuid::v4();
     }
 
@@ -43,6 +60,39 @@ class Collection
     public function getUuid(): string
     {
         return $this->uuid;
+    }
+
+    public function getSlug(): string
+    {
+        return $this->slug;
+    }
+
+    public function setSlug(string $slug): static
+    {
+        $this->slug = $slug;
+        return $this;
+    }
+
+    public function isPublic(): bool
+    {
+        return $this->public;
+    }
+
+    public function setPublic(bool $public): static
+    {
+        $this->public = $public;
+        return $this;
+    }
+
+    public function getOwnerId(): int
+    {
+        return $this->ownerId;
+    }
+
+    public function setOwnerId(int $ownerId): static
+    {
+        $this->ownerId = $ownerId;
+        return $this;
     }
 
     public function getName(): string
@@ -79,6 +129,35 @@ class Collection
         if ($this->publications->removeElement($publication)) {
             if ($publication->getCollection() === $this) {
                 $publication->setCollection(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return DoctrineCollection<int, CollectionUser>
+     */
+    public function getCollectionUsers(): DoctrineCollection
+    {
+        return $this->collectionUsers;
+    }
+
+    public function addCollectionUser(CollectionUser $collectionUser): static
+    {
+        if (!$this->collectionUsers->contains($collectionUser)) {
+            $this->collectionUsers->add($collectionUser);
+            $collectionUser->setCollection($this);
+        }
+
+        return $this;
+    }
+
+    public function removeCollectionUser(CollectionUser $collectionUser): static
+    {
+        if ($this->collectionUsers->removeElement($collectionUser)) {
+            if ($collectionUser->getCollection() === $this) {
+                $collectionUser->setCollection(null);
             }
         }
 
