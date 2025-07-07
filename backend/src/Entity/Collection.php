@@ -33,6 +33,15 @@ class Collection
     #[ORM\Column]
     private string $name;
 
+    #[ORM\Column(unique: true)]
+    private string $slug;
+
+    #[ORM\Column(options: ['default' => false])]
+    private bool $isPublic = false;
+
+    #[ORM\Column(name: 'hyvor_user_id')]
+    private int $hyvorUserId;
+
     /**
      * @var DoctrineCollection<int, Publication>
      */
@@ -135,6 +144,42 @@ class Collection
         return $this;
     }
 
+<<<<<<< Updated upstream
+=======
+    public function getSlug(): string
+    {
+        return $this->slug;
+    }
+
+    public function setSlug(string $slug): static
+    {
+        $this->slug = $slug;
+        return $this;
+    }
+
+    public function isPublic(): bool
+    {
+        return $this->isPublic;
+    }
+
+    public function setIsPublic(bool $isPublic): static
+    {
+        $this->isPublic = $isPublic;
+        return $this;
+    }
+
+    public function getHyvorUserId(): int
+    {
+        return $this->hyvorUserId;
+    }
+
+    public function setHyvorUserId(int $hyvorUserId): static
+    {
+        $this->hyvorUserId = $hyvorUserId;
+        return $this;
+    }
+
+>>>>>>> Stashed changes
     /**
      * @return DoctrineCollection<int, CollectionUser>
      */

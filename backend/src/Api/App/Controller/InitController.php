@@ -13,6 +13,7 @@ use Hyvor\Internal\Auth\AuthUser;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Http\Attribute\CurrentUser;
 
@@ -29,6 +30,13 @@ class InitController extends AbstractController
     #[Route('/init', methods: ['GET'])]
     public function getInit(#[CurrentUser] AuthUser $user, Request $request): JsonResponse
     {
+        $user = $this->getUser();
+        if (!$user instanceof AuthUser) {
+            return $this->json(['error' => 'Authentication required'], Response::HTTP_UNAUTHORIZED);
+        }
+
+        $this->collectionService->ensureUserHasCollection($user);
+
         $data = [
             "collections" => [],
             "publications" => [],
@@ -37,9 +45,13 @@ class InitController extends AbstractController
             "selectedPublication" => null
         ];
 
+<<<<<<< Updated upstream
         $collections = $this->collectionService->getUserCollections($user);
 
         // $data["selectedCollection"] = $data["collections"][0];
+=======
+        $collections = $this->collectionService->getUserCollections($user->id);
+>>>>>>> Stashed changes
 
         if (count($collections) > 0) {
             $publications = $collections[0]->getPublications();
@@ -56,7 +68,7 @@ class InitController extends AbstractController
         }
 
         return $this->json([
-            'collections' => array_map(fn($collection) => new CollectionObject($collection), $collections)
+            'collections' => array_map(fn($collection) => new CollectionObject($collection, $user->id), $collections)
         ] + $data);
     }
 } 

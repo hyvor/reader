@@ -4,6 +4,8 @@ namespace App\Api\App\Controller;
 
 use App\Entity\Collection;
 use App\Repository\CollectionRepository;
+use App\Service\Collection\CollectionService;
+use Hyvor\Internal\Auth\AuthUser;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -16,20 +18,29 @@ class CollectionController extends AbstractController
 {
     public function __construct(
         private readonly CollectionRepository $collectionRepository,
+        private readonly CollectionService $collectionService,
     ) {
     }
 
     #[Route('', name: 'list', methods: ['GET'])]
     public function getCollections(): JsonResponse
     {
-        $collections = $this->collectionRepository->findAll();
+        $user = $this->getUser();
+        if (!$user instanceof AuthUser) {
+            return $this->json(['error' => 'Authentication required'], Response::HTTP_UNAUTHORIZED);
+        }
+
+        $collections = $this->collectionService->getUserCollections($user->id);
 
         $collectionsData = [];
         foreach ($collections as $collection) {
             $collectionsData[] = [
                 'id' => $collection->getId(),
-                'uuid' => $collection->getUuid()->toRfc4122(),
+                'uuid' => $collection->getUuid(),
                 'name' => $collection->getName(),
+                'slug' => $collection->getSlug(),
+                'is_public' => $collection->isPublic(),
+                'is_owner' => $collection->getHyvorUserId() === $user->id,
             ];
         }
 
@@ -75,5 +86,41 @@ class CollectionController extends AbstractController
         ]);
     }
 
+    #[Route('/{slug}/join', name: 'join', methods: ['POST'])]
+    public function joinCollection(string $slug): JsonResponse
+    {
+        $user = $this->getUser();
+        if (!$user instanceof AuthUser) {
+            return $this->json(['error' => 'Authentication required'], Response::HTTP_UNAUTHORIZED);
+        }
+
+        try {
+            $collectionUser = $this->collectionService->joinCollection($user->id, $slug);
+            return $this->json([
+                'message' => 'Successfully joined collection',
+                'access' => [
+                    'write_access' => $collectionUser->hasWriteAccess(),
+                ]
+            ]);
+        } catch (\InvalidArgumentException $e) {
+            return $this->json(['error' => $e->getMessage()], Response::HTTP_BAD_REQUEST);
+        }
+    }
+
+    #[Route('/{slug}/leave', name: 'leave', methods: ['POST'])]
+    public function leaveCollection(string $slug): JsonResponse
+    {
+        $user = $this->getUser();
+        if (!$user instanceof AuthUser) {
+            return $this->json(['error' => 'Authentication required'], Response::HTTP_UNAUTHORIZED);
+        }
+
+        try {
+            $this->collectionService->leaveCollection($user->id, $slug);
+            return $this->json(['message' => 'Successfully left collection']);
+        } catch (\InvalidArgumentException $e) {
+            return $this->json(['error' => $e->getMessage()], Response::HTTP_BAD_REQUEST);
+        }
+    }
 
 } 
