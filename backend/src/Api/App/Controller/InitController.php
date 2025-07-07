@@ -45,13 +45,7 @@ class InitController extends AbstractController
             "selectedPublication" => null
         ];
 
-<<<<<<< Updated upstream
-        $collections = $this->collectionService->getUserCollections($user);
-
-        // $data["selectedCollection"] = $data["collections"][0];
-=======
         $collections = $this->collectionService->getUserCollections($user->id);
->>>>>>> Stashed changes
 
         if (count($collections) > 0) {
             $publications = $collections[0]->getPublications();

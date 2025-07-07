@@ -144,8 +144,6 @@ class Collection
         return $this;
     }
 
-<<<<<<< Updated upstream
-=======
     public function getSlug(): string
     {
         return $this->slug;
@@ -179,7 +177,6 @@ class Collection
         return $this;
     }
 
->>>>>>> Stashed changes
     /**
      * @return DoctrineCollection<int, CollectionUser>
      */
