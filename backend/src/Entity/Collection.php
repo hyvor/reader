@@ -21,15 +21,6 @@ class Collection
     #[ORM\Column(unique: true)]
     private string $uuid;
 
-    #[ORM\Column(unique: true)]
-    private string $slug;
-
-    #[ORM\Column(name: 'is_public', options: ['default' => false])]
-    private bool $public = false;
-
-    #[ORM\Column(name: 'owner_id')]
-    private int $ownerId;
-
     #[ORM\Column]
     private string $name;
 
@@ -69,39 +60,6 @@ class Collection
     public function getUuid(): string
     {
         return $this->uuid;
-    }
-
-    public function getSlug(): string
-    {
-        return $this->slug;
-    }
-
-    public function setSlug(string $slug): static
-    {
-        $this->slug = $slug;
-        return $this;
-    }
-
-    public function isPublic(): bool
-    {
-        return $this->public;
-    }
-
-    public function setPublic(bool $public): static
-    {
-        $this->public = $public;
-        return $this;
-    }
-
-    public function getOwnerId(): int
-    {
-        return $this->ownerId;
-    }
-
-    public function setOwnerId(int $ownerId): static
-    {
-        $this->ownerId = $ownerId;
-        return $this;
     }
 
     public function getName(): string
