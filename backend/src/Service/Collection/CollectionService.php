@@ -173,6 +173,24 @@ class CollectionService
         return $collectionUser && $collectionUser->hasWriteAccess();
     }
 
+    public function deleteCollection(int $hyvorUserId, string $collectionSlug): void
+    {
+        $collection = $this->em->getRepository(Collection::class)->findOneBy([
+            'slug' => $collectionSlug
+        ]);
+
+        if (!$collection) {
+            throw new \InvalidArgumentException('Collection not found');
+        }
+
+        if ($collection->getHyvorUserId() !== $hyvorUserId) {
+            throw new \InvalidArgumentException('Only the collection owner can delete the collection');
+        }
+
+        $this->em->remove($collection);
+        $this->em->flush();
+    }
+
     private function generateUniqueSlug(string $name): string
     {
         $slugger = new AsciiSlugger();

@@ -4,6 +4,7 @@ namespace App\Factory;
 
 use App\Entity\Collection;
 use Zenstruck\Foundry\Persistence\PersistentProxyObjectFactory;
+use App\InternalFake;
 
 /**
  * @extends PersistentProxyObjectFactory<Collection>
@@ -31,6 +32,8 @@ final class CollectionFactory extends PersistentProxyObjectFactory
     {
         return [
             'name' => self::faker()->words(2, true),
+            'slug' => self::faker()->unique()->slug(),
+            'hyvorUserId' => (new InternalFake())->user()?->id ?? 1,
         ];
     }
 

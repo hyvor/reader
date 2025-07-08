@@ -7,7 +7,7 @@ use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: CollectionUserRepository::class)]
 #[ORM\Table(name: 'collection_users')]
-#[ORM\UniqueConstraint(name: 'uniq_collection_user', columns: ['collection_id', 'user_id'])]
+#[ORM\UniqueConstraint(columns: ['collection_id', 'hyvor_user_id'])]
 class CollectionUser
 {
     #[ORM\Id]
@@ -19,11 +19,11 @@ class CollectionUser
     #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')]
     private Collection $collection;
 
-    #[ORM\Column(name: 'user_id', type: 'integer')]
-    private int $userId;
+    #[ORM\Column(name: 'hyvor_user_id', type: 'bigint')]
+    private int $hyvorUserId;
 
-    #[ORM\Column(type: 'string', length: 5)]
-    private string $access; 
+    #[ORM\Column(name: 'write_access', type: 'boolean', options: ['default' => false])]
+    private bool $writeAccess = false;
 
     public function getId(): int
     {
@@ -41,25 +41,25 @@ class CollectionUser
         return $this;
     }
 
-    public function getUserId(): int
+    public function getHyvorUserId(): int
     {
-        return $this->userId;
+        return $this->hyvorUserId;
     }
 
-    public function setUserId(int $userId): static
+    public function setHyvorUserId(int $hyvorUserId): static
     {
-        $this->userId = $userId;
+        $this->hyvorUserId = $hyvorUserId;
         return $this;
     }
 
-    public function getAccess(): string
+    public function hasWriteAccess(): bool
     {
-        return $this->access;
+        return $this->writeAccess;
     }
 
-    public function setAccess(string $access): static
+    public function setWriteAccess(bool $writeAccess): static
     {
-        $this->access = $access;
+        $this->writeAccess = $writeAccess;
         return $this;
     }
 } 

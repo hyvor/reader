@@ -13,6 +13,7 @@
         "doctrine/doctrine-bundle": "^2.15",
         "doctrine/doctrine-migrations-bundle": "^3.4.2",
         "doctrine/orm": "^3.5.0",
+        "hyvor/internal": "^3.0.1",
         "nesbot/carbon": "^3.10.1",
         "runtime/frankenphp-symfony": "^0.2.0",
         "symfony/console": "7.2.*",
@@ -22,8 +23,7 @@
         "symfony/runtime": "7.2.*",
         "symfony/security-bundle": "7.2.*",
         "symfony/uid": "7.2.*",
-        "symfony/yaml": "7.2.*",
-        "hyvor/internal": "^3.0.1"
+        "symfony/yaml": "7.2.*"
     },
     "config": {
         "allow-plugins": {
@@ -77,7 +77,7 @@
     },
     "require-dev": {
         "phpstan/phpstan": "^2.1.17",
-        "phpunit/phpunit": "^9.6.23",
+        "phpunit/phpunit": "^10.0",
         "symfony/browser-kit": "7.2.*",
         "symfony/css-selector": "7.2.*",
         "symfony/maker-bundle": "^1.63",

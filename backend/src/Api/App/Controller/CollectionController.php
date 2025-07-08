@@ -11,9 +11,8 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\Uid\Uuid;
 
-#[Route('/collections', name: 'app_api_collections_')]
+#[Route('/collections')]
 class CollectionController extends AbstractController
 {
     public function __construct(
@@ -22,7 +21,7 @@ class CollectionController extends AbstractController
     ) {
     }
 
-    #[Route('', name: 'list', methods: ['GET'])]
+    #[Route('', methods: ['GET'])]
     public function getCollections(): JsonResponse
     {
         $user = $this->getUser();
@@ -49,44 +48,7 @@ class CollectionController extends AbstractController
         ]);
     }
 
-    #[Route('/{uuid}', name: 'get', methods: ['GET'])]
-    public function getCollection(string $uuid): JsonResponse
-    {
-        try {
-            $uuid = Uuid::fromString($uuid);
-        } catch (\InvalidArgumentException $e) {
-            return $this->json(['error' => 'Invalid UUID format'], Response::HTTP_BAD_REQUEST);
-        }
-
-        $collection = $this->collectionRepository->findOneBy(['uuid' => $uuid]);
-
-        if (!$collection) {
-            return $this->json(['error' => 'Collection not found'], Response::HTTP_NOT_FOUND);
-        }
-
-        $publications = [];
-        foreach ($collection->getPublications() as $publication) {
-            $publications[] = [
-                'id' => $publication->getId(),
-                'title' => $publication->getTitle() ?? 'Untitled',
-                'url' => $publication->getUrl(),
-                'description' => $publication->getDescription() ?? '',
-                'subscribers' => $publication->getSubscribers(),
-                'uuid' => $publication->getUuid()->toRfc4122(),
-            ];
-        }
-
-        return $this->json([
-            'collection' => [
-                'id' => $collection->getId(),
-                'name' => $collection->getName(),
-                'uuid' => $collection->getUuid()->toRfc4122(),
-            ],
-            'publications' => $publications,
-        ]);
-    }
-
-    #[Route('/{slug}/join', name: 'join', methods: ['POST'])]
+    #[Route('/{slug}/join', methods: ['POST'])]
     public function joinCollection(string $slug): JsonResponse
     {
         $user = $this->getUser();
@@ -107,7 +69,7 @@ class CollectionController extends AbstractController
         }
     }
 
-    #[Route('/{slug}/leave', name: 'leave', methods: ['POST'])]
+    #[Route('/{slug}/leave', methods: ['POST'])]
     public function leaveCollection(string $slug): JsonResponse
     {
         $user = $this->getUser();
@@ -118,6 +80,97 @@ class CollectionController extends AbstractController
         try {
             $this->collectionService->leaveCollection($user->id, $slug);
             return $this->json(['message' => 'Successfully left collection']);
+        } catch (\InvalidArgumentException $e) {
+            return $this->json(['error' => $e->getMessage()], Response::HTTP_BAD_REQUEST);
+        }
+    }
+
+    #[Route('/{slug}', methods: ['GET'])]
+    public function getCollectionBySlug(string $slug): JsonResponse
+    {
+        $user = $this->getUser();
+        if (!$user instanceof AuthUser) {
+            return $this->json(['error' => 'Authentication required'], Response::HTTP_UNAUTHORIZED);
+        }
+
+        $collection = $this->collectionService->findBySlug($slug);
+
+        if (!$collection) {
+            return $this->json(['error' => 'Collection not found'], Response::HTTP_NOT_FOUND);
+        }
+
+        if (!$this->collectionService->hasUserAccess($user->id, $collection)) {
+            return $this->json(['error' => 'Access denied'], Response::HTTP_FORBIDDEN);
+        }
+
+        return $this->json([
+            'collection' => [
+                'id' => $collection->getId(),
+                'uuid' => $collection->getUuid(),
+                'name' => $collection->getName(),
+                'slug' => $collection->getSlug(),
+                'is_public' => $collection->isPublic(),
+                'is_owner' => $collection->getHyvorUserId() === $user->id,
+            ]
+        ]);
+    }
+
+    #[Route('/{slug}/publications', methods: ['GET'])]
+    public function getCollectionPublications(string $slug): JsonResponse
+    {
+        $user = $this->getUser();
+        if (!$user instanceof AuthUser) {
+            return $this->json(['error' => 'Authentication required'], Response::HTTP_UNAUTHORIZED);
+        }
+
+        $collection = $this->collectionService->findBySlug($slug);
+
+        if (!$collection) {
+            return $this->json(['error' => 'Collection not found'], Response::HTTP_NOT_FOUND);
+        }
+
+        if (!$this->collectionService->hasUserAccess($user->id, $collection)) {
+            return $this->json(['error' => 'Access denied'], Response::HTTP_FORBIDDEN);
+        }
+
+        $publications = [];
+        foreach ($collection->getPublications() as $publication) {
+            $publications[] = [
+                'id' => $publication->getId(),
+                'uuid' => $publication->getUuid(),
+                'title' => $publication->getTitle() ?? 'Untitled',
+                'url' => $publication->getUrl(),
+                'description' => $publication->getDescription() ?? '',
+                'subscribers' => $publication->getSubscribers(),
+                'created_at' => $publication->getCreatedAt()->format('c'),
+                'updated_at' => $publication->getUpdatedAt()->format('c'),
+            ];
+        }
+
+        return $this->json([
+            'collection' => [
+                'id' => $collection->getId(),
+                'uuid' => $collection->getUuid(),
+                'name' => $collection->getName(),
+                'slug' => $collection->getSlug(),
+                'is_public' => $collection->isPublic(),
+                'is_owner' => $collection->getHyvorUserId() === $user->id,
+            ],
+            'publications' => $publications,
+        ]);
+    }
+
+    #[Route('/{slug}', methods: ['DELETE'])]
+    public function deleteCollection(string $slug): JsonResponse
+    {
+        $user = $this->getUser();
+        if (!$user instanceof AuthUser) {
+            return $this->json(['error' => 'Authentication required'], Response::HTTP_UNAUTHORIZED);
+        }
+
+        try {
+            $this->collectionService->deleteCollection($user->id, $slug);
+            return $this->json(['message' => 'Collection deleted successfully']);
         } catch (\InvalidArgumentException $e) {
             return $this->json(['error' => $e->getMessage()], Response::HTTP_BAD_REQUEST);
         }
