@@ -1,6 +1,10 @@
 <script lang="ts">
 	import { Dropdown } from '@hyvor/design/components';
 	import IconChevronDown from '@hyvor/icons/IconChevronDown';
+	import { collections, selectedCollection, publications, selectedPublication, items } from '../appStore';
+	import api from '../../../lib/api';
+	import type { Collection, Publication } from '../types';
+	import { onMount } from 'svelte';
 
 	interface Props {
 		children?: import('svelte').Snippet;
@@ -8,32 +12,61 @@
 
 	let { children }: Props = $props();
 
-	const publications = [
-		{
-			name: 'Wired',
-			logo: 'https://www.wired.com/verso/static/wired-us/assets/favicon.ico'
-		},
-		{
-			name: 'The Verge',
-			logo: 'https://www.theverge.com/static-assets/icons/favicon.ico'
-		},
-		{
-			name: 'TechCrunch',
-			logo: 'https://techcrunch.com/wp-content/uploads/2015/02/cropped-cropped-favicon-gradient.png?w=32'
-		},
-		{
-			name: 'The Guardian',
-			logo: 'https://static.guim.co.uk/images/favicon-32x32.ico'
-		},
-		{
-			name: 'BBC News',
-			logo: 'https://static.files.bbci.co.uk/bbcdotcom/web/20250616-143050-043f96f72f-web-2.23.1-5/favicon-32x32.png'
-		},
-		{
-			name: 'Al Jazeera',
-			logo: 'https://www.aljazeera.com/favicon_aje.ico'
+	$effect(() => {
+		if ($selectedCollection) {
+			fetchCollectionData($selectedCollection);
 		}
-	];
+	});
+
+	function fetchCollectionData(collection: Collection) {
+		api
+			.get('/publications', { collection_id: collection.uuid })
+			.then((res) => {
+				publications.set(res.publications);
+			})
+			.catch((err) => {
+				console.error('Failed to fetch publications:', err);
+			});
+
+		api
+			.get('/items', { collection_id: collection.uuid })
+			.then((res) => {
+				items.set(res.items);
+			})
+			.catch((err) => {
+				console.error('Failed to fetch items:', err);
+			});
+	}
+
+	function selectCollection(collection: Collection) {
+		selectedCollection.set(collection);
+	}
+
+	function selectPublication(publication: Publication | null) {
+		selectedPublication.set(publication);
+
+		if (publication === null) {
+			if ($selectedCollection) {
+				api
+					.get('/items', { collection_id: $selectedCollection.uuid })
+					.then((res) => {
+						items.set(res.items);
+					})
+					.catch((err) => {
+						console.error('Failed to fetch all items:', err);
+					});
+			}
+		} else {
+			api
+				.get('/items', { publication_id: publication.uuid })
+				.then((res) => {
+					items.set(res.items);
+				})
+				.catch((err) => {
+					console.error('Failed to fetch items:', err);
+				});
+		}
+	}
 </script>
 
 <main>
@@ -43,8 +76,21 @@
 				<Dropdown>
 					{#snippet trigger()}
 						<div class="collection-box">
-							Supun's Collection
+							{$selectedCollection?.name || 'Select Collection'}
 							<IconChevronDown size={12} />
+						</div>
+					{/snippet}
+					{#snippet content()}
+						<div class="collection-dropdown">
+							{#each $collections as collection}
+								<button
+									class="collection-item"
+									class:active={$selectedCollection?.uuid === collection.uuid}
+									onclick={() => selectCollection(collection)}
+								>
+									{collection.name}
+								</button>
+							{/each}
 						</div>
 					{/snippet}
 				</Dropdown>
@@ -61,12 +107,39 @@
 
 		<div class="body">
 			<div class="publications hds-box">
-				{#each publications as publication}
-					<div class="publication">
-						<img src={publication.logo} alt={publication.name} width="14" height="14" />
-						<span>{publication.name}</span>
-					</div>
+				<div class="publications-header">
+					<h3>Publications</h3>
+				</div>
+				
+				<button 
+					class="publication"
+					class:active={$selectedPublication === null}
+					onclick={() => selectPublication(null)}
+				>
+					<span>All Publications</span>
+				</button>
+
+				{#each $publications as publication}
+					<button 
+						class="publication"
+						class:active={$selectedPublication?.uuid === publication.uuid}
+						onclick={() => selectPublication(publication)}
+					>
+						<img 
+							src="https://picsum.photos/32?{publication.title}" 
+							alt={publication.title} 
+							width="14" 
+							height="14" 
+						/>
+						<span>{publication.title}</span>
+					</button>
 				{/each}
+
+				{#if $publications.length === 0}
+					<div class="empty-publications">
+						<p>No publications available</p>
+					</div>
+				{/if}
 			</div>
 
 			{@render children?.()}
@@ -102,10 +175,45 @@
 		display: flex;
 		align-items: center;
 		gap: 5px;
+		cursor: pointer;
+		padding: 8px 12px;
+		border-radius: 6px;
+		transition: background-color 0.2s ease;
+	}
+
+	.collection-box:hover {
+		background-color: var(--hover);
 	}
 
 	.collection-wrap {
 		flex: 1;
+	}
+
+	.collection-dropdown {
+		padding: 8px;
+		min-width: 200px;
+	}
+
+	.collection-item {
+		width: 100%;
+		text-align: left;
+		padding: 12px 16px;
+		background: none;
+		border: none;
+		border-radius: 6px;
+		cursor: pointer;
+		transition: background-color 0.2s ease;
+		margin-bottom: 2px;
+		font-size: 14px;
+	}
+
+	.collection-item:hover {
+		background-color: var(--hover);
+	}
+
+	.collection-item.active {
+		background-color: var(--accent-lightest);
+		font-weight: 500;
 	}
 
 	.body {
@@ -114,19 +222,55 @@
 
 	.publications {
 		width: 350px;
-		padding: 25px 0;
+		padding: 0;
 		margin-right: 20px;
+		display: flex;
+		flex-direction: column;
+	}
+
+	.publications-header {
+		padding: 20px 20px 10px 20px;
+		border-bottom: 1px solid var(--border);
+	}
+
+	.publications-header h3 {
+		margin: 0;
+		font-size: 16px;
+		font-weight: 600;
+		color: var(--text);
 	}
 
 	.publication {
 		display: flex;
 		align-items: center;
 		gap: 10px;
-		padding: 10px 20px;
+		padding: 12px 20px;
 		font-size: 14px;
 		cursor: pointer;
+		border: none;
+		background: none;
+		text-align: left;
+		width: 100%;
+		transition: background-color 0.2s ease;
 	}
+
 	.publication:hover {
 		background-color: var(--hover);
+	}
+
+	.publication.active {
+		background-color: var(--accent-lightest);
+		font-weight: 500;
+	}
+
+	.publication-icon {
+		font-size: 14px;
+	}
+
+	.empty-publications {
+		padding: 20px;
+		text-align: center;
+		color: var(--text-light);
+		font-size: 14px;
 	}
 </style>

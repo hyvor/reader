@@ -4,6 +4,7 @@ namespace App\Api\App\Controller;
 
 use App\Repository\PublicationRepository;
 use App\Repository\CollectionRepository;
+use App\Api\App\Object\PublicationObject;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -11,7 +12,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Uid\Uuid;
 
-#[Route('/publications', name: 'app_api_publications_')]
+#[Route('/publications')]
 class PublicationController extends AbstractController
 {
     public function __construct(
@@ -20,7 +21,7 @@ class PublicationController extends AbstractController
     ) {
     }
 
-    #[Route('', name: 'list', methods: ['GET'])]
+    #[Route('', methods: ['GET'])]
     public function getPublications(Request $request): JsonResponse
     {
         $collectionId = $request->query->get('collection_id');
@@ -43,16 +44,7 @@ class PublicationController extends AbstractController
 
         $publications = [];
         foreach ($collection->getPublications() as $publication) {
-            $publications[] = [
-                'id' => $publication->getId(),
-                'uuid' => $publication->getUuid()->toRfc4122(),
-                'title' => $publication->getTitle() ?? 'Untitled',
-                'url' => $publication->getUrl(),
-                'description' => $publication->getDescription() ?? '',
-                'subscribers' => $publication->getSubscribers(),
-                'created_at' => $publication->getCreatedAt()->getTimestamp(),
-                'updated_at' => $publication->getUpdatedAt()->getTimestamp(),
-            ];
+            $publications[] = new PublicationObject($publication);
         }
 
         return $this->json([

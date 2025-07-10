@@ -2,8 +2,12 @@
 
 namespace App\Api\App\Controller;
 
+use App\Api\App\Object\CollectionObject;
+use App\Api\App\Object\PublicationObject;
 use App\Entity\Collection;
 use App\Repository\CollectionRepository;
+use App\Service\Collection\CollectionService;
+use Hyvor\Internal\Auth\AuthUser;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -16,31 +20,33 @@ class CollectionController extends AbstractController
 {
     public function __construct(
         private readonly CollectionRepository $collectionRepository,
+        private readonly CollectionService $collectionService,
     ) {
     }
 
     #[Route('', methods: ['GET'])]
     public function getCollections(): JsonResponse
     {
-        $collections = $this->collectionRepository->findAll();
-
-        $collectionsData = [];
-        foreach ($collections as $collection) {
-            $collectionsData[] = [
-                'id' => $collection->getId(),
-                'uuid' => $collection->getUuid()->toRfc4122(),
-                'name' => $collection->getName(),
-            ];
+        $user = $this->getUser();
+        if (!$user instanceof AuthUser) {
+            return $this->json(['error' => 'Authentication required'], Response::HTTP_UNAUTHORIZED);
         }
 
+        $collections = $this->collectionService->getUserCollections($user->id);
+
         return $this->json([
-            'collections' => $collectionsData,
+            'collections' => array_map(fn($collection) => new CollectionObject($collection, $user->id), $collections),
         ]);
     }
 
     #[Route('/{uuid}', methods: ['GET'])]
     public function getCollection(string $uuid): JsonResponse
     {
+        $user = $this->getUser();
+        if (!$user instanceof AuthUser) {
+            return $this->json(['error' => 'Authentication required'], Response::HTTP_UNAUTHORIZED);
+        }
+
         try {
             $uuid = Uuid::fromString($uuid);
         } catch (\InvalidArgumentException $e) {
@@ -53,25 +59,13 @@ class CollectionController extends AbstractController
             return $this->json(['error' => 'Collection not found'], Response::HTTP_NOT_FOUND);
         }
 
-        $publications = [];
-        foreach ($collection->getPublications() as $publication) {
-            $publications[] = [
-                'id' => $publication->getId(),
-                'title' => $publication->getTitle() ?? 'Untitled',
-                'url' => $publication->getUrl(),
-                'description' => $publication->getDescription() ?? '',
-                'subscribers' => $publication->getSubscribers(),
-                'uuid' => $publication->getUuid()->toRfc4122(),
-            ];
+        if (!$this->collectionService->hasUserAccess($user->id, $collection)) {
+            return $this->json(['error' => 'Access denied'], Response::HTTP_FORBIDDEN);
         }
 
         return $this->json([
-            'collection' => [
-                'id' => $collection->getId(),
-                'name' => $collection->getName(),
-                'uuid' => $collection->getUuid()->toRfc4122(),
-            ],
-            'publications' => $publications,
+            'collection' => new CollectionObject($collection, $user->id),
+            'publications' => array_map(fn($publication) => new PublicationObject($publication), $collection->getPublications()->toArray()),
         ]);
     }
 
