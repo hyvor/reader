@@ -9,7 +9,6 @@
 		selectedPublication
 	} from './appStore';
 	import { onMount } from 'svelte';
-	import { get } from 'svelte/store';
 
 	interface Props {
 		children?: import('svelte').Snippet;
@@ -26,10 +25,11 @@
 				collections.set(res.collections);
 				publications.set(res.publications || []);
 				items.set(res.items || []);
-				const col = res.selectedCollection ?? res.collections?.[0] ?? null;
-				selectedCollection.set(col);
-				const pub = res.selectedPublication ?? (res.publications?.[0] ?? null);
-				selectedPublication.set(pub);
+
+				const defaultCollection = res.selectedCollection ?? res.collections?.[0] ?? null;
+				selectedCollection.set(defaultCollection);
+
+				selectedPublication.set(res.selectedPublication);
 			})
 			.catch((err) => {
 				console.error(err);
