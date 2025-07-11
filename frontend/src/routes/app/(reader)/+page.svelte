@@ -3,11 +3,16 @@
 	import IconChevronDown from '@hyvor/icons/IconChevronDown';
 	import IconFilter from '@hyvor/icons/IconFilter';
 	import IconBoxArrowUpRight from '@hyvor/icons/IconBoxArrowUpRight';
-	import IconArrowLeft from '@hyvor/icons/IconArrowLeft';
-	import { collections, publications, selectedCollection, selectedPublication, items as itemsStore } from './appStore';
-	import api from '../../lib/api';
-	import type { Collection, Publication, Item } from './types';
-	import ArticleView from './ArticleView.svelte';
+	import {
+		collections,
+		publications,
+		selectedCollection,
+		selectedPublication,
+		items as itemsStore
+	} from '../appStore';
+	import api from '../../../lib/api';
+	import type { Collection, Publication, Item } from '../types';
+	import ArticleView from '../ArticleView.svelte';
 
 	let items = $derived($itemsStore);
 	let selectedItem: Item | null = $state(null);
@@ -17,23 +22,25 @@
 
 	function selectCollection(collection: Collection) {
 		selectedCollection.set(collection);
-		
-		api.get('/publications', { collection_id: collection.uuid })
+
+		api
+			.get('/publications', { collection_id: collection.uuid })
 			.then((res) => {
 				publications.set(res.publications);
 			})
 			.catch((err) => {
 				console.error('Failed to fetch publications:', err);
 			});
-		
-		api.get('/items', { collection_id: collection.uuid })
+
+		api
+			.get('/items', { collection_id: collection.uuid })
 			.then((res) => {
 				itemsStore.set(res.items);
 			})
 			.catch((err) => {
 				console.error('Failed to fetch items:', err);
 			});
-		
+
 		selectedPublication.set(null);
 		selectedItem = null;
 		showCollectionDropdown = false;
@@ -41,10 +48,11 @@
 
 	function selectPublication(publication: Publication | null) {
 		selectedPublication.set(publication);
-		
+
 		if (publication === null) {
 			if ($selectedCollection) {
-				api.get('/items', { collection_id: $selectedCollection.uuid })
+				api
+					.get('/items', { collection_id: $selectedCollection.uuid })
 					.then((res) => {
 						itemsStore.set(res.items);
 					})
@@ -53,7 +61,8 @@
 					});
 			}
 		} else {
-			api.get('/items', { publication_id: publication.uuid })
+			api
+				.get('/items', { publication_id: publication.uuid })
 				.then((res) => {
 					itemsStore.set(res.items);
 				})
@@ -66,7 +75,7 @@
 	}
 
 	function handleItemClick(item: Item) {
-		const index = items.findIndex(i => i.id === item.id);
+		const index = items.findIndex((i) => i.id === item.id);
 		currentArticleIndex = index;
 		selectedItem = item;
 	}
@@ -101,7 +110,7 @@
 
 	function handleKeydown(event: KeyboardEvent) {
 		if (!selectedItem) return;
-		
+
 		switch (event.key) {
 			case 'ArrowLeft':
 				if (canGoToPrevious) {
@@ -132,7 +141,7 @@
 
 	function getRelativeTime(timestamp: number): string {
 		const now = Date.now();
-		const diff = now - (timestamp * 1000);
+		const diff = now - timestamp * 1000;
 		const minutes = Math.floor(diff / 60000);
 		const hours = Math.floor(diff / 3600000);
 		const days = Math.floor(diff / 86400000);
@@ -146,35 +155,35 @@
 <svelte:window on:keydown={handleKeydown} on:click={handleClickOutside} />
 
 {#if selectedItem}
-	<ArticleView 
+	<ArticleView
 		item={selectedItem}
 		isLoading={false}
-		canGoToPrevious={canGoToPrevious}
-		canGoToNext={canGoToNext}
+		{canGoToPrevious}
+		{canGoToNext}
 		onPrevious={goToPreviousArticle}
 		onNext={goToNextArticle}
 		onBackToItems={handleBackToItems}
 	/>
 {:else}
 	<div class="feed hds-box">
-		<div class="header">
+		<!-- <div class="header">
 			<div class="collection">
 				<div class="dropdown-container">
-					<Button 
-						color="input" 
+					<Button
+						color="input"
 						variant="invisible"
-						onclick={() => showCollectionDropdown = !showCollectionDropdown}
+						onclick={() => (showCollectionDropdown = !showCollectionDropdown)}
 					>
 						{$selectedCollection?.name || 'Select Collection'}
 						{#snippet end()}
 							<IconChevronDown size={10} />
 						{/snippet}
 					</Button>
-					
+
 					{#if showCollectionDropdown}
 						<div class="dropdown-menu">
 							{#each $collections as collection}
-								<button 
+								<button
 									class="dropdown-item"
 									class:active={$selectedCollection?.uuid === collection.uuid}
 									onclick={() => selectCollection(collection)}
@@ -188,20 +197,20 @@
 			</div>
 			<div class="feeds-filter">
 				<div class="dropdown-container">
-					<Button 
-						color="input" 
+					<Button
+						color="input"
 						variant="invisible"
-						onclick={() => showPublicationDropdown = !showPublicationDropdown}
+						onclick={() => (showPublicationDropdown = !showPublicationDropdown)}
 					>
 						{#snippet start()}
 							<IconFilter size={12} />
 						{/snippet}
 						{$selectedPublication?.title || 'All Publications'}
 					</Button>
-					
+
 					{#if showPublicationDropdown}
 						<div class="dropdown-menu">
-							<button 
+							<button
 								class="dropdown-item"
 								class:active={$selectedPublication === null}
 								onclick={() => selectPublication(null)}
@@ -209,7 +218,7 @@
 								All Publications
 							</button>
 							{#each $publications as publication}
-								<button 
+								<button
 									class="dropdown-item"
 									class:active={$selectedPublication?.uuid === publication.uuid}
 									onclick={() => selectPublication(publication)}
@@ -221,7 +230,7 @@
 					{/if}
 				</div>
 			</div>
-		</div>
+		</div> -->
 		<div class="items">
 			{#if items.length > 0}
 				{#each items as item}
@@ -247,8 +256,8 @@
 								{item.summary || 'No description available'}
 							</div>
 							<div class="open-button">
-								<Button 
-									size="small" 
+								<Button
+									size="small"
 									color="input"
 									onclick={(event: Event) => {
 										event.stopPropagation();
@@ -367,11 +376,11 @@
 	.open-button {
 		margin-top: 8px;
 	}
-	
+
 	.dropdown-container {
 		position: relative;
 	}
-	
+
 	.dropdown-menu {
 		position: absolute;
 		top: 100%;
@@ -387,7 +396,7 @@
 		margin-top: 6px;
 		padding: 8px;
 	}
-	
+
 	.dropdown-item {
 		width: 100%;
 		text-align: left;
@@ -399,16 +408,16 @@
 		transition: background-color 0.2s ease;
 		margin-bottom: 2px;
 	}
-	
+
 	.dropdown-item:hover {
 		background-color: var(--hover);
 	}
-	
+
 	.dropdown-item.active {
 		background-color: var(--accent-lightest);
 		font-weight: 500;
 	}
-	
+
 	.dropdown-item:last-child {
 		margin-bottom: 0;
 	}
@@ -430,6 +439,4 @@
 		font-size: 14px;
 		line-height: 1.5;
 	}
-
-
 </style>
