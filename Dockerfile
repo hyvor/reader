@@ -47,7 +47,7 @@ ENV APP_RUNTIME "Runtime\FrankenPhpSymfony\Runtime"
 
 # install php and dependencies
 COPY --from=composer /usr/bin/composer /usr/local/bin/composer
-RUN install-php-extensions zip intl pdo_pgsql opcache
+RUN install-php-extensions zip intl pdo_pgsql opcache apcu
 
 
 ###################################################

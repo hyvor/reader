@@ -5,6 +5,7 @@ namespace App\Api\App\Controller;
 use App\Repository\ItemRepository;
 use App\Repository\PublicationRepository;
 use App\Repository\CollectionRepository;
+use App\Api\App\Object\ItemObject;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -12,7 +13,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Uid\Uuid;
 
-#[Route('/items', name: 'app_api_items_')]
+#[Route('/items')]
 class ItemController extends AbstractController
 {
     public function __construct(
@@ -22,7 +23,7 @@ class ItemController extends AbstractController
     ) {
     }
 
-    #[Route('', name: 'list', methods: ['GET'])]
+    #[Route('', methods: ['GET'])]
     public function getItems(Request $request): JsonResponse
     {
         $collectionId = $request->query->get('collection_id');
@@ -53,7 +54,7 @@ class ItemController extends AbstractController
 
             $publicationItems = $publication->getItems()->slice($offset, $limit);
             foreach ($publicationItems as $item) {
-                $items[] = $this->formatItem($item);
+                $items[] = new ItemObject($item);
             }
             
         } else if ($collectionId) {
@@ -68,17 +69,18 @@ class ItemController extends AbstractController
                 return $this->json(['error' => 'Collection not found'], Response::HTTP_NOT_FOUND);
             }
 
+            $allItems = [];
             foreach ($collection->getPublications() as $publication) {
                 foreach ($publication->getItems() as $item) {
-                    $items[] = $this->formatItem($item);
+                    $allItems[] = new ItemObject($item);
                 }
             }
 
-            usort($items, function ($a, $b) {
-                return ($b['published_at'] ?? 0) <=> ($a['published_at'] ?? 0);
+            usort($allItems, function ($a, $b) {
+                return ($b->published_at ?? 0) <=> ($a->published_at ?? 0);
             });
 
-            $items = array_slice($items, $offset, $limit);
+            $items = array_slice($allItems, $offset, $limit);
             
         } else {
             return $this->json(['error' => 'Either collection_id or publication_id parameter is required'], Response::HTTP_BAD_REQUEST);
@@ -87,27 +89,5 @@ class ItemController extends AbstractController
         return $this->json([
             'items' => $items,
         ]);
-    }
-
-    private function formatItem($item): array
-    {
-        return [
-            'id' => $item->getId(),
-            'uuid' => $item->getUuid()->toRfc4122(),
-            'title' => $item->getTitle() ?? 'Untitled',
-            'url' => $item->getUrl(),
-            'content_html' => $item->getContentHtml(),
-            'content_text' => $item->getContentText(),
-            'summary' => $item->getSummary(),
-            'image' => $item->getImage(),
-            'published_at' => $item->getPublishedAt()?->getTimestamp(),
-            'updated_at' => $item->getUpdatedAt()?->getTimestamp(),
-            'authors' => $item->getAuthors(),
-            'tags' => $item->getTags(),
-            'language' => $item->getLanguage(),
-            'publication_id' => $item->getPublication()?->getId(),
-            'publication_uuid' => $item->getPublication()?->getUuid()->toRfc4122(),
-            'publication_title' => $item->getPublication()?->getTitle() ?? 'Untitled',
-        ];
     }
 } 

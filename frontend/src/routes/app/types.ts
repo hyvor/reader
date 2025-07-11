@@ -3,6 +3,9 @@ export interface Collection {
     id: number;
     uuid: string;
     name: string;
+    slug: string;
+    is_public: boolean;
+    is_owner: boolean;
 }
 
 export interface Publication {
