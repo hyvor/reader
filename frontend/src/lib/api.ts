@@ -2,7 +2,9 @@ type Method = 'get' | 'post' | 'patch' | 'put' | 'delete';
 
 export default class api {
 
-    static async call(method: Method, endpoint: string, data : Record<string, any> = {}) {
+    static async call(method: Method, endpoint: string, data: Record<string, any> = {}, customFetch?: typeof fetch) {
+
+        const fetchFn = customFetch || fetch;
 
         const apiUrl = location.origin + "/api/app";
         const endpointUrl = endpoint.replace(/^\//, '');
@@ -20,7 +22,7 @@ export default class api {
             document.cookie = 'authsess=dev-fake-session; Path=/; SameSite=Lax';
         }
 
-        const response = await fetch(url, {
+        const response = await fetchFn(url, {
             method: method.toUpperCase(),
             body: method !== 'get' ? JSON.stringify(data) : undefined,
             headers: {
@@ -38,20 +40,20 @@ export default class api {
 
     }
 
-    static async get(url: string, data: Record<string, any> = {}) {
-        return await api.call('get', url, data);
+    static async get(url: string, data: Record<string, any> = {}, customFetch?: typeof fetch) {
+        return await api.call('get', url, data, customFetch);
     }
 
-    static async post(url: string, data: Record<string, any> = {}) {
-        return await api.call('post', url, data);
+    static async post(url: string, data: Record<string, any> = {}, customFetch?: typeof fetch) {
+        return await api.call('post', url, data, customFetch);
     }
 
-    static async patch(url: string, data: Record<string, any> = {}) {
-        return await api.call('patch', url, data);
+    static async patch(url: string, data: Record<string, any> = {}, customFetch?: typeof fetch) {
+        return await api.call('patch', url, data, customFetch);
     }
 
-    static async delete(url: string, data: Record<string, any> = {}) {
-        return await api.call('delete', url, data);
+    static async delete(url: string, data: Record<string, any> = {}, customFetch?: typeof fetch) {
+        return await api.call('delete', url, data, customFetch);
     }
 
 }

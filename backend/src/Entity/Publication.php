@@ -53,6 +53,9 @@ class Publication
     #[ORM\Column(type: 'string', nullable: true)]
     private ?string $conditionalGetEtag = null;
 
+    #[ORM\Column(type: 'string', unique: true, nullable: false)]
+    private string $slug;
+
     /**
      * @var DoctrineCollection<int, Item>
      */
@@ -200,6 +203,17 @@ class Publication
     public function setConditionalGetEtag(?string $conditionalGetEtag): static
     {
         $this->conditionalGetEtag = $conditionalGetEtag;
+        return $this;
+    }
+
+    public function getSlug(): string
+    {
+        return $this->slug;
+    }
+
+    public function setSlug(string $slug): static
+    {
+        $this->slug = $slug;
         return $this;
     }
 

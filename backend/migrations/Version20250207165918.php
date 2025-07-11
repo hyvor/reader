@@ -25,6 +25,7 @@ final class Version20250207165918 extends AbstractMigration
                 created_at timestamptz DEFAULT CURRENT_TIMESTAMP NOT NULL, 
                 updated_at timestamptz DEFAULT CURRENT_TIMESTAMP NOT NULL, 
                 uuid UUID NOT NULL DEFAULT gen_random_uuid() UNIQUE,
+                slug VARCHAR(255) NOT NULL UNIQUE,
                 url text NOT NULL UNIQUE, 
                 title text DEFAULT NULL, 
                 description text DEFAULT NULL, 

@@ -10,6 +10,7 @@ class PublicationObject
     public string $uuid;
     public string $title;
     public string $url;
+    public string $slug;
     public string $description;
     public int $subscribers;
     public int $created_at;
@@ -21,6 +22,8 @@ class PublicationObject
         $this->uuid = $publication->getUuid();
         $this->title = $publication->getTitle() ?? 'Untitled';
         $this->url = $publication->getUrl();
+
+        $this->slug = $publication->getSlug();
         $this->description = $publication->getDescription() ?? '';
         $this->subscribers = $publication->getSubscribers();
         $this->created_at = $publication->getCreatedAt()->getTimestamp();

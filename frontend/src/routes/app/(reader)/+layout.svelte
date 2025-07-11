@@ -1,9 +1,11 @@
 <script lang="ts">
 	import { Dropdown } from '@hyvor/design/components';
 	import IconChevronDown from '@hyvor/icons/IconChevronDown';
-	import { collections, publications, selectedCollection, selectedPublication, items as itemsStore } from '../appStore';
+	import { collections, publications, selectedCollection, selectedPublication } from '../appStore';
 	import { ActionList, ActionListItem } from '@hyvor/design/components';
-	import api from '../../../lib/api';
+	import { goto } from '$app/navigation';
+	import { page } from '$app/stores';
+	import type { Collection, Publication } from '../types';
 
 	interface Props {
 		children?: import('svelte').Snippet;
@@ -11,47 +13,27 @@
 
 	let { children }: Props = $props();
 
+	$effect(() => {
+		selectedCollection.set($collections.find(c => c.slug === $page.params.collection_slug) ?? null);
+		selectedPublication.set($publications.find(p => p.slug === $page.params.publication_slug) ?? null);
+	});
+
 	let showCollections = $state(false);
 
-	function selectCollection(collection) {
-		selectedCollection.set(collection);
-		api
-			.get('/publications', { collection_id: collection.uuid })
-			.then((res) => {
-				publications.set(res.publications);
-			})
-			.catch((err) => console.error(err));
-
-		api
-			.get('/items', { collection_id: collection.uuid })
-			.then((res) => {
-				itemsStore.set(res.items);
-			})
-			.catch((err) => console.error(err));
-
-		selectedPublication.set(null);
+	function selectCollection(collection: Collection) {
+		goto(`/app/${collection.slug}`);
 		showCollections = false;
 	}
 
-	function togglePublication(publication) {
-		const current = $selectedPublication;
+	function togglePublication(publication: Publication) {
+		const currentSlug = $page.params.publication_slug;
+		const collectionSlug = $page.params.collection_slug;
 
-		if (current && current.uuid === publication.uuid) {
-			selectedPublication.set(null);
-
-			if ($selectedCollection) {
-				api.get('/items', { collection_id: $selectedCollection.uuid })
-					.then(res => itemsStore.set(res.items))
-					.catch(err => console.error(err));
-			}
-			return;
+		if (currentSlug && currentSlug === publication.slug) {
+			goto(`/app/${collectionSlug}`);
+		} else {
+			goto(`/app/${collectionSlug}/${publication.slug}`);
 		}
-
-		selectedPublication.set(publication);
-
-		api.get('/items', { publication_id: publication.uuid })
-			.then(res => itemsStore.set(res.items))
-			.catch(err => console.error(err));
 	}
 
 	function getFavicon(url: string, size: number = 14) {

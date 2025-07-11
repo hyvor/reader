@@ -12,6 +12,7 @@ export interface Publication {
     id: number;
     uuid: string;
     title: string;
+    slug: string;
     url: string;
     description: string;
     subscribers: number;
