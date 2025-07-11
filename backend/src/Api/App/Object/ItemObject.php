@@ -7,6 +7,7 @@ use App\Entity\Item;
 class ItemObject
 {
     public int $id;
+    public string $guid;
     public string $uuid;
     public string $title;
     public string $url;
@@ -26,6 +27,7 @@ class ItemObject
     public function __construct(Item $item)
     {
         $this->id = $item->getId();
+        $this->guid = $item->getGuid();
         $this->uuid = $item->getUuid();
         $this->title = $item->getTitle() ?? 'Untitled';
         $this->url = $item->getUrl();

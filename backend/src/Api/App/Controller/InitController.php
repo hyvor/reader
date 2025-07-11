@@ -17,6 +17,7 @@ use Symfony\Component\Routing\Annotation\Route;
 class InitController extends AbstractController
 {
     public function __construct(
+        // TODO: move to service
         private readonly ItemRepository $itemRepository,
         private readonly PublicationRepository $publicationRepository,
         private readonly CollectionRepository $collectionRepository,

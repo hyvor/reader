@@ -32,7 +32,7 @@ class Collection
     public function __construct()
     {
         $this->publications = new ArrayCollection();
-        $this->uuid = Uuid::v4();
+        $this->uuid = (string) Uuid::v4();
     }
 
     public function getId(): int
