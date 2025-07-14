@@ -6,22 +6,7 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Config\SecurityConfig;
 
 return static function (ContainerBuilder $container, SecurityConfig $security): void {
-    // Password hashers
-    $security
-        ->passwordHasher('Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface')
-        ->algorithm('auto');
-
-    // Providers
-    $security
-        ->provider('app_user_provider')
-        ->id('App\Security\UserProvider');
-
-    // Firewalls
-    $security
-        ->firewall('dev')
-        ->pattern('^/(_(profiler|wdt)|css|images|js)/')
-        ->security(false);
-
+    // TODO: change authorization to a listener/middleware
     $security
         ->firewall('hyvor_auth')
         ->stateless(true)

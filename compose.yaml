@@ -43,7 +43,7 @@ services:
       target: backend-dev
     volumes:
       - ./backend:/app/backend
-      - ../internal:/app/backend/vendor/hyvor/internal:ro
+      # - ../internal:/app/backend/vendor/hyvor/internal:ro
       - ./shared:/app/shared
     labels:
       traefik.enable: true
@@ -67,44 +67,6 @@ services:
           path: ./shared
           target: /app/shared
 
-  # postgres:
-  #   image: postgres:16
-  #   container_name: hyvor-reader-postgres
-  #   environment:
-  #     POSTGRES_DB: hyvor_reader
-  #     POSTGRES_USER: postgres
-  #     POSTGRES_PASSWORD: postgres
-  #   ports:
-  #     - "5432:5432"
-  #   volumes:
-  #     - postgres_data:/var/lib/postgresql/data
-  #   networks:
-  #     - hyvor-network
-  #   healthcheck:
-  #     test: ["CMD-SHELL", "pg_isready -U postgres"]
-  #     interval: 5s
-  #     timeout: 5s
-  #     retries: 5
-
-  # traefik:
-  #   image: traefik:v3.4
-  #   container_name: hyvor-reader-traefik
-  #   command:
-  #     - "--providers.docker=true"
-  #     - "--providers.docker.exposedbydefault=false"
-  #     - "--entrypoints.http.address=:80"
-  #   ports:
-  #     - "80:80"
-  #   volumes:
-  #     - /var/run/docker.sock:/var/run/docker.sock:ro
-  #   profiles:
-  #     - traefik
-  #   networks:
-  #     - hyvor-network
-
 networks:
   hyvor-network:
     external: true
-
-# volumes:
-#   postgres_data:

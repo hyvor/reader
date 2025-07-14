@@ -17,11 +17,6 @@ export default class api {
             url += '?' + query;
         }
 
-        // @ts-ignore
-        if (location.hostname.endsWith('.localhost') && !document.cookie.includes('authsess=')) {
-            document.cookie = 'authsess=dev-fake-session; Path=/; SameSite=Lax';
-        }
-
         const response = await fetchFn(url, {
             method: method.toUpperCase(),
             body: method !== 'get' ? JSON.stringify(data) : undefined,
