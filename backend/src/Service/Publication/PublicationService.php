@@ -4,6 +4,7 @@ namespace App\Service\Publication;
 
 use App\Entity\Publication;
 use App\Entity\Collection;
+use App\Api\App\Object\PublicationObject;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\String\Slugger\AsciiSlugger;
 use Symfony\Component\Uid\Uuid;
@@ -22,6 +23,30 @@ class PublicationService
         } catch (\InvalidArgumentException $e) {
             return null;
         }
+    }
+
+    /**
+     * @return PublicationObject[]
+     */
+    public function getPublicationsFromCollection(string $collectionId): array
+    {
+        try {
+            $uuidObject = Uuid::fromString($collectionId);
+        } catch (\InvalidArgumentException $e) {
+            return [];
+        }
+
+        $collection = $this->em->getRepository(Collection::class)->findOneBy(['uuid' => $uuidObject]);
+        if (!$collection) {
+            return [];
+        }
+
+        $publications = [];
+        foreach ($collection->getPublications() as $publication) {
+            $publications[] = new PublicationObject($publication);
+        }
+
+        return $publications;
     }
 
     public function createPublication(Collection $collection, string $url, ?string $title = null, ?string $description = null): Publication
