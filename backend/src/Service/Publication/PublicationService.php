@@ -6,11 +6,22 @@ use App\Entity\Publication;
 use App\Entity\Collection;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\String\Slugger\AsciiSlugger;
+use Symfony\Component\Uid\Uuid;
 
 class PublicationService
 {
     public function __construct(private EntityManagerInterface $em)
     {
+    }
+
+    public function findByUuid(string $uuid): ?Publication
+    {
+        try {
+            $uuidObject = Uuid::fromString($uuid);
+            return $this->em->getRepository(Publication::class)->findOneBy(['uuid' => $uuidObject]);
+        } catch (\InvalidArgumentException $e) {
+            return null;
+        }
     }
 
     public function createPublication(Collection $collection, string $url, ?string $title = null, ?string $description = null): Publication

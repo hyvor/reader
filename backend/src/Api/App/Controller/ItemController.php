@@ -2,10 +2,9 @@
 
 namespace App\Api\App\Controller;
 
-use App\Repository\ItemRepository;
-use App\Repository\PublicationRepository;
-use App\Repository\CollectionRepository;
-use App\Api\App\Object\ItemObject;
+use App\Service\Item\ItemService;
+use App\Service\Publication\PublicationService;
+use App\Service\Collection\CollectionService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -17,9 +16,9 @@ use Symfony\Component\Uid\Uuid;
 class ItemController extends AbstractController
 {
     public function __construct(
-        private readonly ItemRepository $itemRepository,
-        private readonly PublicationRepository $publicationRepository,
-        private readonly CollectionRepository $collectionRepository,
+        private readonly ItemService $itemService,
+        private readonly PublicationService $publicationService,
+        private readonly CollectionService $collectionService,
     ) {
     }
 
@@ -42,45 +41,31 @@ class ItemController extends AbstractController
         
         if ($publicationId) {
             try {
-                $uuid = Uuid::fromString($publicationId);
+                Uuid::fromString($publicationId);
             } catch (\InvalidArgumentException $e) {
                 return $this->json(['error' => 'Invalid UUID format for publication_id'], Response::HTTP_BAD_REQUEST);
             }
 
-            $publication = $this->publicationRepository->findOneBy(['uuid' => $uuid]);
+            $publication = $this->publicationService->findByUuid($publicationId);
             if (!$publication) {
                 return $this->json(['error' => 'Publication not found'], Response::HTTP_NOT_FOUND);
             }
 
-            $publicationItems = $publication->getItems()->slice($offset, $limit);
-            foreach ($publicationItems as $item) {
-                $items[] = new ItemObject($item);
-            }
+            $items = $this->itemService->getItemsFromPublication($publicationId, $limit, $offset);
             
         } else if ($collectionId) {
             try {
-                $uuid = Uuid::fromString($collectionId);
+                Uuid::fromString($collectionId);
             } catch (\InvalidArgumentException $e) {
                 return $this->json(['error' => 'Invalid UUID format for collection_id'], Response::HTTP_BAD_REQUEST);
             }
 
-            $collection = $this->collectionRepository->findOneBy(['uuid' => $uuid]);
+            $collection = $this->collectionService->findByUuid($collectionId);
             if (!$collection) {
                 return $this->json(['error' => 'Collection not found'], Response::HTTP_NOT_FOUND);
             }
 
-            $allItems = [];
-            foreach ($collection->getPublications() as $publication) {
-                foreach ($publication->getItems() as $item) {
-                    $allItems[] = new ItemObject($item);
-                }
-            }
-
-            usort($allItems, function ($a, $b) {
-                return ($b->published_at ?? 0) <=> ($a->published_at ?? 0);
-            });
-
-            $items = array_slice($allItems, $offset, $limit);
+            $items = $this->itemService->getItemsFromCollection($collectionId, $limit, $offset);
             
         } else {
             return $this->json(['error' => 'Either collection_id or publication_id parameter is required'], Response::HTTP_BAD_REQUEST);
