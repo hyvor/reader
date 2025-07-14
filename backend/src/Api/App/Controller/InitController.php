@@ -62,7 +62,7 @@ class InitController extends AbstractController
         }
 
         return $this->json([
-            'collections' => array_map(fn($collection) => new CollectionObject($collection, $user->id), $collections)
+            'collections' => array_map(fn($collection) => new CollectionObject($collection, $user->id), $collections),
         ] + $data);
     }
 } 

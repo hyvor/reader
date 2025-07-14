@@ -4,7 +4,6 @@ namespace App\Api\App\Controller;
 
 use App\Api\App\Object\CollectionObject;
 use App\Api\App\Object\PublicationObject;
-use App\Entity\Collection;
 use App\Repository\CollectionRepository;
 use App\Service\Collection\CollectionService;
 use Hyvor\Internal\Auth\AuthUser;
@@ -12,10 +11,11 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Requirement\Requirement;
 use Symfony\Component\Uid\Uuid;
 
-#[Route('/collections')]
 class CollectionController extends AbstractController
 {
     public function __construct(
@@ -24,7 +24,7 @@ class CollectionController extends AbstractController
     ) {
     }
 
-    #[Route('', methods: ['GET'])]
+    #[Route('/collections', methods: ['GET'])]
     public function getCollections(): JsonResponse
     {
         $user = $this->getUser();
@@ -39,7 +39,7 @@ class CollectionController extends AbstractController
         ]);
     }
 
-    #[Route('/{uuid}', methods: ['GET'])]
+    #[Route('/collections/uuid/{uuid}', methods: ['GET'])]
     public function getCollection(string $uuid): JsonResponse
     {
         $user = $this->getUser();
@@ -56,10 +56,11 @@ class CollectionController extends AbstractController
         $collection = $this->collectionRepository->findOneBy(['uuid' => $uuid]);
 
         if (!$collection) {
-            return $this->json(['error' => 'Collection not found'], Response::HTTP_NOT_FOUND);
+            throw new NotFoundHttpException('Collection not found');
+            // return $this->json(['error' => 'Collection not found'], Response::HTTP_NOT_FOUND);
         }
 
-        if (!$this->collectionService->hasUserAccess($user->id, $collection)) {
+        if (!$this->collectionService->hasUserReadAccess($user->id, $collection)) {
             return $this->json(['error' => 'Access denied'], Response::HTTP_FORBIDDEN);
         }
 

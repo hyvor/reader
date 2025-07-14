@@ -152,7 +152,7 @@ class CollectionService
         return $this->em->getRepository(Collection::class)->findOneBy(['slug' => $slug]);
     }
 
-    public function hasUserAccess(int $hyvorUserId, Collection $collection): bool
+    public function hasUserReadAccess(int $hyvorUserId, Collection $collection): bool
     {
         if ($collection->getHyvorUserId() === $hyvorUserId) {
             return true;

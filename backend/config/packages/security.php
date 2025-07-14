@@ -13,11 +13,6 @@ return static function (ContainerBuilder $container, SecurityConfig $security): 
         ->lazy(true)
         ->customAuthenticators([HyvorAuthenticator::class]);
 
-    $security
-        ->firewall('main')
-        ->lazy(true)
-        ->provider('app_user_provider');
-
     // Access control
     $security
         ->accessControl()
