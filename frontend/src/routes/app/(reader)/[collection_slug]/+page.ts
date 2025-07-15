@@ -11,7 +11,7 @@ export const load: PageLoad = async ({ params, parent, fetch }) => {
         error(404, 'Collection not found');
     }
 
-    const data = await api.get('/items', { collection_id: collection.uuid }, fetch);
+    	const data = await api.get('/items', { collection_slug: collection.slug }, fetch);
 
     return {
         items: data.items

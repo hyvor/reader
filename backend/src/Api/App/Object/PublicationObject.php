@@ -7,7 +7,6 @@ use App\Entity\Publication;
 class PublicationObject
 {
     public int $id;
-    public string $uuid;
     public string $title;
     public string $url;
     public string $slug;
@@ -19,10 +18,8 @@ class PublicationObject
     public function __construct(Publication $publication)
     {
         $this->id = $publication->getId();
-        $this->uuid = $publication->getUuid();
         $this->title = $publication->getTitle() ?? 'Untitled';
         $this->url = $publication->getUrl();
-
         $this->slug = $publication->getSlug();
         $this->description = $publication->getDescription() ?? '';
         $this->subscribers = $publication->getSubscribers();

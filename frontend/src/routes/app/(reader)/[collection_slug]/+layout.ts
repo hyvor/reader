@@ -11,7 +11,7 @@ export const load: LayoutLoad = async ({ params, parent, fetch }) => {
         error(404, 'Collection not found');
     }
 
-    const data = await api.get('/publications', { collection_id: collection.uuid }, fetch);
+    	const data = await api.get('/publications', { collection_slug: collection.slug }, fetch);
     
     return {
         publications: data.publications

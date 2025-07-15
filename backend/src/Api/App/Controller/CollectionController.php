@@ -14,7 +14,6 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Routing\Requirement\Requirement;
-use Symfony\Component\Uid\Uuid;
 
 class CollectionController extends AbstractController
 {
@@ -39,21 +38,15 @@ class CollectionController extends AbstractController
         ]);
     }
 
-    #[Route('/collections/uuid/{uuid}', methods: ['GET'])]
-    public function getCollection(string $uuid): JsonResponse
+    #[Route('/collections/{slug}', methods: ['GET'])]
+    public function getCollection(string $slug): JsonResponse
     {
         $user = $this->getUser();
         if (!$user instanceof AuthUser) {
             return $this->json(['error' => 'Authentication required'], Response::HTTP_UNAUTHORIZED);
         }
 
-        try {
-            $uuid = Uuid::fromString($uuid);
-        } catch (\InvalidArgumentException $e) {
-            return $this->json(['error' => 'Invalid UUID format'], Response::HTTP_BAD_REQUEST);
-        }
-
-        $collection = $this->collectionRepository->findOneBy(['uuid' => $uuid]);
+        $collection = $this->collectionService->findBySlug($slug);
 
         if (!$collection) {
             throw new NotFoundHttpException('Collection not found');

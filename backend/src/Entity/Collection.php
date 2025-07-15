@@ -6,7 +6,6 @@ use App\Repository\CollectionRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection as DoctrineCollection;
 use Doctrine\ORM\Mapping as ORM;
-use Symfony\Component\Uid\Uuid;
 use App\Entity\CollectionUser;
 
 #[ORM\Entity(repositoryClass: CollectionRepository::class)]
@@ -17,9 +16,6 @@ class Collection
     #[ORM\GeneratedValue]
     #[ORM\Column]
     private int $id;
-
-    #[ORM\Column(unique: true)]
-    private string $uuid;
 
     #[ORM\Column]
     private string $name;
@@ -49,17 +45,11 @@ class Collection
     {
         $this->publications = new ArrayCollection();
         $this->collectionUsers = new ArrayCollection();
-        $this->uuid = Uuid::v4();
     }
 
     public function getId(): int
     {
         return $this->id;
-    }
-
-    public function getUuid(): string
-    {
-        return $this->uuid;
     }
 
     public function getName(): string

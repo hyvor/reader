@@ -61,7 +61,7 @@
 						<ActionList selection="single">
 							{#each $collections as collection}
 								<ActionListItem
-									selected={$selectedCollection?.uuid === collection.uuid}
+									selected={$selectedCollection?.slug === collection.slug}
 									on:select={() => selectCollection(collection)}
 								>
 									{collection.name}
@@ -86,7 +86,7 @@
 				{#each $publications as publication}
 					<button
 						type="button"
-						class="publication { $selectedPublication?.uuid === publication.uuid ? 'active' : '' }"
+						class="publication { $selectedPublication?.slug === publication.slug ? 'active' : '' }"
 						onclick={() => togglePublication(publication)}
 					>
 						{#if publication.url}

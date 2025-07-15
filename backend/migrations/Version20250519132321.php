@@ -20,7 +20,6 @@ final class Version20250519132321 extends AbstractMigration
             CREATE TABLE collections (
                 id BIGSERIAL NOT NULL PRIMARY KEY,
                 name TEXT NOT NULL,
-                uuid UUID NOT NULL DEFAULT gen_random_uuid() UNIQUE,
                 slug TEXT NOT NULL UNIQUE,
                 is_public BOOLEAN NOT NULL DEFAULT FALSE,
                 hyvor_user_id BIGINT NOT NULL

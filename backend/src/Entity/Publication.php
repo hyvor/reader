@@ -6,8 +6,6 @@ use App\Repository\PublicationRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection as DoctrineCollection;
 use Doctrine\ORM\Mapping as ORM;
-use Symfony\Component\Uid\Uuid;
-
 #[ORM\Entity(repositoryClass: PublicationRepository::class)]
 #[ORM\Table(name: 'publications')]
 class Publication
@@ -16,9 +14,6 @@ class Publication
     #[ORM\GeneratedValue]
     #[ORM\Column(type: 'integer')]
     private int $id;
-
-    #[ORM\Column(unique: true)]
-    private string $uuid;
 
     #[ORM\Column(type: 'datetime', options: ['default' => 'CURRENT_TIMESTAMP'])]
     private \DateTime $createdAt;
@@ -69,7 +64,6 @@ class Publication
     public function __construct()
     {
         $this->items = new ArrayCollection();
-        $this->uuid =  (string) Uuid::v4();
         $this->createdAt = new \DateTime();
         $this->updatedAt = new \DateTime();
         $this->nextFetchAt = new \DateTime();
@@ -78,11 +72,6 @@ class Publication
     public function getId(): int
     {
         return $this->id;
-    }
-
-    public function getUuid(): string
-    {
-        return $this->uuid;
     }
 
     public function getUrl(): string

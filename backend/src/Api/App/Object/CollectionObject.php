@@ -8,7 +8,6 @@ class CollectionObject
 {
     public int $id;
     public string $name;
-    public string $uuid;
     public string $slug;
     public bool $is_public;
     public bool $is_owner;
@@ -17,7 +16,6 @@ class CollectionObject
     {
         $this->id = $collection->getId();
         $this->name = $collection->getName();
-        $this->uuid = $collection->getUuid();
         $this->slug = $collection->getSlug();
         $this->is_public = $collection->isPublic();
         $this->is_owner = $currentUserId ? $collection->getHyvorUserId() === $currentUserId : false;

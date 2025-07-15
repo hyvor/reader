@@ -24,7 +24,7 @@
 		selectedCollection.set(collection);
 
 		api
-			.get('/publications', { collection_id: collection.uuid })
+			.get('/publications', { collection_slug: collection.slug })
 			.then((res) => {
 				publications.set(res.publications);
 			})
@@ -33,7 +33,7 @@
 			});
 
 		api
-			.get('/items', { collection_id: collection.uuid })
+			.get('/items', { collection_slug: collection.slug })
 			.then((res) => {
 				itemsStore.set(res.items);
 			})
@@ -52,7 +52,7 @@
 		if (publication === null) {
 			if ($selectedCollection) {
 				api
-					.get('/items', { collection_id: $selectedCollection.uuid })
+					.get('/items', { collection_slug: $selectedCollection.slug })
 					.then((res) => {
 						itemsStore.set(res.items);
 					})
@@ -62,7 +62,7 @@
 			}
 		} else {
 			api
-				.get('/items', { publication_id: publication.uuid })
+				.get('/items', { publication_slug: publication.slug })
 				.then((res) => {
 					itemsStore.set(res.items);
 				})
@@ -185,7 +185,7 @@
 							{#each $collections as collection}
 								<button
 									class="dropdown-item"
-									class:active={$selectedCollection?.uuid === collection.uuid}
+									class:active={$selectedCollection?.slug === collection.slug}
 									onclick={() => selectCollection(collection)}
 								>
 									{collection.name}
@@ -220,7 +220,7 @@
 							{#each $publications as publication}
 								<button
 									class="dropdown-item"
-									class:active={$selectedPublication?.uuid === publication.uuid}
+									class:active={$selectedPublication?.slug === publication.slug}
 									onclick={() => selectPublication(publication)}
 								>
 									{publication.title || 'Untitled'}

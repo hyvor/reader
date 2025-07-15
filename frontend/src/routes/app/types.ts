@@ -1,7 +1,6 @@
 
 export interface Collection {
     id: number;
-    uuid: string;
     name: string;
     slug: string;
     is_public: boolean;
@@ -10,7 +9,6 @@ export interface Collection {
 
 export interface Publication {
     id: number;
-    uuid: string;
     title: string;
     slug: string;
     url: string;
@@ -35,7 +33,7 @@ export interface Item {
     tags: string[];
     language?: string;
     publication_id: number;
-    publication_uuid: string;
+    publication_slug: string;
     publication_title: string;
     reading_time?: number;
     word_count?: number;

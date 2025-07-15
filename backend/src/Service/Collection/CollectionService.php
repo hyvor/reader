@@ -7,7 +7,6 @@ use App\Entity\CollectionUser;
 use Doctrine\ORM\EntityManagerInterface;
 use Hyvor\Internal\Auth\AuthUser;
 use Symfony\Component\String\Slugger\AsciiSlugger;
-use Symfony\Component\Uid\Uuid;
 
 class CollectionService
 {
@@ -16,16 +15,6 @@ class CollectionService
         private EntityManagerInterface $em
     )
     {
-    }
-
-    public function findByUuid(string $uuid): ?Collection
-    {
-        try {
-            $uuidObject = Uuid::fromString($uuid);
-            return $this->em->getRepository(Collection::class)->findOneBy(['uuid' => $uuidObject]);
-        } catch (\InvalidArgumentException $e) {
-            return null;
-        }
     }
 
     /**

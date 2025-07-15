@@ -22,9 +22,9 @@ class ItemService
     /**
      * @return ItemObject[]
      */
-    public function getItemsFromPublication(string $publicationId, int $limit = 50, int $offset = 0): array
+    public function getItemsFromPublication(string $publicationSlug, int $limit = 50, int $offset = 0): array
     {
-        $publication = $this->publicationService->findByUuid($publicationId);
+        $publication = $this->publicationService->findBySlug($publicationSlug);
         if (!$publication) {
             return [];
         }
@@ -36,9 +36,9 @@ class ItemService
     /**
      * @return ItemObject[]
      */
-    public function getItemsFromCollection(string $collectionId, int $limit = 50, int $offset = 0): array
+    public function getItemsFromCollection(string $collectionSlug, int $limit = 50, int $offset = 0): array
     {
-        $collection = $this->collectionService->findByUuid($collectionId);
+        $collection = $this->collectionService->findBySlug($collectionSlug);
         if (!$collection) {
             return [];
         }

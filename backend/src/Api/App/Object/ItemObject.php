@@ -20,7 +20,7 @@ class ItemObject
     public array $tags;
     public ?string $language;
     public ?int $publication_id;
-    public ?string $publication_uuid;
+    public ?string $publication_slug;
     public ?string $publication_title;
 
     public function __construct(Item $item)
@@ -39,7 +39,7 @@ class ItemObject
         $this->tags = $item->getTags();
         $this->language = $item->getLanguage();
         $this->publication_id = $item->getPublication()?->getId();
-        $this->publication_uuid = $item->getPublication()?->getUuid();
+        $this->publication_slug = $item->getPublication()?->getSlug();
         $this->publication_title = $item->getPublication()?->getTitle() ?? 'Untitled';
     }
 } 

@@ -7,7 +7,6 @@ use App\Entity\Collection;
 use App\Api\App\Object\PublicationObject;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\String\Slugger\AsciiSlugger;
-use Symfony\Component\Uid\Uuid;
 
 class PublicationService
 {
@@ -15,32 +14,16 @@ class PublicationService
     {
     }
 
-    public function findByUuid(string $uuid): ?Publication
+    public function findBySlug(string $slug): ?Publication
     {
-        try {
-            $uuidObject = Uuid::fromString($uuid);
-            return $this->em->getRepository(Publication::class)->findOneBy(['uuid' => $uuidObject]);
-        } catch (\InvalidArgumentException $e) {
-            return null;
-        }
+        return $this->em->getRepository(Publication::class)->findOneBy(['slug' => $slug]);
     }
 
     /**
      * @return PublicationObject[]
      */
-    public function getPublicationsFromCollection(string $collectionId): array
+    public function getPublicationsFromCollection(Collection $collection): array
     {
-        try {
-            $uuidObject = Uuid::fromString($collectionId);
-        } catch (\InvalidArgumentException $e) {
-            return [];
-        }
-
-        $collection = $this->em->getRepository(Collection::class)->findOneBy(['uuid' => $uuidObject]);
-        if (!$collection) {
-            return [];
-        }
-
         $publications = [];
         foreach ($collection->getPublications() as $publication) {
             $publications[] = new PublicationObject($publication);
