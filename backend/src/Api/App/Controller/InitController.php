@@ -16,6 +16,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Http\Attribute\CurrentUser;
+use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 
 class InitController extends AbstractController
 {
@@ -32,7 +33,7 @@ class InitController extends AbstractController
     {
         $user = $this->getUser();
         if (!$user instanceof AuthUser) {
-            return $this->json(['error' => 'Authentication required'], Response::HTTP_UNAUTHORIZED);
+            throw new AccessDeniedHttpException('Authentication required');
         }
 
         $this->collectionService->ensureUserHasDefaultCollection($user);

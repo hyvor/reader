@@ -9,8 +9,9 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
-#[Route('/publications')]
 class PublicationController extends AbstractController
 {
     public function __construct(
@@ -19,18 +20,18 @@ class PublicationController extends AbstractController
     ) {
     }
 
-    #[Route('', methods: ['GET'])]
+    #[Route('/publications', methods: ['GET'])]
     public function getPublications(Request $request): JsonResponse
     {
         $collectionSlug = $request->query->get('collection_slug');
         
         if (!$collectionSlug) {
-            return $this->json(['error' => 'collection_slug parameter is required'], Response::HTTP_BAD_REQUEST);
+            throw new BadRequestHttpException('collection_slug parameter is required');
         }
 
         $collection = $this->collectionService->findBySlug($collectionSlug);
         if (!$collection) {
-            return $this->json(['error' => 'Collection not found'], Response::HTTP_NOT_FOUND);
+            throw new NotFoundHttpException('Collection not found');
         }
 
         $publications = $this->publicationService->getPublicationsFromCollection($collection);

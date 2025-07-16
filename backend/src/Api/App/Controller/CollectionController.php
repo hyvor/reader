@@ -14,6 +14,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Routing\Requirement\Requirement;
+use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 
 class CollectionController extends AbstractController
 {
@@ -28,7 +29,7 @@ class CollectionController extends AbstractController
     {
         $user = $this->getUser();
         if (!$user instanceof AuthUser) {
-            return $this->json(['error' => 'Authentication required'], Response::HTTP_UNAUTHORIZED);
+            throw new AccessDeniedHttpException('Authentication required');
         }
 
         $collections = $this->collectionService->getUserCollections($user->id);
@@ -43,18 +44,17 @@ class CollectionController extends AbstractController
     {
         $user = $this->getUser();
         if (!$user instanceof AuthUser) {
-            return $this->json(['error' => 'Authentication required'], Response::HTTP_UNAUTHORIZED);
+            throw new AccessDeniedHttpException('Authentication required');
         }
 
         $collection = $this->collectionService->findBySlug($slug);
 
         if (!$collection) {
             throw new NotFoundHttpException('Collection not found');
-            // return $this->json(['error' => 'Collection not found'], Response::HTTP_NOT_FOUND);
         }
 
         if (!$this->collectionService->hasUserReadAccess($user->id, $collection)) {
-            return $this->json(['error' => 'Access denied'], Response::HTTP_FORBIDDEN);
+            throw new AccessDeniedHttpException('Access denied');
         }
 
         return $this->json([

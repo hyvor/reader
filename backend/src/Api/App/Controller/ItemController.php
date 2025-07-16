@@ -10,8 +10,9 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
-#[Route('/items')]
 class ItemController extends AbstractController
 {
     public function __construct(
@@ -21,7 +22,7 @@ class ItemController extends AbstractController
     ) {
     }
 
-    #[Route('', methods: ['GET'])]
+    #[Route('/items', methods: ['GET'])]
     public function getItems(Request $request): JsonResponse
     {
         $collectionSlug = $request->query->get('collection_slug');
@@ -41,7 +42,7 @@ class ItemController extends AbstractController
         if ($publicationSlug) {
             $publication = $this->publicationService->findBySlug($publicationSlug);
             if (!$publication) {
-                return $this->json(['error' => 'Publication not found'], Response::HTTP_NOT_FOUND);
+                throw new NotFoundHttpException('Publication not found');
             }
 
             $items = $this->itemService->getItemsFromPublication($publicationSlug, $limit, $offset);
@@ -49,13 +50,13 @@ class ItemController extends AbstractController
         } else if ($collectionSlug) {
             $collection = $this->collectionService->findBySlug($collectionSlug);
             if (!$collection) {
-                return $this->json(['error' => 'Collection not found'], Response::HTTP_NOT_FOUND);
+                throw new NotFoundHttpException('Collection not found');
             }
 
             $items = $this->itemService->getItemsFromCollection($collectionSlug, $limit, $offset);
             
         } else {
-            return $this->json(['error' => 'Either collection_id or publication_id parameter is required'], Response::HTTP_BAD_REQUEST);
+            throw new BadRequestHttpException('Either collection_id or publication_id parameter is required');
         }
 
         return $this->json([

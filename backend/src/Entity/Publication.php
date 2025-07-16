@@ -60,7 +60,7 @@ class Publication
     /**
      * @var DoctrineCollection<int, Collection>
      */
-    #[ORM\ManyToMany(targetEntity: Collection::class, mappedBy: 'publications')]
+    #[ORM\ManyToMany(targetEntity: Collection::class, mappedBy: 'publications', cascade: ['persist'])]
     private DoctrineCollection $collections;
 
     public function __construct()

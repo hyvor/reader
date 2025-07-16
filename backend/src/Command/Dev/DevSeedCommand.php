@@ -34,15 +34,16 @@ class DevSeedCommand extends Command
             return Command::FAILURE;
         }
 
-        $collection = CollectionFactory::createOne();
+        CollectionFactory::createMany(3, function () {
+            $publications = PublicationFactory::createMany(rand(2, 5));
+            foreach ($publications as $publication) {
+                ItemFactory::createMany(5, [
+                    'publication' => $publication,
+                ]);
+            }
 
-        $publications = PublicationFactory::createMany(2, [
-            'collection' => $collection
-        ]);
-
-        ItemFactory::createMany(5, function() {
             return [
-                'publication' => PublicationFactory::random()
+                'publications' => $publications,
             ];
         });
 

@@ -38,7 +38,7 @@ class Collection
     /**
      * @var DoctrineCollection<int, Publication>
      */
-    #[ORM\ManyToMany(targetEntity: Publication::class, inversedBy: 'collections')]
+    #[ORM\ManyToMany(targetEntity: Publication::class, inversedBy: 'collections', cascade: ['persist'])]
     #[ORM\JoinTable(name: 'collection_publications')]
     #[ORM\JoinColumn(name: 'collection_id', referencedColumnName: 'id')]
     #[ORM\InverseJoinColumn(name: 'publication_id', referencedColumnName: 'id')]
