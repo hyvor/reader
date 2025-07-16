@@ -43,6 +43,9 @@ class Item
     #[ORM\Column(nullable: true)]
     private ?\DateTimeImmutable $updated_at = null;
 
+    #[ORM\Column(type: 'datetime', options: ['default' => 'CURRENT_TIMESTAMP'])]
+    private \DateTime $createdAt;
+
     #[ORM\Column(type: Types::ARRAY)]
     private array $authors = [];
 
@@ -59,6 +62,7 @@ class Item
     public function __construct()
     {
         $this->uuid = (string) Uuid::v4();
+        $this->createdAt = new \DateTime();
     }
 
     public function getId(): int
@@ -201,6 +205,17 @@ class Item
     {
         $this->publication = $publication;
 
+        return $this;
+    }
+
+    public function getCreatedAt(): \DateTime
+    {
+        return $this->createdAt;
+    }
+
+    public function setCreatedAt(\DateTime $createdAt): static
+    {
+        $this->createdAt = $createdAt;
         return $this;
     }
 }

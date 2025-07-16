@@ -38,8 +38,9 @@ class ItemObject
         $this->authors = $item->getAuthors();
         $this->tags = $item->getTags();
         $this->language = $item->getLanguage();
-        $this->publication_id = $item->getPublication()?->getId();
-        $this->publication_slug = $item->getPublication()?->getSlug();
-        $this->publication_title = $item->getPublication()?->getTitle() ?? 'Untitled';
+        $publication = $item->getPublication();
+        $this->publication_id = $publication?->getId();
+        $this->publication_slug = $publication?->getSlug();
+        $this->publication_title = $publication?->getTitle() ?? 'Untitled';
     }
 } 

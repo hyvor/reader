@@ -22,33 +22,25 @@ class CollectionService
      */
     public function getUserCollections(int $hyvorUserId): array
     {
-        $ownedCollections = $this->em->getRepository(Collection::class)->findBy([
-            'hyvorUserId' => $hyvorUserId
-        ]);
-
         $collectionUsers = $this->em->getRepository(CollectionUser::class)->findBy([
             'hyvorUserId' => $hyvorUserId
         ]);
 
-        $accessibleCollections = array_map(
+        return array_map(
             fn(CollectionUser $cu) => $cu->getCollection(),
             $collectionUsers
         );
-
-        return array_merge($ownedCollections, $accessibleCollections);
     }
 
-    public function ensureUserHasCollection(AuthUser $user): Collection
+    public function ensureUserHasDefaultCollection(AuthUser $user): void
     {
-        $existingCollections = $this->em->getRepository(Collection::class)->findBy([
+        $existingCollectionsCount = $this->em->getRepository(Collection::class)->count([
             'hyvorUserId' => $user->id
         ]);
 
-        if (!empty($existingCollections)) {
-            return $existingCollections[0];
+        if ($existingCollectionsCount === 0) {
+            $this->createCollection($user->id, $user->name . "'s collection", false);
         }
-
-        return $this->createCollection($user->id, $user->name . "'s collection", false);
     }
 
     public function createCollection(int $hyvorUserId, string $name, bool $isPublic = false): Collection

@@ -29,10 +29,19 @@ class Collection
     #[ORM\Column(name: 'hyvor_user_id')]
     private int $hyvorUserId;
 
+    #[ORM\Column(type: 'datetime', options: ['default' => 'CURRENT_TIMESTAMP'])]
+    private \DateTime $createdAt;
+
+    #[ORM\Column(type: 'datetime', options: ['default' => 'CURRENT_TIMESTAMP'])]
+    private \DateTime $updatedAt;
+
     /**
      * @var DoctrineCollection<int, Publication>
      */
-    #[ORM\OneToMany(targetEntity: Publication::class, mappedBy: 'collection', orphanRemoval: true)]
+    #[ORM\ManyToMany(targetEntity: Publication::class, inversedBy: 'collections')]
+    #[ORM\JoinTable(name: 'collection_publications')]
+    #[ORM\JoinColumn(name: 'collection_id', referencedColumnName: 'id')]
+    #[ORM\InverseJoinColumn(name: 'publication_id', referencedColumnName: 'id')]
     private DoctrineCollection $publications;
 
     /**
@@ -45,6 +54,8 @@ class Collection
     {
         $this->publications = new ArrayCollection();
         $this->collectionUsers = new ArrayCollection();
+        $this->createdAt = new \DateTime();
+        $this->updatedAt = new \DateTime();
     }
 
     public function getId(): int
@@ -75,7 +86,7 @@ class Collection
     {
         if (!$this->publications->contains($publication)) {
             $this->publications->add($publication);
-            $publication->setCollection($this);
+            $publication->addCollection($this);
         }
 
         return $this;
@@ -84,9 +95,7 @@ class Collection
     public function removePublication(Publication $publication): static
     {
         if ($this->publications->removeElement($publication)) {
-            if ($publication->getCollection() === $this) {
-                $publication->setCollection(null);
-            }
+            $publication->removeCollection($this);
         }
 
         return $this;
@@ -122,6 +131,28 @@ class Collection
     public function setHyvorUserId(int $hyvorUserId): static
     {
         $this->hyvorUserId = $hyvorUserId;
+        return $this;
+    }
+
+    public function getCreatedAt(): \DateTime
+    {
+        return $this->createdAt;
+    }
+
+    public function setCreatedAt(\DateTime $createdAt): static
+    {
+        $this->createdAt = $createdAt;
+        return $this;
+    }
+
+    public function getUpdatedAt(): \DateTime
+    {
+        return $this->updatedAt;
+    }
+
+    public function setUpdatedAt(\DateTime $updatedAt): static
+    {
+        $this->updatedAt = $updatedAt;
         return $this;
     }
 

@@ -31,7 +31,8 @@ final class Version20250519113000 extends AbstractMigration
                 tags TEXT NOT NULL,
                 language TEXT DEFAULT NULL,
                 uuid UUID NOT NULL DEFAULT gen_random_uuid() UNIQUE,
-                publication_id INT NOT NULL REFERENCES publications (id)
+                publication_id INT NOT NULL REFERENCES publications (id),
+                created_at timestamptz DEFAULT CURRENT_TIMESTAMP NOT NULL
             )
         SQL);
     }

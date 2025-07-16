@@ -57,13 +57,16 @@ class Publication
     #[ORM\OneToMany(targetEntity: Item::class, mappedBy: 'publication', orphanRemoval: true)]
     private DoctrineCollection $items;
 
-    #[ORM\ManyToOne(inversedBy: 'publications')]
-    #[ORM\JoinColumn(nullable: false)]
-    private ?Collection $collection = null;
+    /**
+     * @var DoctrineCollection<int, Collection>
+     */
+    #[ORM\ManyToMany(targetEntity: Collection::class, mappedBy: 'publications')]
+    private DoctrineCollection $collections;
 
     public function __construct()
     {
         $this->items = new ArrayCollection();
+        $this->collections = new ArrayCollection();
         $this->createdAt = new \DateTime();
         $this->updatedAt = new \DateTime();
         $this->nextFetchAt = new \DateTime();
@@ -241,9 +244,29 @@ class Publication
         return $this->collection;
     }
 
-    public function setCollection(?Collection $collection): static
+    /**
+     * @return DoctrineCollection<int, Collection>
+     */
+    public function getCollections(): DoctrineCollection
     {
-        $this->collection = $collection;
+        return $this->collections;
+    }
+
+    public function addCollection(Collection $collection): static
+    {
+        if (!$this->collections->contains($collection)) {
+            $this->collections->add($collection);
+            $collection->addPublication($this);
+        }
+
+        return $this;
+    }
+
+    public function removeCollection(Collection $collection): static
+    {
+        if ($this->collections->removeElement($collection)) {
+            $collection->removePublication($this);
+        }
 
         return $this;
     }

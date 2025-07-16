@@ -38,7 +38,7 @@ class PublicationService
         $publication->setUrl($url);
         $publication->setTitle($title);
         $publication->setDescription($description);
-        $publication->setCollection($collection);
+        $publication->addCollection($collection);
         $publication->setSlug($this->generateUniqueSlug($title ?: $url));
 
         $this->em->persist($publication);

@@ -22,7 +22,9 @@ final class Version20250519132321 extends AbstractMigration
                 name TEXT NOT NULL,
                 slug TEXT NOT NULL UNIQUE,
                 is_public BOOLEAN NOT NULL DEFAULT FALSE,
-                hyvor_user_id BIGINT NOT NULL
+                hyvor_user_id BIGINT NOT NULL,
+                created_at timestamptz DEFAULT CURRENT_TIMESTAMP NOT NULL,
+                updated_at timestamptz DEFAULT CURRENT_TIMESTAMP NOT NULL
             )
         SQL);
         $this->addSql(<<<'SQL'
@@ -31,10 +33,11 @@ final class Version20250519132321 extends AbstractMigration
                 hyvor_user_id BIGINT NOT NULL,
                 collection_id BIGINT NOT NULL REFERENCES collections(id) ON DELETE CASCADE,
                 write_access BOOLEAN NOT NULL DEFAULT FALSE,
+                created_at timestamptz DEFAULT CURRENT_TIMESTAMP NOT NULL,
+                updated_at timestamptz DEFAULT CURRENT_TIMESTAMP NOT NULL,
                 UNIQUE (hyvor_user_id, collection_id)
             )
         SQL);
-        $this->addSql('ALTER TABLE publications ADD FOREIGN KEY (collection_id) REFERENCES collections (id)');
     }
 
     public function down(Schema $schema): void

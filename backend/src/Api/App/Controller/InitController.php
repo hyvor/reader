@@ -35,34 +35,12 @@ class InitController extends AbstractController
             return $this->json(['error' => 'Authentication required'], Response::HTTP_UNAUTHORIZED);
         }
 
-        $this->collectionService->ensureUserHasCollection($user);
-
-        $data = [
-            "collections" => [],
-            "publications" => [],
-            "items" =>  [],
-            "selectedCollection" => null,
-            "selectedPublication" => null
-        ];
+        $this->collectionService->ensureUserHasDefaultCollection($user);
 
         $collections = $this->collectionService->getUserCollections($user->id);
 
-        if (count($collections) > 0) {
-            $publications = $collections[0]->getPublications();
-            $data["publications"] = array_map(fn($publication) => new PublicationObject($publication), $publications->toArray());
-
-            if (count($publications) > 0) {
-                $items = [];
-                foreach ($publications as $publication) {
-                    $items = array_merge($items, $publication->getItems()->toArray());
-                }
-                
-                $data["items"] = array_map(fn($item) => new ItemObject($item), $items);
-            }
-        }
-
         return $this->json([
             'collections' => array_map(fn($collection) => new CollectionObject($collection, $user->id), $collections),
-        ] + $data);
+        ]);
     }
 } 

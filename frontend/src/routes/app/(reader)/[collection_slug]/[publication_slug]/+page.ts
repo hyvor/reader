@@ -14,7 +14,7 @@ export const load: PageLoad = async ({ params, parent, fetch }) => {
         };
     }
 
-    	const data = await api.get('/items', { publication_slug: publication.slug }, fetch);
+    const data = await api.get('/items', { publication_slug: publication.slug }, fetch);
 
     return {
         items: data.items,

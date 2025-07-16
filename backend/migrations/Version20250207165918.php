@@ -33,8 +33,7 @@ final class Version20250207165918 extends AbstractMigration
                 next_fetch_at timestamptz NOT NULL, 
                 subscribers INT DEFAULT 0 NOT NULL,
                 conditional_get_last_modified text DEFAULT NULL, 
-                conditional_get_etag text DEFAULT NULL,
-                collection_id INT NOT NULL
+                conditional_get_etag text DEFAULT NULL
             )
         SQL);
     }
