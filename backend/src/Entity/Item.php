@@ -15,6 +15,9 @@ class Item
     #[ORM\Column]
     private int $id;
 
+    #[ORM\Column(type: 'text')]
+    private string $guid;
+
     #[ORM\Column(unique: true)]
     private string $slug;
 
@@ -76,6 +79,17 @@ class Item
     public function setSlug(string $slug): static
     {
         $this->slug = $slug;
+        return $this;
+    }
+
+    public function getGuid(): string
+    {
+        return $this->guid;
+    }
+
+    public function setGuid(string $guid): static
+    {
+        $this->guid = $guid;
         return $this;
     }
 

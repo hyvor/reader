@@ -8,6 +8,7 @@ class ItemObject
 {
     public int $id;
     public string $slug;
+    public string $guid;
     public string $title;
     public string $url;
     public ?string $content_html;
@@ -27,6 +28,7 @@ class ItemObject
     {
         $this->id = $item->getId();
         $this->slug = $item->getSlug();
+        $this->guid = $item->getGuid();
         $this->title = $item->getTitle() ?? 'Untitled';
         $this->url = $item->getUrl();
         $this->content_html = $item->getContentHtml();

@@ -19,6 +19,7 @@ use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 class CollectionController extends AbstractController
 {
     public function __construct(
+        // TODO: move to service
         private readonly CollectionRepository $collectionRepository,
         private readonly CollectionService $collectionService,
     ) {

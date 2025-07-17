@@ -48,6 +48,7 @@ ENV APP_RUNTIME "Runtime\FrankenPhpSymfony\Runtime"
 # install php and dependencies
 COPY --from=composer /usr/bin/composer /usr/local/bin/composer
 RUN install-php-extensions zip intl pdo_pgsql opcache apcu
+RUN apt update && apt install -y supervisor
 
 
 ###################################################
@@ -64,6 +65,7 @@ RUN composer install --no-interaction
 
 
 COPY meta/image/dev/Caddyfile.dev /etc/caddy/Caddyfile
+COPY meta/image/dev/supervisord.conf.dev /etc/supervisor/conf.d/supervisord.conf
 COPY meta/image/dev/run.dev /app/run
 
 CMD ["sh", "/app/run"]

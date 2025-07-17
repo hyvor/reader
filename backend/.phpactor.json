@@ -6,5 +6,6 @@
         "/vendor/**/tests/**/*",
         "/var/cache/**/*",
         "/vendor/composer/**/*"
-    ]
+    ],
+    "language_server_phpstan.enabled": true
 }
