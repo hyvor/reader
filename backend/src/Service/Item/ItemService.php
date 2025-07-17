@@ -58,12 +58,13 @@ class ItemService
         return array_slice($allItems, $offset, $limit);
     }
 
-    public function createItem(Publication $publication, string $title, string $url): Item
+    public function createItem(Publication $publication, string $title, string $url, string $guid): Item
     {
         $item = new Item();
         $item->setTitle($title);
         $item->setUrl($url);
         $item->setPublication($publication);
+        $item->setGuid($guid);
         $item->setSlug($this->generateUniqueSlug($title));
 
         $this->em->persist($item);

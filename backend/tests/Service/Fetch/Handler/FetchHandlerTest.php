@@ -31,10 +31,10 @@ class FetchHandlerTest extends KernelTestCase
     {
         $collection = CollectionFactory::createOne();
         $publication = PublicationFactory::createOne([
-            'collection' => $collection,
             'nextFetchAt' => new \DateTimeImmutable('+30 minutes'),
             'interval' => 60,
         ]);
+        $collection->addPublication($publication->_real());
 
         $this->schedulerTransport->send(new FetchMessage());
         $this->schedulerTransport->process();

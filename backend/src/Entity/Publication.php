@@ -70,9 +70,9 @@ class Publication
     {
         $this->items = new ArrayCollection();
         $this->collections = new ArrayCollection();
-        $this->createdAt = new \DateTime();
-        $this->updatedAt = new \DateTime();
-        $this->nextFetchAt = new \DateTime();
+        $this->createdAt = new \DateTimeImmutable();
+        $this->updatedAt = new \DateTimeImmutable();
+        $this->nextFetchAt = new \DateTimeImmutable();
     }
 
     public function getId(): int
@@ -251,11 +251,6 @@ class Publication
         }
 
         return $this;
-    }
-
-    public function getCollection(): ?Collection
-    {
-        return $this->collection;
     }
 
     /**

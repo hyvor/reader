@@ -41,7 +41,6 @@ final class PublicationFactory extends PersistentProxyObjectFactory
             'lastFetchedAt' => self::faker()->dateTimeBetween('-1 week', 'now'),
             'nextFetchAt' => self::faker()->dateTimeBetween('now', '+2 hours'),
             'subscribers' => self::faker()->numberBetween(100, 5000),
-            'collection' => CollectionFactory::new(),
         ];
     }
 
