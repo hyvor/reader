@@ -30,7 +30,7 @@ final class Version20250519113000 extends AbstractMigration
                 authors TEXT NOT NULL,
                 tags TEXT NOT NULL,
                 language TEXT DEFAULT NULL,
-                uuid UUID NOT NULL DEFAULT gen_random_uuid() UNIQUE,
+                slug VARCHAR(255) NOT NULL UNIQUE,
                 publication_id INT NOT NULL REFERENCES publications (id),
                 created_at timestamptz DEFAULT CURRENT_TIMESTAMP NOT NULL
             )

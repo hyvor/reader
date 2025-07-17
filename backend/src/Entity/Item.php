@@ -5,7 +5,6 @@ namespace App\Entity;
 use App\Repository\ItemRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
-use Symfony\Component\Uid\Uuid;
 
 #[ORM\Entity(repositoryClass: ItemRepository::class)]
 #[ORM\Table(name: 'items')]
@@ -17,7 +16,7 @@ class Item
     private int $id;
 
     #[ORM\Column(unique: true)]
-    private string $uuid;
+    private string $slug;
 
     #[ORM\Column]
     private string $url;
@@ -61,7 +60,6 @@ class Item
 
     public function __construct()
     {
-        $this->uuid = (string) Uuid::v4();
         $this->createdAt = new \DateTime();
     }
 
@@ -70,9 +68,15 @@ class Item
         return $this->id;
     }
 
-    public function getUuid(): string
+    public function getSlug(): string
     {
-        return $this->uuid;
+        return $this->slug;
+    }
+
+    public function setSlug(string $slug): static
+    {
+        $this->slug = $slug;
+        return $this;
     }
 
     public function getUrl(): string

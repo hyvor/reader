@@ -9,6 +9,7 @@ use App\Api\App\Object\ItemObject;
 use App\Service\Publication\PublicationService;
 use App\Service\Collection\CollectionService;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\String\Slugger\AsciiSlugger;
 
 class ItemService
 {
@@ -55,5 +56,34 @@ class ItemService
         });
 
         return array_slice($allItems, $offset, $limit);
+    }
+
+    public function createItem(Publication $publication, string $title, string $url): Item
+    {
+        $item = new Item();
+        $item->setTitle($title);
+        $item->setUrl($url);
+        $item->setPublication($publication);
+        $item->setSlug($this->generateUniqueSlug($title));
+
+        $this->em->persist($item);
+        $this->em->flush();
+
+        return $item;
+    }
+
+    private function generateUniqueSlug(string $text): string
+    {
+        $slugger = new AsciiSlugger();
+        $baseSlug = $slugger->slug($text)->lower()->toString();
+        $slug = $baseSlug;
+        $counter = 1;
+
+        while ($this->em->getRepository(Item::class)->findOneBy(['slug' => $slug])) {
+            $slug = $baseSlug . '-' . $counter;
+            $counter++;
+        }
+
+        return $slug;
     }
 } 

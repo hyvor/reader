@@ -20,7 +20,7 @@ export interface Publication {
 
 export interface Item {
     id: number;
-    uuid: string;
+    slug: string;
     title: string;
     url: string;
     content_html?: string;

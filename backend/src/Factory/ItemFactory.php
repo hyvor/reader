@@ -32,6 +32,7 @@ final class ItemFactory extends PersistentProxyObjectFactory
         return [
             'url' => self::faker()->url(),
             'title' => self::faker()->sentence(6),
+            'slug' => self::faker()->unique()->slug(),
             'content_html' => '<p>' . self::faker()->paragraphs(self::faker()->numberBetween(2, 5), true) . '</p>',
             'content_text' => self::faker()->paragraphs(self::faker()->numberBetween(2, 5), true),
             'summary' => self::faker()->sentence(10),

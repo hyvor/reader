@@ -7,7 +7,7 @@ use App\Entity\Item;
 class ItemObject
 {
     public int $id;
-    public string $uuid;
+    public string $slug;
     public string $title;
     public string $url;
     public ?string $content_html;
@@ -26,7 +26,7 @@ class ItemObject
     public function __construct(Item $item)
     {
         $this->id = $item->getId();
-        $this->uuid = $item->getUuid();
+        $this->slug = $item->getSlug();
         $this->title = $item->getTitle() ?? 'Untitled';
         $this->url = $item->getUrl();
         $this->content_html = $item->getContentHtml();
