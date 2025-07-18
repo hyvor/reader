@@ -9,6 +9,7 @@ use Symfony\Component\DependencyInjection\Container;
 use App\Factory\CollectionFactory;
 use App\Factory\PublicationFactory;
 use App\Factory\ItemFactory;
+use Symfony\Component\BrowserKit\Cookie;
 
 class WebTestCase extends BaseWebTestCase
 {
@@ -21,6 +22,8 @@ class WebTestCase extends BaseWebTestCase
         parent::setUp();
         $this->client = static::createClient();
         $this->container = static::getContainer();
-        AuthFake::enableForSymfony($this->container, ['id' => 1, 'roles' => ['HYVOR_USER']]);
+
+        AuthFake::enableForSymfony($this->container, ['id' => 1]);
+        $this->client->getCookieJar()->set(new Cookie('authsess', 'test'));
     }
 } 
