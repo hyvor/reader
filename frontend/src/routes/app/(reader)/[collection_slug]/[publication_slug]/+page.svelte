@@ -1,27 +1,32 @@
 <script lang="ts">
+	import { onMount } from 'svelte';
+	import { page } from '$app/stores';
+	import api from '$lib/api';
 	import { Button } from '@hyvor/design/components';
-	import IconChevronDown from '@hyvor/icons/IconChevronDown';
-	import IconFilter from '@hyvor/icons/IconFilter';
 	import IconBoxArrowUpRight from '@hyvor/icons/IconBoxArrowUpRight';
 	import {
-		publications as publicationsStore,
+		publications,
 		items as itemsStore,
 		selectedCollection,
-		selectedPublication
+		selectedPublication,
+		loadingItems
 	} from '../../../appStore';
-	import type { Item, Publication } from '../../../types';
+	import type { Item } from '../../../types';
 	import ArticleView from '../../../ArticleView.svelte';
-	import type { PageData } from './$types';
 
-	interface Props {
-		data: PageData;
-	}
+	onMount(async () => {
+		const { publication_slug } = $page.params;
+		selectedPublication.set($publications.find((p) => p.slug === publication_slug) ?? null);
 
-	let { data }: Props = $props();
-
-	$effect(() => {
-		itemsStore.set(data.items);
-		publicationsStore.set(data.publications);
+		loadingItems.set(true);
+		try {
+			const res = await api.get('/items', { publication_slug });
+			itemsStore.set(res.items);
+		} catch (e) {
+			console.error('Failed to fetch items', e);
+		} finally {
+			loadingItems.set(false);
+		}
 	});
 
 	let items = $derived($itemsStore);
@@ -103,7 +108,7 @@
 {#if selectedItem}
 	<ArticleView
 		item={selectedItem}
-		isLoading={false}
+		isLoading={$loadingItems}
 		{canGoToPrevious}
 		{canGoToNext}
 		onPrevious={goToPreviousArticle}

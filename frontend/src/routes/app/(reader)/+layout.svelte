@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { Dropdown } from '@hyvor/design/components';
 	import IconChevronDown from '@hyvor/icons/IconChevronDown';
-	import { collections, publications, selectedCollection, selectedPublication } from '../appStore';
+	import { collections, publications, selectedCollection, selectedPublication, loadingPublications } from '../appStore';
 	import { ActionList, ActionListItem } from '@hyvor/design/components';
 	import { goto } from '$app/navigation';
 	import { page } from '$app/stores';
@@ -83,18 +83,22 @@
 
 		<div class="body">
 			<div class="publications hds-box">
-				{#each $publications as publication}
-					<button
-						type="button"
-						class="publication { $selectedPublication?.slug === publication.slug ? 'active' : '' }"
-						onclick={() => togglePublication(publication)}
-					>
-						{#if publication.url}
-							<img src={getFavicon(publication.url)} alt={publication.title} width="14" height="14" />
-						{/if}
-						<span>{publication.title}</span>
-					</button>
-				{/each}
+				{#if $loadingPublications}
+					<div class="loader">Loading...</div>
+				{:else}
+					{#each $publications as publication}
+						<button
+							type="button"
+							class="publication { $selectedPublication?.slug === publication.slug ? 'active' : '' }"
+							onclick={() => togglePublication(publication)}
+						>
+							{#if publication.url}
+								<img src={getFavicon(publication.url)} alt={publication.title} width="14" height="14" />
+							{/if}
+							<span>{publication.title}</span>
+						</button>
+					{/each}
+				{/if}
 			</div>
 
 			{@render children?.()}
@@ -161,5 +165,11 @@
 	.publication:hover,
 	.publication.active {
 		background-color: var(--hover);
+	}
+
+	.loader {
+		padding: 20px;
+		text-align: center;
+		font-size: 14px;
 	}
 </style>

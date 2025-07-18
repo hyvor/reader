@@ -1,38 +1,51 @@
 <script lang="ts">
+	import { onMount } from 'svelte';
+	import { goto } from '$app/navigation';
+	import api from '$lib/api';
 	import {
 		collections,
 		items,
 		publications,
 		selectedCollection,
-		selectedPublication
+		selectedPublication,
+		loadingInit
 	} from './appStore';
-	import type { PageData } from './$types';
 
-	interface Props {
-		children?: import('svelte').Snippet;
-        data: PageData;
-	}
+	let { children } = $props();
 
-	let { children, data }: Props = $props();
+	onMount(async () => {
+		loadingInit.set(true);
+		try {
+			const initData = await api.get('/init');
 
-    $effect(() => {
-        collections.set(data.collections);
-        publications.set(data.publications || []);
-        items.set(data.items || []);
+			collections.set(initData.collections || []);
+			publications.set(initData.publications || []);
+			items.set(initData.items || []);
 
-        const defaultCollection = data.selectedCollection ?? data.collections?.[0] ?? null;
-        selectedCollection.set(defaultCollection);
+			const defaultCollection = initData.selectedCollection ?? initData.collections?.[0] ?? null;
+			selectedCollection.set(defaultCollection);
+			selectedPublication.set(initData.selectedPublication ?? null);
 
-        selectedPublication.set(data.selectedPublication);
-    });
-
+			if (defaultCollection) {
+				goto(`/app/${defaultCollection.slug}`);
+			}
+		} catch (e) {
+			console.error('Initialization failed', e);
+		} finally {
+			loadingInit.set(false);
+		}
+	});
 </script>
 
 <svelte:head>
 	<title>Hyvor Reader</title>
 </svelte:head>
 
-{@render children?.()}
+{#if $loadingInit}
+	<div class="loader-wrap">Loading...</div>
+{:else}
+	{@render children?.()}
+{/if}
 
 <style>
 	.loader-wrap {
