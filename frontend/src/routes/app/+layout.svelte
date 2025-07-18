@@ -1,39 +1,39 @@
 <script lang="ts">
-	import { Loader } from '@hyvor/design/components';
-	import api from '../../lib/api';
+	import { onMount } from 'svelte';
+	import { goto } from '$app/navigation';
+	import api from '$lib/api';
 	import {
 		collections,
 		items,
 		publications,
 		selectedCollection,
-		selectedPublication
+		selectedPublication,
+		loadingInit
 	} from './appStore';
-	import { onMount } from 'svelte';
 
-	interface Props {
-		children?: import('svelte').Snippet;
-	}
+	let { children } = $props();
 
-	let { children }: Props = $props();
+	onMount(async () => {
+		loadingInit.set(true);
+		try {
+			const initData = await api.get('/init');
 
-	let loading = $state(true);
+			collections.set(initData.collections || []);
+			publications.set(initData.publications || []);
+			items.set(initData.items || []);
 
-	onMount(() => {
-		api
-			.get('/init')
-			.then((res) => {
-				collections.set(res.collections);
-				publications.set(res.publications || []);
-				items.set(res.items || []);
-				selectedCollection.set(res.selectedCollection);
-				selectedPublication.set(res.selectedPublication);
-			})
-			.catch((err) => {
-				console.error(err);
-			})
-			.finally(() => {
-				loading = false;
-			});
+			const defaultCollection = initData.selectedCollection ?? initData.collections?.[0] ?? null;
+			selectedCollection.set(defaultCollection);
+			selectedPublication.set(initData.selectedPublication ?? null);
+
+			if (defaultCollection) {
+				goto(`/app/${defaultCollection.slug}`);
+			}
+		} catch (e) {
+			console.error('Initialization failed', e);
+		} finally {
+			loadingInit.set(false);
+		}
 	});
 </script>
 
@@ -41,10 +41,8 @@
 	<title>Hyvor Reader</title>
 </svelte:head>
 
-{#if loading}
-	<div class="loader-wrap">
-		<Loader full />
-	</div>
+{#if $loadingInit}
+	<div class="loader-wrap">Loading...</div>
 {:else}
 	{@render children?.()}
 {/if}

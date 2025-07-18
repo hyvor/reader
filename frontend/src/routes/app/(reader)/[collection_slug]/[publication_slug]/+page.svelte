@@ -1,78 +1,37 @@
 <script lang="ts">
+	import { onMount } from 'svelte';
+	import { page } from '$app/stores';
+	import api from '$lib/api';
 	import { Button } from '@hyvor/design/components';
-	import IconChevronDown from '@hyvor/icons/IconChevronDown';
-	import IconFilter from '@hyvor/icons/IconFilter';
 	import IconBoxArrowUpRight from '@hyvor/icons/IconBoxArrowUpRight';
 	import {
-		collections,
 		publications,
+		items as itemsStore,
 		selectedCollection,
 		selectedPublication,
-		items as itemsStore
-	} from '../appStore';
-	import api from '../../../lib/api';
-	import type { Collection, Publication, Item } from '../types';
-	import ArticleView from '../ArticleView.svelte';
+		loadingItems
+	} from '../../../appStore';
+	import type { Item } from '../../../types';
+	import ArticleView from '../../../ArticleView.svelte';
+
+	onMount(async () => {
+		const { publication_slug } = $page.params;
+		selectedPublication.set($publications.find((p) => p.slug === publication_slug) ?? null);
+
+		loadingItems.set(true);
+		try {
+			const res = await api.get('/items', { publication_slug });
+			itemsStore.set(res.items);
+		} catch (e) {
+			console.error('Failed to fetch items', e);
+		} finally {
+			loadingItems.set(false);
+		}
+	});
 
 	let items = $derived($itemsStore);
 	let selectedItem: Item | null = $state(null);
 	let currentArticleIndex = $state(-1);
-	let showCollectionDropdown = $state(false);
-	let showPublicationDropdown = $state(false);
-
-	function selectCollection(collection: Collection) {
-		selectedCollection.set(collection);
-
-		api
-			.get('/publications', { collection_slug: collection.slug })
-			.then((res) => {
-				publications.set(res.publications);
-			})
-			.catch((err) => {
-				console.error('Failed to fetch publications:', err);
-			});
-
-		api
-			.get('/items', { collection_slug: collection.slug })
-			.then((res) => {
-				itemsStore.set(res.items);
-			})
-			.catch((err) => {
-				console.error('Failed to fetch items:', err);
-			});
-
-		selectedPublication.set(null);
-		selectedItem = null;
-		showCollectionDropdown = false;
-	}
-
-	function selectPublication(publication: Publication | null) {
-		selectedPublication.set(publication);
-
-		if (publication === null) {
-			if ($selectedCollection) {
-				api
-					.get('/items', { collection_slug: $selectedCollection.slug })
-					.then((res) => {
-						itemsStore.set(res.items);
-					})
-					.catch((err) => {
-						console.error('Failed to fetch all items:', err);
-					});
-			}
-		} else {
-			api
-				.get('/items', { publication_slug: publication.slug })
-				.then((res) => {
-					itemsStore.set(res.items);
-				})
-				.catch((err) => {
-					console.error('Failed to fetch items:', err);
-				});
-		}
-		selectedItem = null;
-		showPublicationDropdown = false;
-	}
 
 	function handleItemClick(item: Item) {
 		const index = items.findIndex((i) => i.id === item.id);
@@ -131,14 +90,6 @@
 		}
 	}
 
-	function handleClickOutside(event: Event) {
-		const target = event.target as HTMLElement;
-		if (!target.closest('.dropdown-container')) {
-			showCollectionDropdown = false;
-			showPublicationDropdown = false;
-		}
-	}
-
 	function getRelativeTime(timestamp: number): string {
 		const now = Date.now();
 		const diff = now - timestamp * 1000;
@@ -152,12 +103,12 @@
 	}
 </script>
 
-<svelte:window on:keydown={handleKeydown} on:click={handleClickOutside} />
+<svelte:window on:keydown={handleKeydown} />
 
 {#if selectedItem}
 	<ArticleView
 		item={selectedItem}
-		isLoading={false}
+		isLoading={$loadingItems}
 		{canGoToPrevious}
 		{canGoToNext}
 		onPrevious={goToPreviousArticle}
@@ -166,71 +117,6 @@
 	/>
 {:else}
 	<div class="feed hds-box">
-		<!-- <div class="header">
-			<div class="collection">
-				<div class="dropdown-container">
-					<Button
-						color="input"
-						variant="invisible"
-						onclick={() => (showCollectionDropdown = !showCollectionDropdown)}
-					>
-						{$selectedCollection?.name || 'Select Collection'}
-						{#snippet end()}
-							<IconChevronDown size={10} />
-						{/snippet}
-					</Button>
-
-					{#if showCollectionDropdown}
-						<div class="dropdown-menu">
-							{#each $collections as collection}
-								<button
-									class="dropdown-item"
-									class:active={$selectedCollection?.slug === collection.slug}
-									onclick={() => selectCollection(collection)}
-								>
-									{collection.name}
-								</button>
-							{/each}
-						</div>
-					{/if}
-				</div>
-			</div>
-			<div class="feeds-filter">
-				<div class="dropdown-container">
-					<Button
-						color="input"
-						variant="invisible"
-						onclick={() => (showPublicationDropdown = !showPublicationDropdown)}
-					>
-						{#snippet start()}
-							<IconFilter size={12} />
-						{/snippet}
-						{$selectedPublication?.title || 'All Publications'}
-					</Button>
-
-					{#if showPublicationDropdown}
-						<div class="dropdown-menu">
-							<button
-								class="dropdown-item"
-								class:active={$selectedPublication === null}
-								onclick={() => selectPublication(null)}
-							>
-								All Publications
-							</button>
-							{#each $publications as publication}
-								<button
-									class="dropdown-item"
-									class:active={$selectedPublication?.slug === publication.slug}
-									onclick={() => selectPublication(publication)}
-								>
-									{publication.title || 'Untitled'}
-								</button>
-							{/each}
-						</div>
-					{/if}
-				</div>
-			</div>
-		</div> -->
 		<div class="items">
 			{#if items.length > 0}
 				{#each items as item}
@@ -295,6 +181,7 @@
 		</div>
 	</div>
 {/if}
+
 
 <style>
 	.feed {

@@ -6,8 +6,6 @@ use App\Repository\PublicationRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection as DoctrineCollection;
 use Doctrine\ORM\Mapping as ORM;
-use Symfony\Component\Uid\Uuid;
-
 #[ORM\Entity(repositoryClass: PublicationRepository::class)]
 #[ORM\Table(name: 'publications')]
 class Publication
@@ -16,9 +14,6 @@ class Publication
     #[ORM\GeneratedValue]
     #[ORM\Column(type: 'integer')]
     private int $id;
-
-    #[ORM\Column(unique: true)]
-    private string $uuid;
 
     #[ORM\Column(type: 'datetime_immutable', options: ['default' => 'CURRENT_TIMESTAMP'])]
     private \DateTimeImmutable $createdAt;
@@ -53,6 +48,9 @@ class Publication
     #[ORM\Column(type: 'string', nullable: true)]
     private ?string $conditionalGetEtag = null;
 
+    #[ORM\Column(type: 'string', unique: true, nullable: false)]
+    private string $slug;
+
     #[ORM\Column(type: 'boolean', options: ['default' => false])]
     private bool $isFetching = false;
 
@@ -62,14 +60,16 @@ class Publication
     #[ORM\OneToMany(targetEntity: Item::class, mappedBy: 'publication', orphanRemoval: true)]
     private DoctrineCollection $items;
 
-    #[ORM\ManyToOne(inversedBy: 'publications')]
-    #[ORM\JoinColumn(nullable: false)]
-    private ?Collection $collection = null;
+    /**
+     * @var DoctrineCollection<int, Collection>
+     */
+    #[ORM\ManyToMany(targetEntity: Collection::class, mappedBy: 'publications', cascade: ['persist'])]
+    private DoctrineCollection $collections;
 
     public function __construct()
     {
         $this->items = new ArrayCollection();
-        $this->uuid =  (string) Uuid::v4();
+        $this->collections = new ArrayCollection();
         $this->createdAt = new \DateTimeImmutable();
         $this->updatedAt = new \DateTimeImmutable();
         $this->nextFetchAt = new \DateTimeImmutable();
@@ -78,11 +78,6 @@ class Publication
     public function getId(): int
     {
         return $this->id;
-    }
-
-    public function getUuid(): string
-    {
-        return $this->uuid;
     }
 
     public function getUrl(): string
@@ -206,6 +201,17 @@ class Publication
         return $this;
     }
 
+    public function getSlug(): string
+    {
+        return $this->slug;
+    }
+
+    public function setSlug(string $slug): static
+    {
+        $this->slug = $slug;
+        return $this;
+    }
+
     public function getIsFetching(): bool
     {
         return $this->isFetching;
@@ -247,14 +253,29 @@ class Publication
         return $this;
     }
 
-    public function getCollection(): ?Collection
+    /**
+     * @return DoctrineCollection<int, Collection>
+     */
+    public function getCollections(): DoctrineCollection
     {
-        return $this->collection;
+        return $this->collections;
     }
 
-    public function setCollection(?Collection $collection): static
+    public function addCollection(Collection $collection): static
     {
-        $this->collection = $collection;
+        if (!$this->collections->contains($collection)) {
+            $this->collections->add($collection);
+            $collection->addPublication($this);
+        }
+
+        return $this;
+    }
+
+    public function removeCollection(Collection $collection): static
+    {
+        if ($this->collections->removeElement($collection)) {
+            $collection->removePublication($this);
+        }
 
         return $this;
     }

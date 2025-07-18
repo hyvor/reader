@@ -1,6 +1,11 @@
 <script lang="ts">
 	import { Dropdown } from '@hyvor/design/components';
 	import IconChevronDown from '@hyvor/icons/IconChevronDown';
+	import { collections, publications, selectedCollection, selectedPublication, loadingPublications } from '../appStore';
+	import { ActionList, ActionListItem } from '@hyvor/design/components';
+	import { goto } from '$app/navigation';
+	import { page } from '$app/stores';
+	import type { Collection, Publication } from '../types';
 
 	interface Props {
 		children?: import('svelte').Snippet;
@@ -8,44 +13,61 @@
 
 	let { children }: Props = $props();
 
-	const publications = [
-		{
-			name: 'Wired',
-			logo: 'https://www.wired.com/verso/static/wired-us/assets/favicon.ico'
-		},
-		{
-			name: 'The Verge',
-			logo: 'https://www.theverge.com/static-assets/icons/favicon.ico'
-		},
-		{
-			name: 'TechCrunch',
-			logo: 'https://techcrunch.com/wp-content/uploads/2015/02/cropped-cropped-favicon-gradient.png?w=32'
-		},
-		{
-			name: 'The Guardian',
-			logo: 'https://static.guim.co.uk/images/favicon-32x32.ico'
-		},
-		{
-			name: 'BBC News',
-			logo: 'https://static.files.bbci.co.uk/bbcdotcom/web/20250616-143050-043f96f72f-web-2.23.1-5/favicon-32x32.png'
-		},
-		{
-			name: 'Al Jazeera',
-			logo: 'https://www.aljazeera.com/favicon_aje.ico'
+	$effect(() => {
+		selectedCollection.set($collections.find(c => c.slug === $page.params.collection_slug) ?? null);
+		selectedPublication.set($publications.find(p => p.slug === $page.params.publication_slug) ?? null);
+	});
+
+	let showCollections = $state(false);
+
+	function selectCollection(collection: Collection) {
+		goto(`/app/${collection.slug}`);
+		showCollections = false;
+	}
+
+	function togglePublication(publication: Publication) {
+		const currentSlug = $page.params.publication_slug;
+		const collectionSlug = $page.params.collection_slug;
+
+		if (currentSlug && currentSlug === publication.slug) {
+			goto(`/app/${collectionSlug}`);
+		} else {
+			goto(`/app/${collectionSlug}/${publication.slug}`);
 		}
-	];
+	}
+
+	function getFavicon(url: string, size: number = 14) {
+		try {
+			const encoded = encodeURIComponent(url);
+			return `https://www.google.com/s2/favicons?sz=${size}&domain_url=${encoded}`;
+		} catch (_) {
+			return '';
+		}
+	}
 </script>
 
 <main>
 	<div class="content">
 		<div class="header hds-box">
 			<div class="collection-wrap">
-				<Dropdown>
+				<Dropdown bind:show={showCollections}>
 					{#snippet trigger()}
 						<div class="collection-box">
-							Supun's Collection
+							{$selectedCollection?.name || 'Select Collection'}
 							<IconChevronDown size={12} />
 						</div>
+					{/snippet}
+					{#snippet content()}
+						<ActionList selection="single">
+							{#each $collections as collection}
+								<ActionListItem
+									selected={$selectedCollection?.slug === collection.slug}
+									on:select={() => selectCollection(collection)}
+								>
+									{collection.name}
+								</ActionListItem>
+							{/each}
+						</ActionList>
 					{/snippet}
 				</Dropdown>
 			</div>
@@ -61,12 +83,22 @@
 
 		<div class="body">
 			<div class="publications hds-box">
-				{#each publications as publication}
-					<div class="publication">
-						<img src={publication.logo} alt={publication.name} width="14" height="14" />
-						<span>{publication.name}</span>
-					</div>
-				{/each}
+				{#if $loadingPublications}
+					<div class="loader">Loading...</div>
+				{:else}
+					{#each $publications as publication}
+						<button
+							type="button"
+							class="publication { $selectedPublication?.slug === publication.slug ? 'active' : '' }"
+							onclick={() => togglePublication(publication)}
+						>
+							{#if publication.url}
+								<img src={getFavicon(publication.url)} alt={publication.title} width="14" height="14" />
+							{/if}
+							<span>{publication.title}</span>
+						</button>
+					{/each}
+				{/if}
 			</div>
 
 			{@render children?.()}
@@ -125,8 +157,19 @@
 		padding: 10px 20px;
 		font-size: 14px;
 		cursor: pointer;
+		width: 100%;
+		background: none;
+		border: none;
+		text-align: left;
 	}
-	.publication:hover {
+	.publication:hover,
+	.publication.active {
 		background-color: var(--hover);
+	}
+
+	.loader {
+		padding: 20px;
+		text-align: center;
+		font-size: 14px;
 	}
 </style>

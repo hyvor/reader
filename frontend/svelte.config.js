@@ -17,7 +17,11 @@ const config = {
 
 		env: {
 			dir: '../'
-		}
+		},
+
+        alias: {
+            $lib: 'src/lib'
+        }
 	}
 };
 
