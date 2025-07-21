@@ -34,8 +34,8 @@ class CollectionService
 
     public function ensureUserHasDefaultCollection(AuthUser $user): void
     {
-        $existingCollectionsCount = $this->em->getRepository(Collection::class)->count([
-            'hyvorUserId' => $user->id
+        $existingCollectionsCount = $this->em->getRepository(CollectionUser::class)->count([
+            'hyvorUserId' => $user->id,
         ]);
 
         if ($existingCollectionsCount === 0) {

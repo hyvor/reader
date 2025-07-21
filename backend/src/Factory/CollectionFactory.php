@@ -33,7 +33,7 @@ final class CollectionFactory extends PersistentProxyObjectFactory
         return [
             'name' => self::faker()->words(2, true),
             'slug' => self::faker()->unique()->slug(),
-            'hyvorUserId' => (new InternalFake())->user()?->id ?? 1,
+            'hyvorUserId' => (new InternalFake())->user()->id,
         ];
     }
 

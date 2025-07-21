@@ -15,7 +15,7 @@ class CollectionUser
     #[ORM\Column(type: 'bigint')]
     private int $id;
 
-    #[ORM\ManyToOne(targetEntity: Collection::class)]
+    #[ORM\ManyToOne(targetEntity: Collection::class, cascade: ['persist'])]
     #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')]
     private Collection $collection;
 
