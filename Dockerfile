@@ -16,8 +16,8 @@ COPY frontend/package.json frontend/package-lock.json \
     frontend/vite.config.ts \
     frontend/tsconfig.json .
 # copy code
-COPY frontend/src .
-COPY frontend/static .
+COPY frontend/src ./src
+COPY frontend/static ./static
 COPY shared /app/shared
 
 ###################################################

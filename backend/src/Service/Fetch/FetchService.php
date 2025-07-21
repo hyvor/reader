@@ -9,6 +9,7 @@ use App\Entity\Item;
 use App\Service\Parser\Types\Feed;
 use App\Service\Parser\Types\Item as ParsedItem;
 use Doctrine\ORM\EntityManagerInterface;
+use App\Service\Item\ItemService;
 
 class FetchService
 {
@@ -16,6 +17,7 @@ class FetchService
         private PublicationRepository $publicationRepository,
         private ItemRepository $itemRepository,
         private EntityManagerInterface $entityManager,
+        private ItemService $itemService,
     ) {
     }
 
@@ -179,11 +181,7 @@ class FetchService
      */
     private function addNewItem(Publication $publication, ParsedItem $parsedItem): void
     {
-        $newItem = new Item();
-        $newItem->setPublication($publication);
-        $newItem->setGuid($parsedItem->id);
-        $newItem->setTitle($parsedItem->title);
-        $newItem->setUrl($parsedItem->url);
+        $newItem = $this->itemService->createItem($publication, $parsedItem->title, $parsedItem->url, $parsedItem->id);
         $newItem->setSummary($parsedItem->summary);
 
         if ($parsedItem->content_html) {
