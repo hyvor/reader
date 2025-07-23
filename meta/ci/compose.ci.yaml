@@ -7,7 +7,9 @@ services:
       POSTGRES_PASSWORD: postgres
       POSTGRES_DB: hyvor_reader_testing
     networks:
-      - ci
+      ci:
+        aliases:
+          - postgres  
 
 networks:
   ci:
