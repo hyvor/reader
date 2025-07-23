@@ -23,26 +23,6 @@ jobs:
       -   name: Run Svelte Check
           run: docker run frontend-dev npm run check
 
-      -   name: Debug Svelte-check
-          run: |
-            docker run --rm frontend-dev sh -c 'echo "workdir: $(pwd)"'
-
-            docker run --rm frontend-dev sh -c '
-              echo "number of .svelte files: $(find src -name \"*.svelte\" | wc -l)"
-              find src -name "*.svelte" | head -10
-            '
-
-            docker run --rm frontend-dev sh -c 'echo "\ntsconfig.json:"; cat tsconfig.json'
-
-            docker run --rm frontend-dev sh -c '
-              npx svelte-kit sync
-              echo "\n.svelte-kit/tsconfig.json (first 30 lines):"
-              head -30 .svelte-kit/tsconfig.json
-            '
-
-            docker run --rm frontend-dev sh -c '
-              npx svelte-check --tsconfig ./tsconfig.json --verbose | head -40
-
   phpstan:
     name: PHPStan
     runs-on: ubuntu-latest
