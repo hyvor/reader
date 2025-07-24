@@ -13,7 +13,7 @@ class Item
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    private readonly int $id;
+    private int $id;
 
     #[ORM\Column(type: 'text')]
     private string $guid;
@@ -48,9 +48,11 @@ class Item
     #[ORM\Column(type: 'datetime_immutable', options: ['default' => 'CURRENT_TIMESTAMP'])]
     private \DateTimeImmutable $createdAt;
 
+    /** @var string[] */
     #[ORM\Column(type: Types::ARRAY)]
     private array $authors = [];
 
+    /** @var string[] */
     #[ORM\Column(type: Types::ARRAY)]
     private array $tags = [];
 
@@ -181,22 +183,34 @@ class Item
         return $this;
     }
 
+    /**
+     * @return string[]
+     */
     public function getAuthors(): array
     {
         return $this->authors;
     }
 
+    /**
+     * @param string[] $authors
+     */
     public function setAuthors(array $authors): static
     {
         $this->authors = $authors;
         return $this;
     }
 
+    /**
+     * @return string[]
+     */
     public function getTags(): array
     {
         return $this->tags;
     }
 
+    /**
+     * @param string[] $tags
+     */
     public function setTags(array $tags): static
     {
         $this->tags = $tags;

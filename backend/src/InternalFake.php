@@ -19,7 +19,7 @@ class InternalFake extends BaseInternalFake
     }
 
     /**
-     * @return array<int, AuthUser|array>|null
+     * @return array<int, array{id: int, username: string, name: string, email?: string, picture_url?: string}>|null
      */
     public function usersDatabase(): ?array
     {

@@ -16,7 +16,7 @@ enum FeedType: string
 
         $type = null;
         if ($contentType !== null) {
-            $type = FeedType::fromContentType($contentType);
+        $type = FeedType::fromContentType($contentType);
         }
         
         if ($type === null) {

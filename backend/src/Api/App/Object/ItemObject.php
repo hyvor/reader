@@ -17,7 +17,13 @@ class ItemObject
     public ?string $image;
     public ?int $published_at;
     public ?int $updated_at;
+    /**
+     * @var string[]
+     */
     public array $authors;
+    /**
+     * @var string[]
+     */
     public array $tags;
     public ?string $language;
     public ?int $publication_id;

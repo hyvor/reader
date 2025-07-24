@@ -11,7 +11,7 @@ use App\Service\Parser\Types\FeedType;
 class JsonFeedParser implements ParserInterface
 {
     /**
-     * @var array<string, mixed>
+     * @var array<mixed, mixed>
      */
     public array $json;
 
@@ -41,21 +41,21 @@ class JsonFeedParser implements ParserInterface
             throw new ParserException('Required field missing: version');
         }
 
-        $title = strval($this->json['title'] ?? '');
+        $title = $this->safeStrval($this->json['title'] ?? '');
         if (empty($title)) {
             throw new ParserException('Required field missing: title');
         }
 
-        $homepageUrl = strval($this->json['home_page_url'] ?? '');
+        $homepageUrl = $this->safeStrval($this->json['home_page_url'] ?? '');
         $feed = new Feed(
             type: FeedType::JSONFEED, 
-            version: strval($version), 
+            version: $this->safeStrval($version), 
             title: $title, 
             homepage_url: $homepageUrl, 
-            feed_url: strval($this->json['feed_url'] ?? null), 
-            description: strval($this->json['description'] ?? null),
-            icon: strval($this->json['favicon'] ?? $this->json['icon'] ?? null),
-            language: strval($this->json['language'] ?? null)
+            feed_url: $this->safeStrval($this->json['feed_url'] ?? null), 
+            description: $this->safeStrval($this->json['description'] ?? null),
+            icon: $this->safeStrval($this->json['favicon'] ?? $this->json['icon'] ?? null),
+            language: $this->safeStrval($this->json['language'] ?? null)
         );
 
         $items = $this->json['items'] ?? [];
@@ -84,26 +84,27 @@ class JsonFeedParser implements ParserInterface
             throw new ParserException('Item must be an array');
         }
 
-        $id = strval($item['id'] ?? '');
-        $url = strval($item['url'] ?? '');
-        $title = strval($item['title'] ?? '');
+        $id = $this->safeStrval($item['id'] ?? '');
+        $url = $this->safeStrval($item['url'] ?? '');
+        $title = $this->safeStrval($item['title'] ?? '');
 
         $contentHtml = $item['content_html'] ?? null;
-        $contentHtml = empty($contentHtml) ? null : strval($contentHtml);
+        $contentHtml = empty($contentHtml) ? null : $this->safeStrval($contentHtml);
 
         $contentText = $item['content_text'] ?? null;
-        $contentText = empty($contentText) ? null : strval($contentText);
+        $contentText = empty($contentText) ? null : $this->safeStrval($contentText);
 
         if ($contentHtml === null && $contentText === null) {
             throw new ParserException('Either content_html or content_text must be provided');
         }
 
         $summary = $item['summary'] ?? null;
-        $summary = empty($summary) ? null : strval($summary);
+        $summary = empty($summary) ? null : $this->safeStrval($summary);
 
         $imageValue = $item['image'] ?? null;
         $bannerImageValue = $item['banner_image'] ?? null;
         $image = $imageValue ?? $bannerImageValue ?? null;
+        $image = empty($image) ? null : $this->safeStrval($image);
 
         $publishedAt = $this->date($item['date_published'] ?? null);
         $updatedAt = $this->date($item['date_modified'] ?? null);
@@ -125,11 +126,11 @@ class JsonFeedParser implements ParserInterface
         $tags = [];
 
         foreach ($tagsValue as $tag) {
-            $tags[] = new Tag(strval($tag));
+            $tags[] = new Tag($this->safeStrval($tag));
         }
 
         $language = $item['language'] ?? null;
-        $language = empty($language) ? null : strval($language);
+        $language = empty($language) ? null : $this->safeStrval($language);
 
         return new Item(
             $id,
@@ -164,10 +165,10 @@ class JsonFeedParser implements ParserInterface
         }
 
         $url = $author['url'] ?? null;
-        $url = empty($url) ? null : strval($url);
+        $url = empty($url) ? null : $this->safeStrval($url);
 
         $avatar = $author['avatar'] ?? null;
-        $avatar = empty($avatar) ? null : strval($avatar);
+        $avatar = empty($avatar) ? null : $this->safeStrval($avatar);
 
         return new Author($name, $url, $avatar);
     }
@@ -183,5 +184,13 @@ class JsonFeedParser implements ParserInterface
         } catch (\Exception) {
             return null;
         }
+    }
+
+    private function safeStrval(mixed $value): string
+    {
+        if (is_scalar($value) || $value === null) {
+            return strval($value);
+        }
+        return '';
     }
 }

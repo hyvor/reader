@@ -23,7 +23,9 @@ class CollectionControllerTest extends WebTestCase
     {
         parent::setUp();
 
-        $this->collectionService = $this->container->get(CollectionService::class);
+        $collectionService = $this->container->get(CollectionService::class);
+        assert($collectionService instanceof CollectionService);
+        $this->collectionService = $collectionService;
     }
 
     public function test_get_collections_returns_only_current_users_collections(): void
