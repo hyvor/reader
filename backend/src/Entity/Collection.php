@@ -176,11 +176,7 @@ class Collection
 
     public function removeCollectionUser(CollectionUser $collectionUser): static
     {
-        if ($this->collectionUsers->removeElement($collectionUser)) {
-            if ($collectionUser->getCollection() === $this) {
-                $collectionUser->setCollection(null);
-            }
-        }
+        $this->collectionUsers->removeElement($collectionUser);
 
         return $this;
     }
