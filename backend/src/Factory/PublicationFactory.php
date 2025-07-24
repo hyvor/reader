@@ -28,7 +28,7 @@ final class PublicationFactory extends PersistentProxyObjectFactory
     /**
      * @see https://symfony.com/bundles/ZenstruckFoundryBundle/current/index.html#model-factories
      */
-    protected function defaults(): array|callable
+    protected function defaults(): array
     {
         return [
             'url' => self::faker()->url(),

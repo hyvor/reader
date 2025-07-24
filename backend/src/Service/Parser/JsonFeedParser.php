@@ -11,7 +11,7 @@ use App\Service\Parser\Types\FeedType;
 class JsonFeedParser implements ParserInterface
 {
     /**
-     * @var array<mixed>
+     * @var array<string, mixed>
      */
     public array $json;
 
@@ -25,6 +25,10 @@ class JsonFeedParser implements ParserInterface
 
         if (json_last_error() !== JSON_ERROR_NONE) {
             throw new ParserException('Invalid JSON');
+        }
+
+        if (!is_array($json)) {
+            throw new ParserException('JSON must be an object');
         }
 
         $this->json = $json;
@@ -71,7 +75,7 @@ class JsonFeedParser implements ParserInterface
     }
 
     /**
-     * @param array<mixed> $item
+     * @param mixed $item
      * @return Item
      */
     private function parse_item(mixed $item): Item
@@ -144,7 +148,7 @@ class JsonFeedParser implements ParserInterface
     }
 
     /**
-     * @param array<mixed> $author
+     * @param mixed $author
      * @return Author
      */
     private function parse_author(mixed $author): Author

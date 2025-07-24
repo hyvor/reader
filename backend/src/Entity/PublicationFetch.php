@@ -14,7 +14,7 @@ class PublicationFetch
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(type: 'integer')]
-    private int $id;
+    private readonly int $id;
 
     #[ORM\Column(unique: true)]
     private string $uuid;

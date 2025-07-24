@@ -7,7 +7,7 @@ use Hyvor\Internal\InternalFake as BaseInternalFake;
 
 class InternalFake extends BaseInternalFake
 {
-    public function user(): ?AuthUser
+    public function user(): AuthUser
     {
         return AuthUser::fromArray([
             'id' => 5,

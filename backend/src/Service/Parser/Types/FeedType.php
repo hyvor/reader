@@ -14,9 +14,16 @@ enum FeedType: string
     {
         $contentType = $response->headers->get('Content-Type');
 
-        $type = FeedType::fromContentType($contentType);
+        $type = null;
+        if ($contentType !== null) {
+            $type = FeedType::fromContentType($contentType);
+        }
+        
         if ($type === null) {
-            $type = FeedType::fromContent($response->getContent());
+            $content = $response->getContent();
+            if ($content !== false) {
+                $type = FeedType::fromContent($content);
+            }
         }
 
         return $type;

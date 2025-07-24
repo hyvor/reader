@@ -89,8 +89,8 @@ class ProcessFeedHandler
             $fetch->setStatus(FetchStatusEnum::COMPLETED);
             $fetch->setStatusCode($statusCode)
                   ->setLatencyMs($latencyMs)
-                  ->setNewItemsCount($result['new_items'] ?? 0)
-                  ->setUpdatedItemsCount($result['updated_items'] ?? 0);
+                  ->setNewItemsCount($result['new_items'])
+                  ->setUpdatedItemsCount($result['updated_items']);
 
             $publication->setLastFetchedAt($this->now());
             if (isset($response->getHeaders()['etag'][0])) {
