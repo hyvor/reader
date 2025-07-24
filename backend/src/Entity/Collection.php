@@ -15,7 +15,7 @@ class Collection
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    private readonly int $id;
+    private int $id;
 
     #[ORM\Column]
     private string $name;
@@ -177,11 +177,7 @@ class Collection
 
     public function removeCollectionUser(CollectionUser $collectionUser): static
     {
-        if ($this->collectionUsers->removeElement($collectionUser)) {
-            if ($collectionUser->getCollection() === $this) {
-                $collectionUser->setCollection(null);
-            }
-        }
+        $this->collectionUsers->removeElement($collectionUser);
 
         return $this;
     }

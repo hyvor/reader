@@ -25,6 +25,8 @@ final class PublicationFetchFactory extends PersistentProxyObjectFactory
 
     /**
      * @see https://symfony.com/bundles/ZenstruckFoundryBundle/current/index.html#model-factories
+     *
+     * @return array<string, mixed>
      */
     protected function defaults(): array
     {
