@@ -11,7 +11,7 @@ use App\Service\Parser\Types\FeedType;
 class JsonFeedParser implements ParserInterface
 {
     /**
-     * @var array<string, mixed>
+     * @var array<mixed, mixed>
      */
     public array $json;
 

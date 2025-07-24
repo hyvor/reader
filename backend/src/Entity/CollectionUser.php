@@ -13,7 +13,7 @@ class CollectionUser
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(type: 'bigint')]
-    private readonly int $id;
+    private int $id;
 
     #[ORM\ManyToOne(targetEntity: Collection::class, cascade: ['persist'])]
     #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')]

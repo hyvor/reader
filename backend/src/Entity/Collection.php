@@ -15,7 +15,7 @@ class Collection
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    private readonly int $id;
+    private int $id;
 
     #[ORM\Column]
     private string $name;
