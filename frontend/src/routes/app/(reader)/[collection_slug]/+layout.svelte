@@ -9,6 +9,7 @@
         loadingPublications 
     } from '../../appStore';
 
+    let { children } = $props();
     let lastFetchedSlug: string | null = null;
 
     $effect(() => {
@@ -41,4 +42,4 @@
     });
 </script>
 
-<slot />
+{@render children()}
