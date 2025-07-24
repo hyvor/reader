@@ -164,7 +164,7 @@ class AtomParser implements ParserInterface
     private function get_text_content(\DOMElement $element, string $tagName): string
     {
         $node = $element->getElementsByTagName($tagName)->item(0);
-        return $node?->textContent ?? '';
+        return $node?->textContent ?: '';
     }
 
     private function get_content(\DOMElement $entry): ?string
@@ -202,7 +202,7 @@ class AtomParser implements ParserInterface
         foreach ($links as $link) {
             $rel = $link->getAttribute('rel');
             if (empty($rel) || $rel === 'alternate') {
-                return $link->getAttribute('href') ?? '';
+                return $link->getAttribute('href');
             }
         }
         return '';

@@ -29,7 +29,7 @@ class ItemObject
         $this->id = $item->getId();
         $this->slug = $item->getSlug();
         $this->guid = $item->getGuid();
-        $this->title = $item->getTitle() ?? 'Untitled';
+        $this->title = $item->getTitle();
         $this->url = $item->getUrl();
         $this->content_html = $item->getContentHtml();
         $this->content_text = $item->getContentText();
@@ -40,6 +40,7 @@ class ItemObject
         $this->authors = $item->getAuthors();
         $this->tags = $item->getTags();
         $this->language = $item->getLanguage();
+
         $publication = $item->getPublication();
         $this->publication_id = $publication?->getId();
         $this->publication_slug = $publication?->getSlug();
