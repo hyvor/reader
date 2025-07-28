@@ -24,7 +24,9 @@ class ItemControllerTest extends WebTestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->em = static::getContainer()->get(EntityManagerInterface::class);
+        $service = static::getContainer()->get(EntityManagerInterface::class);
+        assert($service instanceof EntityManagerInterface);
+        $this->em = $service;
     }
 
     public function test_get_items_from_publication(): void
@@ -42,9 +44,16 @@ class ItemControllerTest extends WebTestCase
 
         $this->assertSame(Response::HTTP_OK, $response->getStatusCode(), 'Expected 200 OK');
 
-        $json = json_decode($response->getContent(), true, 512, JSON_THROW_ON_ERROR);
+        $content = $response->getContent();
+        $this->assertIsString($content, 'Response content should be a string');
+        $json = json_decode($content, true, 512, JSON_THROW_ON_ERROR);
+        $this->assertIsArray($json, 'Decoded JSON should be an array');
+        /** @var array<string, mixed> $json */
         $this->assertArrayHasKey('items', $json);
-        $this->assertCount(3, $json['items']);
+        $this->assertIsArray($json['items'], 'Items should be an array');
+        /** @var list<array<string, mixed>> $items */
+        $items = $json['items'];
+        $this->assertCount(3, $items);
     }
 
     public function test_get_items_from_collection(): void
@@ -67,9 +76,16 @@ class ItemControllerTest extends WebTestCase
 
         $this->assertSame(Response::HTTP_OK, $response->getStatusCode());
 
-        $json = json_decode($response->getContent(), true, 512, JSON_THROW_ON_ERROR);
+        $content = $response->getContent();
+        $this->assertIsString($content, 'Response content should be a string');
+        $json = json_decode($content, true, 512, JSON_THROW_ON_ERROR);
+        $this->assertIsArray($json, 'Decoded JSON should be an array');
+        /** @var array<string, mixed> $json */
         $this->assertArrayHasKey('items', $json);
-        $this->assertCount(3, $json['items']);
+        $this->assertIsArray($json['items'], 'Items should be an array');
+        /** @var list<array<string, mixed>> $items */
+        $items = $json['items'];
+        $this->assertCount(3, $items);
     }
 
     public function test_get_items_missing_params_returns_bad_request(): void

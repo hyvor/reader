@@ -4,6 +4,7 @@ namespace App\Service\Collection;
 
 use App\Entity\Collection;
 use App\Entity\CollectionUser;
+use App\Repository\CollectionUserRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Hyvor\Internal\Auth\AuthUser;
 use Symfony\Component\String\Slugger\AsciiSlugger;
@@ -15,6 +16,13 @@ class CollectionService
         private EntityManagerInterface $em
     )
     {
+    }
+
+    private function getCollectionUserRepository(): CollectionUserRepository
+    {
+        $repository = $this->em->getRepository(CollectionUser::class);
+        assert($repository instanceof CollectionUserRepository);
+        return $repository;
     }
 
     /**
@@ -81,7 +89,7 @@ class CollectionService
             throw new \InvalidArgumentException('Cannot join a collection you own');
         }
 
-        $existingAccess = $this->em->getRepository(CollectionUser::class)->findUserCollectionAccess(
+        $existingAccess = $this->getCollectionUserRepository()->findUserCollectionAccess(
             $hyvorUserId,
             $collection->getId()
         );
@@ -115,7 +123,7 @@ class CollectionService
             throw new \InvalidArgumentException('Cannot leave a collection you own');
         }
 
-        $collectionUser = $this->em->getRepository(CollectionUser::class)->findUserCollectionAccess(
+        $collectionUser = $this->getCollectionUserRepository()->findUserCollectionAccess(
             $hyvorUserId,
             $collection->getId()
         );
@@ -143,7 +151,7 @@ class CollectionService
             return true;
         }
 
-        $collectionUser = $this->em->getRepository(CollectionUser::class)->findUserCollectionAccess(
+        $collectionUser = $this->getCollectionUserRepository()->findUserCollectionAccess(
             $hyvorUserId,
             $collection->getId()
         );
@@ -157,7 +165,7 @@ class CollectionService
             return true;
         }
 
-        $collectionUser = $this->em->getRepository(CollectionUser::class)->findUserCollectionAccess(
+        $collectionUser = $this->getCollectionUserRepository()->findUserCollectionAccess(
             $hyvorUserId,
             $collection->getId()
         );
