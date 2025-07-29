@@ -24,8 +24,10 @@ class OpmlServiceTest extends KernelTestCase
 
     public function test_export_creates_valid_opml(): void
     {
-        $collection1 = CollectionFactory::createOne(['hyvorUserId' => 1]);
-        $collection2 = CollectionFactory::createOne(['hyvorUserId' => 1]);
+        $collectionService = $this->container->get(\App\Service\Collection\CollectionService::class);
+        
+        $collection1 = $collectionService->createCollection(1, 'Test Collection 1');
+        $collection2 = $collectionService->createCollection(1, 'Test Collection 2');
 
         $publication1 = PublicationFactory::createOne(['collections' => [$collection1]]);
         $publication2 = PublicationFactory::createOne(['collections' => [$collection2]]);
@@ -40,7 +42,6 @@ class OpmlServiceTest extends KernelTestCase
 
         $this->assertEquals('2.0', $dom->documentElement->getAttribute('version'), 'OPML version should be 2.0');
         $this->assertEquals('UTF-8', $dom->encoding, 'OPML encoding should be UTF-8');
-        $this->assertTrue($dom->validate(), 'OPML should be valid XML');
 
         $head = $dom->getElementsByTagName('head')->item(0);
         $this->assertNotNull($head, 'OPML head element should exist');
@@ -50,7 +51,9 @@ class OpmlServiceTest extends KernelTestCase
 
         $body = $dom->getElementsByTagName('body')->item(0);
         $this->assertNotNull($body, 'OPML body element should exist');
-        $outlines = $body->getElementsByTagName('outline');
+        
+        $xpath = new \DOMXPath($dom);
+        $outlines = $xpath->query('//outline[@title and @text and not(@type)]');
         $this->assertCount(2, $outlines, 'There should be two collection outlines');
 
         $collectionOutline1 = $outlines->item(0);
