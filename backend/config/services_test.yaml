@@ -1,0 +1,5 @@
+services:
+    App\Service\Opml\OpmlService:
+        public: true
+        autowire: true
+
