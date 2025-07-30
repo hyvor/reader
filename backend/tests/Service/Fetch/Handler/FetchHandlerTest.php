@@ -2,7 +2,6 @@
 
 namespace App\Tests\Service\Fetch\Handler;
 
-use App\Entity\Collection;
 use App\Service\Fetch\Message\FetchMessage;
 use App\Factory\PublicationFactory;
 use App\Factory\CollectionFactory;
@@ -14,10 +13,8 @@ use Zenstruck\Messenger\Test\Transport\TestTransport;
 class FetchHandlerTest extends KernelTestCase
 {
 
-    private Collection $collection;
     private TestTransport $schedulerTransport;
     private TestTransport $asyncTransport;
-    private PublicationFactory $publicationFactory;
 
     protected function setUp(): void
     {
@@ -29,12 +26,12 @@ class FetchHandlerTest extends KernelTestCase
 
     public function test_not_dispatches_process_feed_message_for_not_due_publications(): void
     {
-        $collection = CollectionFactory::createOne();
+        $collection = CollectionFactory::createOne()->_real();
         $publication = PublicationFactory::createOne([
-            'collection' => $collection,
             'nextFetchAt' => new \DateTimeImmutable('+30 minutes'),
             'interval' => 60,
-        ]);
+        ])->_real();
+        $collection->addPublication($publication);
 
         $this->schedulerTransport->send(new FetchMessage());
         $this->schedulerTransport->process();

@@ -2,75 +2,59 @@
 
 namespace App\Api\App\Controller;
 
-use App\Entity\Collection;
-use App\Repository\CollectionRepository;
+use App\Api\App\Object\CollectionObject;
+use App\Api\App\Object\PublicationObject;
+use App\Service\Collection\CollectionService;
+use Hyvor\Internal\Auth\AuthUser;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\Uid\Uuid;
+use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 
-#[Route('/collections', name: 'app_api_collections_')]
 class CollectionController extends AbstractController
 {
     public function __construct(
-        // TODO: move to service
-        private readonly CollectionRepository $collectionRepository,
+        private readonly CollectionService $collectionService,
     ) {
     }
 
-    #[Route('', name: 'list', methods: ['GET'])]
+    #[Route('/collections', methods: ['GET'])]
     public function getCollections(): JsonResponse
     {
-        $collections = $this->collectionRepository->findAll();
-
-        $collectionsData = [];
-        foreach ($collections as $collection) {
-            $collectionsData[] = [
-                'id' => $collection->getId(),
-                'uuid' => $collection->getUuid(),
-                'name' => $collection->getName(),
-            ];
+        $user = $this->getUser();
+        if (!$user instanceof AuthUser) {
+            throw new AccessDeniedHttpException('Authentication required');
         }
 
+        $collections = $this->collectionService->getUserCollections($user->id);
+
         return $this->json([
-            'collections' => $collectionsData,
+            'collections' => array_map(fn($collection) => new CollectionObject($collection, $user->id), $collections),
         ]);
     }
 
-    #[Route('/{uuid}', name: 'get', methods: ['GET'])]
-    public function getCollection(string $uuid): JsonResponse
+    #[Route('/collections/{slug}', methods: ['GET'])]
+    public function getCollection(string $slug): JsonResponse
     {
-        if (!Uuid::isValid($uuid)) {
-            return $this->json(['error' => 'Invalid UUID format'], Response::HTTP_BAD_REQUEST);
+        $user = $this->getUser();
+        if (!$user instanceof AuthUser) {
+            throw new AccessDeniedHttpException('Authentication required');
         }
 
-        $collection = $this->collectionRepository->findOneBy(['uuid' => $uuid]);
+        $collection = $this->collectionService->findBySlug($slug);
 
         if (!$collection) {
-            return $this->json(['error' => 'Collection not found'], Response::HTTP_NOT_FOUND);
+            throw new NotFoundHttpException('Collection not found');
         }
 
-        $publications = [];
-        foreach ($collection->getPublications() as $publication) {
-            $publications[] = [
-                'id' => $publication->getId(),
-                'title' => $publication->getTitle() ?? 'Untitled',
-                'url' => $publication->getUrl(),
-                'description' => $publication->getDescription() ?? '',
-                'subscribers' => $publication->getSubscribers(),
-                'uuid' => $publication->getUuid(),
-            ];
+        if (!$this->collectionService->hasUserReadAccess($user->id, $collection)) {
+            throw new AccessDeniedHttpException('Access denied');
         }
 
         return $this->json([
-            'collection' => [
-                'id' => $collection->getId(),
-                'name' => $collection->getName(),
-                'uuid' => $collection->getUuid(),
-            ],
-            'publications' => $publications,
+            'collection' => new CollectionObject($collection, $user->id),
+            'publications' => array_map(fn($publication) => new PublicationObject($publication), $collection->getPublications()->toArray()),
         ]);
     }
 

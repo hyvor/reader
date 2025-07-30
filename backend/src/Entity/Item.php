@@ -5,7 +5,6 @@ namespace App\Entity;
 use App\Repository\ItemRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
-use Symfony\Component\Uid\Uuid;
 
 #[ORM\Entity(repositoryClass: ItemRepository::class)]
 #[ORM\Table(name: 'items')]
@@ -20,7 +19,7 @@ class Item
     private string $guid;
 
     #[ORM\Column(unique: true)]
-    private string $uuid;
+    private string $slug;
 
     #[ORM\Column]
     private string $url;
@@ -46,9 +45,14 @@ class Item
     #[ORM\Column(nullable: true)]
     private ?\DateTimeImmutable $updated_at = null;
 
+    #[ORM\Column(type: 'datetime_immutable', options: ['default' => 'CURRENT_TIMESTAMP'])]
+    private \DateTimeImmutable $createdAt;
+
+    /** @var string[] */
     #[ORM\Column(type: Types::ARRAY)]
     private array $authors = [];
 
+    /** @var string[] */
     #[ORM\Column(type: Types::ARRAY)]
     private array $tags = [];
 
@@ -61,7 +65,7 @@ class Item
 
     public function __construct()
     {
-        $this->uuid = (string) Uuid::v4();
+        $this->createdAt = new \DateTimeImmutable();
     }
 
     public function getId(): int
@@ -69,9 +73,15 @@ class Item
         return $this->id;
     }
 
-    public function getUuid(): string
+    public function getSlug(): string
     {
-        return $this->uuid;
+        return $this->slug;
+    }
+
+    public function setSlug(string $slug): static
+    {
+        $this->slug = $slug;
+        return $this;
     }
 
     public function getGuid(): string
@@ -173,22 +183,34 @@ class Item
         return $this;
     }
 
+    /**
+     * @return string[]
+     */
     public function getAuthors(): array
     {
         return $this->authors;
     }
 
+    /**
+     * @param string[] $authors
+     */
     public function setAuthors(array $authors): static
     {
         $this->authors = $authors;
         return $this;
     }
 
+    /**
+     * @return string[]
+     */
     public function getTags(): array
     {
         return $this->tags;
     }
 
+    /**
+     * @param string[] $tags
+     */
     public function setTags(array $tags): static
     {
         $this->tags = $tags;
@@ -215,6 +237,17 @@ class Item
     {
         $this->publication = $publication;
 
+        return $this;
+    }
+
+    public function getCreatedAt(): \DateTimeImmutable
+    {
+        return $this->createdAt;
+    }
+
+    public function setCreatedAt(\DateTimeImmutable $createdAt): static
+    {
+        $this->createdAt = $createdAt;
         return $this;
     }
 }

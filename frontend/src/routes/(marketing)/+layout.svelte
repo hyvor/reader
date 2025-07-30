@@ -19,11 +19,11 @@
 		{#snippet center()}
 			<div>
 				<a href="/find">
-					<Button active={$page.url.pathname === '/find'} color="invisible">Find Feed</Button>
+					<Button active={$page.url.pathname === '/find'} variant="invisible">Find Feed</Button>
 				</a>
 
 				<a href="/learn" class="learn-button">
-					<Button active={$page.url.pathname.startsWith('/learn')} color="invisible">
+					<Button active={$page.url.pathname.startsWith('/learn')} variant="invisible">
 						Learn RSS
 					</Button>
 				</a>
@@ -36,7 +36,7 @@
 					<DarkToggle />
 
 					<IconButton
-						color="invisible"
+						variant="invisible"
 						as="a"
 						href="https://github.com/hyvor/reader.hyvor.com"
 						target="_blank"
