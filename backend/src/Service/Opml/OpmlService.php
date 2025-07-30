@@ -6,15 +6,34 @@ class OpmlService
 {
     public function __construct(
         private readonly \App\Service\Collection\CollectionService $collectionService,
+        private readonly \App\Service\Publication\PublicationService $publicationService
     )
     {
     }
 
-    public function import(string $content): void
+    public function import(string $content, int $hyvorUserId): void
     {
+        $dom = new \DOMDocument();
+        $dom->loadXML($content);
+
+        $xpath = new \DOMXPath($dom);
+        $outlines = $xpath->query('//outline[@title and @text and not(@type)]');
+        foreach ($outlines as $outline) {
+            $collectionName = $outline->getAttribute('title');
+            $collection = $this->collectionService->createCollection($hyvorUserId, $collectionName);
+
+            foreach ($outline->childNodes as $child) {
+                if ($child->nodeType === XML_ELEMENT_NODE && $child->tagName === 'outline') {
+                    $publicationTitle = $child->getAttribute('title');
+                    $publicationUrl = $child->getAttribute('xmlUrl');
+
+                    $this->publicationService->createPublication($collection, $publicationUrl, $publicationTitle);
+                }
+            }
+        }
     }
 
-    public function export(string $title): string
+    public function export(string $title, int $hyvorUserId): string
     {
         $dom = new \DOMDocument('1.0', 'UTF-8');
         $dom->formatOutput = true;
@@ -30,7 +49,7 @@ class OpmlService
 
         $body = $dom->createElement('body');
 
-        $collections = $this->collectionService->getUserCollections(1);
+        $collections = $this->collectionService->getUserCollections($hyvorUserId);
         foreach ($collections as $collection) {
             $outline = $dom->createElement('outline');
             $outline->setAttribute('title', $collection->getName());
