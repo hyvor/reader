@@ -8,7 +8,6 @@ use App\Factory\PublicationFactory;
 use App\Factory\CollectionFactory;
 use App\Service\Fetch\Message\ProcessFeedMessage;
 use App\Tests\Case\KernelTestCase;
-use Zenstruck\Foundry\Test\Factories;
 use Zenstruck\Messenger\Test\Transport\TestTransport;
 
 class FetchHandlerTest extends KernelTestCase
@@ -29,11 +28,11 @@ class FetchHandlerTest extends KernelTestCase
 
     public function test_not_dispatches_process_feed_message_for_not_due_publications(): void
     {
-        $collection = CollectionFactory::createOne()->_real();
+        $collection = CollectionFactory::createOne();
         $publication = PublicationFactory::createOne([
             'nextFetchAt' => new \DateTimeImmutable('+30 minutes'),
             'interval' => 60,
-        ])->_real();
+        ]);
         $collection->addPublication($publication);
 
         $this->schedulerTransport->send(new FetchMessage());

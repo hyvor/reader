@@ -15,21 +15,14 @@ class ItemService
 {
     public function __construct(
         private EntityManagerInterface $em,
-        private PublicationService $publicationService,
-        private CollectionService $collectionService
     ) {
     }
 
     /**
      * @return ItemObject[]
      */
-    public function getItemsFromPublication(string $publicationSlug, int $limit = 50, int $offset = 0): array
+    public function getItemsFromPublication(Publication $publication, int $limit = 50, int $offset = 0): array
     {
-        $publication = $this->publicationService->findBySlug($publicationSlug);
-        if (!$publication) {
-            return [];
-        }
-
         $items = $publication->getItems()->slice($offset, $limit);
         return array_map(fn(Item $item) => new ItemObject($item), $items);
     }
@@ -37,13 +30,9 @@ class ItemService
     /**
      * @return ItemObject[]
      */
-    public function getItemsFromCollection(string $collectionSlug, int $limit = 50, int $offset = 0): array
+    public function getItemsFromCollection(Collection $collection, int $limit = 50, int $offset = 0): array
     {
-        $collection = $this->collectionService->findBySlug($collectionSlug);
-        if (!$collection) {
-            return [];
-        }
-
+        // TODO: use a query with sorting
         $allItems = [];
         foreach ($collection->getPublications() as $publication) {
             foreach ($publication->getItems() as $item) {

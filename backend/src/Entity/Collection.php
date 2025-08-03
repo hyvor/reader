@@ -35,6 +35,7 @@ class Collection
     #[ORM\Column(type: 'datetime_immutable', options: ['default' => 'CURRENT_TIMESTAMP'])]
     private \DateTimeImmutable $updatedAt;
 
+    // TODO: we might want to remove these relationships due to  them being large
     /**
      * @var DoctrineCollection<int, Publication>
      */

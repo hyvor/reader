@@ -63,7 +63,7 @@ class CollectionService
         return $collection;
     }
 
-    public function joinCollection(int $hyvorUserId, string $collectionSlug): CollectionUser
+    /*public function joinCollection(int $hyvorUserId, string $collectionSlug): CollectionUser
     {
         $collection = $this->em->getRepository(Collection::class)->findOneBy([
             'slug' => $collectionSlug
@@ -99,9 +99,9 @@ class CollectionService
         $this->em->flush();
 
         return $collectionUser;
-    }
+    }*/
 
-    public function leaveCollection(int $hyvorUserId, string $collectionSlug): void
+    /*public function leaveCollection(int $hyvorUserId, string $collectionSlug): void
     {
         $collection = $this->em->getRepository(Collection::class)->findOneBy([
             'slug' => $collectionSlug
@@ -126,7 +126,7 @@ class CollectionService
 
         $this->em->remove($collectionUser);
         $this->em->flush();
-    }
+    }*/
 
     public function findBySlug(string $slug): ?Collection
     {
@@ -165,7 +165,7 @@ class CollectionService
         return $collectionUser && $collectionUser->hasWriteAccess();
     }
 
-    public function deleteCollection(int $hyvorUserId, string $collectionSlug): void
+    /*public function deleteCollection(int $hyvorUserId, string $collectionSlug): void
     {
         $collection = $this->em->getRepository(Collection::class)->findOneBy([
             'slug' => $collectionSlug
@@ -181,7 +181,7 @@ class CollectionService
 
         $this->em->remove($collection);
         $this->em->flush();
-    }
+    }*/
 
     private function generateUniqueSlug(string $name): string
     {

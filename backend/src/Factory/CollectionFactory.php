@@ -46,4 +46,22 @@ final class CollectionFactory extends PersistentProxyObjectFactory
             // ->afterInstantiate(function(Collection $collection): void {})
         ;
     }
+
+    public static function createWithCollectionUser(int $hyvorUserId, string $name, bool $isPublic = false): array
+    {
+
+        $collection = self::createOne([
+            'name' => $name,
+            'isPublic' => $isPublic,
+            'hyvorUserId' => $hyvorUserId,
+        ]);
+
+        // TODO: add collection user factory
+        $collectionUser = CollectionUserFactory::createOne([
+            'hyvorUserId' => $hyvorUserId,
+            'collection' => $collection,
+            'writeAccess' => true,
+        ]);
+
+    }
 }

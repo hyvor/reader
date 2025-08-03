@@ -11,7 +11,7 @@ final class Version20250716050115 extends AbstractMigration
 {
     public function getDescription(): string
     {
-        return '';
+        return 'Create collection_publications table';
     }
 
     public function up(Schema $schema): void

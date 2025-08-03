@@ -45,7 +45,7 @@ class ItemController extends AbstractController
                 throw new NotFoundHttpException('Publication not found');
             }
 
-            $items = $this->itemService->getItemsFromPublication($publicationSlug, $limit, $offset);
+            $items = $this->itemService->getItemsFromPublication($publication, $limit, $offset);
             
         } else if ($collectionSlug) {
             $collection = $this->collectionService->findBySlug($collectionSlug);
@@ -53,7 +53,7 @@ class ItemController extends AbstractController
                 throw new NotFoundHttpException('Collection not found');
             }
 
-            $items = $this->itemService->getItemsFromCollection($collectionSlug, $limit, $offset);
+            $items = $this->itemService->getItemsFromCollection($collection, $limit, $offset);
             
         } else {
             throw new BadRequestHttpException('Either collection_id or publication_id parameter is required');

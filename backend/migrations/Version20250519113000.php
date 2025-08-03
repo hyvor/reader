@@ -11,7 +11,7 @@ final class Version20250519113000 extends AbstractMigration
 {
     public function getDescription(): string
     {
-        return '';
+        return 'Create items table';
     }
 
     public function up(Schema $schema): void

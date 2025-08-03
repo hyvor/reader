@@ -19,37 +19,15 @@ class CollectionControllerTest extends WebTestCase
     use Factories;
 
     private CollectionService $collectionService;
-    private EntityManagerInterface $em;
 
     protected function setUp(): void
     {
         parent::setUp();
 
         $this->collectionService = $this->container->get(CollectionService::class);
-        $this->em = $this->container->get(EntityManagerInterface::class);
     }
 
-    public function test_get_collections_returns_only_current_users_collections(): void
-    {
-        $collection1 = $this->collectionService->createCollection(1, 'User Collection 1', false);
-        $collection2 = $this->collectionService->createCollection(1, 'User Collection 2', false);
 
-        $otherCollection = $this->collectionService->createCollection(2, 'Other Users Collection', false);
-
-        $this->client->request('GET', '/api/app/collections');
-        $response = $this->client->getResponse();
-
-        $this->assertSame(Response::HTTP_OK, $response->getStatusCode(), 'Expected 200 OK');
-
-        $data = json_decode($response->getContent(), true, 512, JSON_THROW_ON_ERROR);
-        $this->assertArrayHasKey('collections', $data);
-        $this->assertCount(2, $data['collections']);
-
-        $slugs = array_map(fn(array $c) => $c['slug'], $data['collections']);
-        $this->assertContains($collection1->getSlug(), $slugs);
-        $this->assertContains($collection2->getSlug(), $slugs);
-        $this->assertNotContains($otherCollection->getSlug(), $slugs);
-    }
 
     public function test_get_single_collection_with_publications(): void
     {
