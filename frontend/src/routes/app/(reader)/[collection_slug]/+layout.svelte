@@ -6,6 +6,7 @@
         publications, 
         collections, 
         selectedCollection,
+        selectedPublication,
         loadingPublications 
     } from '../../appStore';
 
@@ -30,6 +31,7 @@
             try {
                 const res = await api.get('/publications', { collection_slug: collection.slug });
                 publications.set(res.publications);
+                selectedPublication.set(null);
             } catch (e) {
                 console.error('Failed to fetch publications:', e);
             } finally {
