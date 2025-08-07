@@ -14,13 +14,14 @@ use Symfony\Component\HttpFoundation\Response;
 #[CoversClass(CollectionService::class)]
 class GetCollectionsTest extends WebTestCase
 {
-
     public function test_get_collections_returns_only_current_users_collections(): void
     {
-        $collection1 = $this->collectionService->createCollection(1, 'User Collection 1', false);
-        $collection2 = $this->collectionService->createCollection(1, 'User Collection 2', false);
+        $collectionService = $this->container->get(CollectionService::class);
 
-        $otherCollection = $this->collectionService->createCollection(2, 'Other Users Collection', false);
+        $collection1 = $collectionService->createCollection(1, 'User Collection 1', false);
+        $collection2 = $collectionService->createCollection(1, 'User Collection 2', false);
+
+        $otherCollection = $collectionService->createCollection(2, 'Other Users Collection', false);
 
         $this->client->request('GET', '/api/app/collections');
         $response = $this->client->getResponse();

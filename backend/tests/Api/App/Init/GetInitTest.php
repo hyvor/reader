@@ -3,18 +3,16 @@
 namespace App\Tests\Api\App;
 
 use App\Api\App\Controller\InitController;
+use App\Api\App\Object\CollectionObject;
 use App\Service\Collection\CollectionService;
 use App\Tests\WebTestCase;
 use PHPUnit\Framework\Attributes\CoversClass;
-use Zenstruck\Foundry\Test\Factories;
-use Zenstruck\Foundry\Test\ResetDatabase;
 
 #[CoversClass(InitController::class)]
-class InitControllerTest extends WebTestCase
+#[CoversClass(CollectionObject::class)]
+#[CoversClass(CollectionService::class)]
+class GetInitTest extends WebTestCase
 {
-    use ResetDatabase;
-    use Factories;
-
     public function test_get_init_returns_collections(): void
     {
         $this->client->request('GET', '/api/app/init');

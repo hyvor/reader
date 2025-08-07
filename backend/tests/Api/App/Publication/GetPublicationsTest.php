@@ -3,29 +3,19 @@
 namespace App\Tests\Api\App\Controller;
 
 use App\Api\App\Controller\PublicationController;
+use App\Api\App\Object\PublicationObject;
+use App\Service\Publication\PublicationService;
 use App\Tests\WebTestCase;
-use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Response;
-use Zenstruck\Foundry\Test\ResetDatabase;
-use Zenstruck\Foundry\Test\Factories;
 use PHPUnit\Framework\Attributes\CoversClass;
 use App\Factory\CollectionFactory;
 use App\Factory\PublicationFactory;
 
 #[CoversClass(PublicationController::class)]
-class PublicationControllerTest extends WebTestCase
+#[CoversClass(PublicationService::class)]
+#[CoversClass(PublicationObject::class)]
+class GetPublicationsTest extends WebTestCase
 {
-    use ResetDatabase;
-    use Factories;
-
-    private EntityManagerInterface $em;
-
-    protected function setUp(): void
-    {
-        parent::setUp();
-        $this->em = static::getContainer()->get(EntityManagerInterface::class);
-    }
-
     public function test_get_publications_from_collection(): void
     {
         $collection = CollectionFactory::createOne(['hyvorUserId' => 1]);

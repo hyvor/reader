@@ -28,7 +28,7 @@ class FetchHandlerTest extends KernelTestCase
 
     public function test_not_dispatches_process_feed_message_for_not_due_publications(): void
     {
-        $collection = CollectionFactory::createOne();
+        $collection = CollectionFactory::createOne()->_real();
         $publication = PublicationFactory::createOne([
             'nextFetchAt' => new \DateTimeImmutable('+30 minutes'),
             'interval' => 60,

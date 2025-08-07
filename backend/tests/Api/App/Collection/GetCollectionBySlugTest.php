@@ -1,37 +1,25 @@
 <?php
 
-namespace App\Tests\Api\App\Controller;
+namespace Api\App\Collection;
 
-use App\Tests\WebTestCase;
-use App\Service\Collection\CollectionService;
-use Doctrine\ORM\EntityManagerInterface;
-use Symfony\Component\HttpFoundation\Response;
-use App\Factory\PublicationFactory;
-use Zenstruck\Foundry\Test\Factories;
-use Zenstruck\Foundry\Test\ResetDatabase;
 use App\Api\App\Controller\CollectionController;
+use App\Api\App\Object\CollectionObject;
+use App\Service\Collection\CollectionService;
+use App\Factory\PublicationFactory;
+use App\Tests\WebTestCase;
 use PHPUnit\Framework\Attributes\CoversClass;
+use Symfony\Component\HttpFoundation\Response;
 
 #[CoversClass(CollectionController::class)]
-class CollectionControllerTest extends WebTestCase
+#[CoversClass(CollectionObject::class)]
+#[CoversClass(CollectionService::class)]
+class GetCollectionBySlugTest extends WebTestCase
 {
-    use ResetDatabase;
-    use Factories;
-
-    private CollectionService $collectionService;
-
-    protected function setUp(): void
-    {
-        parent::setUp();
-
-        $this->collectionService = $this->container->get(CollectionService::class);
-    }
-
-
-
     public function test_get_single_collection_with_publications(): void
     {
-        $collection = $this->collectionService->createCollection(1, 'Reading List', false);
+        $collectionService = $this->container->get(CollectionService::class);
+
+        $collection = $collectionService->createCollection(1, 'Reading List', false);
 
         $publication1 = PublicationFactory::createOne(['collections' => [$collection]]);
         $publication2 = PublicationFactory::createOne(['collections' => [$collection]]);
@@ -53,4 +41,4 @@ class CollectionControllerTest extends WebTestCase
         $this->assertContains($publication1->getSlug(), $publicationSlugs);
         $this->assertContains($publication2->getSlug(), $publicationSlugs);
     }
-} 
+}

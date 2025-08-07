@@ -29,4 +29,4 @@ class WebTestCase extends BaseWebTestCase
         AuthFake::enableForSymfony($this->container, ['id' => 1]);
         $this->client->getCookieJar()->set(new Cookie('authsess', 'test'));
     }
-} 
+}

@@ -3,30 +3,20 @@
 namespace App\Tests\Api\App\Controller;
 
 use App\Api\App\Controller\ItemController;
+use App\Api\App\Object\ItemObject;
+use App\Service\Item\ItemService;
 use App\Tests\WebTestCase;
-use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Response;
-use Zenstruck\Foundry\Test\ResetDatabase;
-use Zenstruck\Foundry\Test\Factories;
 use PHPUnit\Framework\Attributes\CoversClass;
 use App\Factory\CollectionFactory;
 use App\Factory\PublicationFactory;
 use App\Factory\ItemFactory;
 
 #[CoversClass(ItemController::class)]
-class ItemControllerTest extends WebTestCase
+#[CoversClass(ItemService::class)]
+#[CoversClass(ItemObject::class)]
+class GetItemsTest extends WebTestCase
 {
-    use ResetDatabase;
-    use Factories;
-
-    private EntityManagerInterface $em;
-
-    protected function setUp(): void
-    {
-        parent::setUp();
-        $this->em = static::getContainer()->get(EntityManagerInterface::class);
-    }
-
     public function test_get_items_from_publication(): void
     {
         $collection = CollectionFactory::createOne(['hyvorUserId' => 1]);
