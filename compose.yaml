@@ -4,6 +4,15 @@ services:
     build:
       context: .
       target: frontend-dev
+    volumes:
+      - ./frontend/src:/app/frontend/src
+      - ./frontend/static:/app/frontend/static
+      - ./frontend/vite.config.ts:/app/frontend/vite.config.ts
+      - ./frontend/package.json:/app/frontend/package.json
+      - ./frontend/package-lock.json:/app/frontend/package-lock.json
+      - ./frontend/tsconfig.json:/app/frontend/tsconfig.json
+      - ./frontend/svelte.config.js:/app/frontend/svelte.config.js
+      - ./shared:/app/shared
     labels:
       traefik.enable: true
       traefik.http.routers.hyvor-reader-frontend.rule: Host(`reader.hyvor.localhost`)
@@ -13,18 +22,6 @@ services:
       traefik.http.services.hyvor-reader-frontend.loadbalancer.server.port: 80
     networks:
       - hyvor-network
-    develop:
-      watch:
-        - action: sync
-          path: ./frontend
-          target: /app/frontend
-          ignore:
-            - frontend/node_modules/
-            - frontend/.svelte-kit/
-            - frontend/build/
-        - action: sync
-          path: ./shared
-          target: /app/shared
 
   hyvor-reader-backend:
     container_name: hyvor-reader-backend
@@ -48,14 +45,6 @@ services:
     healthcheck:
       test: ls
       disable: true
-    develop:
-      watch:
-        - action: sync
-          path: ./backend
-          target: /app/backend
-        - action: sync
-          path: ./shared
-          target: /app/shared
 
 networks:
   hyvor-network:
