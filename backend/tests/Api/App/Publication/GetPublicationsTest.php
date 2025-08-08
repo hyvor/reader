@@ -5,7 +5,7 @@ namespace App\Tests\Api\App\Controller;
 use App\Api\App\Controller\PublicationController;
 use App\Api\App\Object\PublicationObject;
 use App\Service\Publication\PublicationService;
-use App\Tests\WebTestCase;
+use App\Tests\Case\WebTestCase;
 use Symfony\Component\HttpFoundation\Response;
 use PHPUnit\Framework\Attributes\CoversClass;
 use App\Factory\CollectionFactory;

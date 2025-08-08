@@ -6,7 +6,7 @@ use App\Api\App\Controller\CollectionController;
 use App\Api\App\Object\CollectionObject;
 use App\Service\Collection\CollectionService;
 use App\Factory\PublicationFactory;
-use App\Tests\WebTestCase;
+use App\Tests\Case\WebTestCase;
 use PHPUnit\Framework\Attributes\CoversClass;
 use Symfony\Component\HttpFoundation\Response;
 

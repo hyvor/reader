@@ -1,16 +1,16 @@
 <?php
 
-namespace App\Tests;
+namespace App\Tests\Case;
 
+// use DAMA\DoctrineTestBundle\Doctrine\DBAL\StaticDriver;
 use Doctrine\ORM\EntityManagerInterface;
 use Hyvor\Internal\Auth\AuthFake;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
-use Symfony\Bundle\FrameworkBundle\Test\WebTestCase as BaseWebTestCase;
 use Symfony\Component\DependencyInjection\Container;
 use Symfony\Component\BrowserKit\Cookie;
 use Zenstruck\Foundry\Test\Factories;
 
-class WebTestCase extends BaseWebTestCase
+class WebTestCase extends \Symfony\Bundle\FrameworkBundle\Test\WebTestCase
 {
     use Factories;
 
@@ -21,6 +21,8 @@ class WebTestCase extends BaseWebTestCase
     protected function setUp(): void
     {
         parent::setUp();
+        // StaticDriver::setKeepStaticConnections(true);
+
         $this->client = static::createClient();
         $this->container = static::getContainer();
 

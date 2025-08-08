@@ -5,7 +5,7 @@ namespace App\Tests\Api\App;
 use App\Api\App\Controller\InitController;
 use App\Api\App\Object\CollectionObject;
 use App\Service\Collection\CollectionService;
-use App\Tests\WebTestCase;
+use App\Tests\Case\WebTestCase;
 use PHPUnit\Framework\Attributes\CoversClass;
 
 #[CoversClass(InitController::class)]
