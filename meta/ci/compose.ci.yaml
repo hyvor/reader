@@ -1,0 +1,16 @@
+services:
+  hyvor-service-pgsql:
+    container_name: hyvor-service-pgsql-ci
+    image: postgres:16.6
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: hyvor_reader_test
+    networks:
+      ci:
+        aliases:
+          - postgres  
+
+networks:
+  ci:
+    external: true
