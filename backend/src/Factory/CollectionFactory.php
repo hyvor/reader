@@ -4,6 +4,7 @@ namespace App\Factory;
 
 use App\Entity\Collection;
 use Zenstruck\Foundry\Persistence\PersistentProxyObjectFactory;
+use App\InternalFake;
 
 /**
  * @extends PersistentProxyObjectFactory<Collection>
@@ -31,6 +32,8 @@ final class CollectionFactory extends PersistentProxyObjectFactory
     {
         return [
             'name' => self::faker()->words(2, true),
+            'slug' => self::faker()->unique()->slug(),
+            'hyvorUserId' => (new InternalFake())->user()->id,
         ];
     }
 
@@ -42,5 +45,23 @@ final class CollectionFactory extends PersistentProxyObjectFactory
         return $this
             // ->afterInstantiate(function(Collection $collection): void {})
         ;
+    }
+
+    public static function createWithCollectionUser(int $hyvorUserId, string $name, bool $isPublic = false): array
+    {
+
+        $collection = self::createOne([
+            'name' => $name,
+            'isPublic' => $isPublic,
+            'hyvorUserId' => $hyvorUserId,
+        ]);
+
+        // TODO: add collection user factory
+        $collectionUser = CollectionUserFactory::createOne([
+            'hyvorUserId' => $hyvorUserId,
+            'collection' => $collection,
+            'writeAccess' => true,
+        ]);
+
     }
 }

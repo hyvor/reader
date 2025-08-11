@@ -1,14 +1,16 @@
 
 export interface Collection {
     id: number;
-    uuid: string;
     name: string;
+    slug: string;
+    is_public: boolean;
+    is_owner: boolean;
 }
 
 export interface Publication {
     id: number;
-    uuid: string;
     title: string;
+    slug: string;
     url: string;
     description: string;
     subscribers: number;
@@ -18,7 +20,7 @@ export interface Publication {
 
 export interface Item {
     id: number;
-    uuid: string;
+    slug: string;
     title: string;
     url: string;
     content_html?: string;
@@ -31,7 +33,7 @@ export interface Item {
     tags: string[];
     language?: string;
     publication_id: number;
-    publication_uuid: string;
+    publication_slug: string;
     publication_title: string;
     reading_time?: number;
     word_count?: number;

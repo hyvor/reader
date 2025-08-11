@@ -1,6 +1,7 @@
 <script lang="ts">
     import { Base } from '@hyvor/design/components';
     import './styles.css';
+
     interface Props {
         children?: import('svelte').Snippet;
     }

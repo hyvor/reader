@@ -7,8 +7,8 @@ use App\Entity\Item;
 class ItemObject
 {
     public int $id;
+    public string $slug;
     public string $guid;
-    public string $uuid;
     public string $title;
     public string $url;
     public ?string $content_html;
@@ -21,14 +21,14 @@ class ItemObject
     public array $tags;
     public ?string $language;
     public ?int $publication_id;
-    public ?string $publication_uuid;
+    public ?string $publication_slug;
     public ?string $publication_title;
 
     public function __construct(Item $item)
     {
         $this->id = $item->getId();
+        $this->slug = $item->getSlug();
         $this->guid = $item->getGuid();
-        $this->uuid = $item->getUuid();
         $this->title = $item->getTitle() ?? 'Untitled';
         $this->url = $item->getUrl();
         $this->content_html = $item->getContentHtml();
@@ -40,8 +40,9 @@ class ItemObject
         $this->authors = $item->getAuthors();
         $this->tags = $item->getTags();
         $this->language = $item->getLanguage();
-        $this->publication_id = $item->getPublication()?->getId();
-        $this->publication_uuid = $item->getPublication()?->getUuid();
-        $this->publication_title = $item->getPublication()?->getTitle() ?? 'Untitled';
+        $publication = $item->getPublication();
+        $this->publication_id = $publication?->getId();
+        $this->publication_slug = $publication?->getSlug();
+        $this->publication_title = $publication?->getTitle() ?? 'Untitled';
     }
 } 

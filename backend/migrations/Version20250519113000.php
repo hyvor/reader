@@ -11,7 +11,7 @@ final class Version20250519113000 extends AbstractMigration
 {
     public function getDescription(): string
     {
-        return '';
+        return 'Create items table';
     }
 
     public function up(Schema $schema): void
@@ -31,9 +31,9 @@ final class Version20250519113000 extends AbstractMigration
                 authors TEXT NOT NULL,
                 tags TEXT NOT NULL,
                 language TEXT DEFAULT NULL,
-                uuid UUID NOT NULL DEFAULT gen_random_uuid() UNIQUE,
+                slug VARCHAR(255) NOT NULL UNIQUE,
                 publication_id INT NOT NULL REFERENCES publications (id),
-                CONSTRAINT UNIQ_items_publication_guid UNIQUE (publication_id, guid)
+                created_at timestamptz DEFAULT CURRENT_TIMESTAMP NOT NULL
             )
         SQL);
     }

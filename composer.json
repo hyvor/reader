@@ -1,0 +1,5 @@
+{
+    "require-dev": {
+        "dama/doctrine-test-bundle": "^8.3"
+    }
+}
