@@ -28,11 +28,18 @@ class GetPublicationsTest extends WebTestCase
 
         $this->assertSame(Response::HTTP_OK, $response->getStatusCode(), 'Expected 200 OK');
 
-        $json = json_decode($response->getContent(), true, 512, JSON_THROW_ON_ERROR);
+        $content = $response->getContent();
+        $this->assertIsString($content, 'Response content should be a string');
+        $json = json_decode($content, true, 512, JSON_THROW_ON_ERROR);
+        $this->assertIsArray($json, 'Decoded JSON should be an array');
+        /** @var array<string, mixed> $json */
         $this->assertArrayHasKey('publications', $json);
-        $this->assertCount(2, $json['publications']);
+        $this->assertIsArray($json['publications'], 'Publications should be an array');
+        /** @var list<array<string, mixed>> $publications */
+        $publications = $json['publications'];
+        $this->assertCount(2, $publications);
 
-        $slugs = array_map(fn(array $p) => $p['slug'], $json['publications']);
+        $slugs = array_map(fn(array $p) => $p['slug'], $publications);
         $this->assertContains($publication1->getSlug(), $slugs);
         $this->assertContains($publication2->getSlug(), $slugs);
     }

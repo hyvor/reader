@@ -8,7 +8,6 @@ use App\Service\Collection\CollectionService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
@@ -25,7 +24,9 @@ class ItemController extends AbstractController
     #[Route('/items', methods: ['GET'])]
     public function getItems(Request $request): JsonResponse
     {
+        /** @var string|null $collectionSlug */
         $collectionSlug = $request->query->get('collection_slug');
+        /** @var string|null $publicationSlug */
         $publicationSlug = $request->query->get('publication_slug');
         $limit = (int) $request->query->get('limit', 50);
         $offset = (int) $request->query->get('offset', 0);

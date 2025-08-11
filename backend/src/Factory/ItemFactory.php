@@ -26,16 +26,18 @@ final class ItemFactory extends PersistentProxyObjectFactory
 
     /**
      * @see https://symfony.com/bundles/ZenstruckFoundryBundle/current/index.html#model-factories
+     *
+     * @return array<string, mixed>
      */
-    protected function defaults(): array|callable
+    protected function defaults(): array
     {
         return [
             'guid' => self::faker()->uuid(),
             'url' => self::faker()->url(),
             'title' => self::faker()->sentence(6),
             'slug' => self::faker()->unique()->slug(),
-            'content_html' => '<p>' . self::faker()->paragraphs(self::faker()->numberBetween(2, 5), true) . '</p>',
-            'content_text' => self::faker()->paragraphs(self::faker()->numberBetween(2, 5), true),
+            'content_html' => '<p>' . implode('</p><p>', (array) self::faker()->paragraphs(self::faker()->numberBetween(2, 5))) . '</p>',
+            'content_text' => implode("\n\n", (array) self::faker()->paragraphs(self::faker()->numberBetween(2, 5))),
             'summary' => self::faker()->sentence(10),
             'image' => 'https://picsum.photos/800/400?random=' . self::faker()->numberBetween(1, 1000),
             'published_at' => self::faker()->dateTimeBetween('-30 days', '-1 day'),
