@@ -358,6 +358,7 @@
 		display: flex;
 		flex: 1;
 		min-height: 0;
+		margin-bottom: 15px;
 	}
 
 	.publications {
