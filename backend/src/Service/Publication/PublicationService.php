@@ -19,6 +19,11 @@ class PublicationService
         return $this->em->getRepository(Publication::class)->findOneBy(['slug' => $slug]);
     }
 
+    public function findByUrl(string $url): ?Publication
+    {
+        return $this->em->getRepository(Publication::class)->findOneBy(['url' => $url]);
+    }
+
     /**
      * @return PublicationObject[]
      */
@@ -45,6 +50,16 @@ class PublicationService
         $this->em->flush();
 
         return $publication;
+    }
+
+    public function attachToCollectionIfMissing(Publication $publication, Collection $collection): bool
+    {
+        if (!$publication->getCollections()->contains($collection)) {
+            $publication->addCollection($collection);
+            $this->em->flush();
+            return true;
+        }
+        return false;
     }
 
     private function generateUniqueSlug(string $text): string
