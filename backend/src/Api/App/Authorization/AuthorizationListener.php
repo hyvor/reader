@@ -2,7 +2,6 @@
 
 namespace App\Api\App\Authorization;
 
-use Hyvor\Internal\Auth\Auth;
 use Hyvor\Internal\Auth\AuthInterface;
 use Hyvor\Internal\Auth\AuthUser;
 use Symfony\Component\EventDispatcher\Attribute\AsEventListener;
@@ -38,8 +37,7 @@ class AuthorizationListener
             return;
         }
 
-        $cookie = (string)$request->cookies->get(Auth::HYVOR_SESSION_COOKIE_NAME, '');
-        $user = $this->auth->check($cookie);
+        $user = $this->auth->check($request);
 
         if ($user === false) {
             throw new HttpException(401, 'Unauthorized');
