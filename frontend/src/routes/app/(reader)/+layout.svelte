@@ -24,6 +24,9 @@
 	let showAddPublicationModal = $state(false);
 	let rssUrl = $state('');
 	let publicationTitle = $state('');
+	let showCreateCollectionModal = $state(false);
+	let collectionName = $state('');
+	let collectionIsPublic = $state(false);
 	let selectedItem: Item | null = $state(null);
 	let currentItemIndex = $derived(
 		selectedItem ? $items.findIndex(item => item.id === selectedItem!.id) : -1
@@ -31,6 +34,22 @@
 
 	function selectCollection(collection: Collection) {
 		goto(`/app/${collection.slug}`);
+	}
+
+	async function handleCreateCollection() {
+		const trimmed = collectionName.trim();
+		if (!trimmed) return;
+		try {
+			const res = await api.post('/collections', { name: trimmed, is_public: collectionIsPublic });
+			const created: Collection = res.collection;
+			$collections = [...$collections, created];
+			showCreateCollectionModal = false;
+			collectionName = '';
+			collectionIsPublic = false;
+			goto(`/app/${created.slug}`);
+		} catch (e) {
+			console.error('Failed to create collection', e);
+		}
 	}
 
 	function selectPublication(publication?: Publication) {
@@ -164,6 +183,9 @@
 										{collection.name}
 									</ActionListItem>
 								{/each}
+								<ActionListItem on:select={() => { showCreateCollectionModal = true; showCollections = false; }}>
+									+ Create collection
+								</ActionListItem>
 							</ActionList>
 						{/snippet}
 					</Dropdown>
@@ -316,6 +338,33 @@
 	</div>
 </main>
 
+<Modal bind:show={showCreateCollectionModal} size="small" title="Create Collection" closeOnOutsideClick={true} closeOnEscape={true}>
+    <div class="modal-body">
+        <TextInput
+            id="collectionName"
+            type="text"
+            placeholder="My collection"
+            autofocus
+            bind:value={collectionName}
+            on:keydown={(e: KeyboardEvent) => {
+                if (e.key === 'Enter' && collectionName.trim()) {
+                    handleCreateCollection();
+                }
+            }}
+        />
+        <label class="modal-label" for="collectionPublic">
+            <input id="collectionPublic" type="checkbox" bind:checked={collectionIsPublic} />
+            Public
+        </label>
+    </div>
+
+    {#snippet footer()}
+        <div class="modal-footer">
+            <Button disabled={!collectionName.trim()} on:click={handleCreateCollection}>Create</Button>
+            <Button color="input" on:click={() => { showCreateCollectionModal = false; }}>Cancel</Button>
+        </div>
+    {/snippet}
+</Modal>
 
 <Modal bind:show={showAddPublicationModal} size="small" title="Add Publication" closeOnOutsideClick={true} closeOnEscape={true}>
 	<div class="modal-body">
