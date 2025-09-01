@@ -2,7 +2,7 @@
 	import IconChevronDown from '@hyvor/icons/IconChevronDown';
 	import IconBoxArrowUpRight from '@hyvor/icons/IconBoxArrowUpRight';
 	import IconPlus from '@hyvor/icons/IconPlus';
-	import { Button, Dropdown, ActionList, ActionListItem, Loader, Modal, TextInput } from '@hyvor/design/components';
+	import { Button, Dropdown, ActionList, ActionListItem, Loader, Modal, TextInput, Switch } from '@hyvor/design/components';
 	import {
 		collections,
 		publications,
@@ -352,10 +352,9 @@
                 }
             }}
         />
-        <label class="modal-label" for="collectionPublic">
-            <input id="collectionPublic" type="checkbox" bind:checked={collectionIsPublic} />
+        <Switch id="collectionPublic" bind:checked={collectionIsPublic}>
             Public
-        </label>
+        </Switch>
     </div>
 
     {#snippet footer()}
