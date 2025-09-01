@@ -15,4 +15,12 @@ class CollectionUserRepository extends ServiceEntityRepository
     {
         parent::__construct($registry, CollectionUser::class);
     }
+
+    public function findUserCollectionAccess(int $hyvorUserId, int $collectionId): ?CollectionUser
+    {
+        return $this->findOneBy([
+            'hyvorUserId' => $hyvorUserId,
+            'collection' => $collectionId,
+        ]);
+    }
 } 

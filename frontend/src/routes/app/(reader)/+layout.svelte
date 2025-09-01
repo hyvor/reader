@@ -1,7 +1,8 @@
 <script lang="ts">
 	import IconChevronDown from '@hyvor/icons/IconChevronDown';
 	import IconBoxArrowUpRight from '@hyvor/icons/IconBoxArrowUpRight';
-	import { Button, Dropdown, ActionList, ActionListItem, Loader } from '@hyvor/design/components';
+	import IconPlus from '@hyvor/icons/IconPlus';
+	import { Button, Dropdown, ActionList, ActionListItem, Loader, Modal, TextInput, Switch } from '@hyvor/design/components';
 	import {
 		collections,
 		publications,
@@ -20,6 +21,12 @@
 	import ArticleView from '../ArticleView.svelte';
 
 	let showCollections = $state(false);
+	let showAddPublicationModal = $state(false);
+	let rssUrl = $state('');
+	let publicationTitle = $state('');
+	let showCreateCollectionModal = $state(false);
+	let collectionName = $state('');
+	let collectionIsPublic = $state(false);
 	let selectedItem: Item | null = $state(null);
 	let currentItemIndex = $derived(
 		selectedItem ? $items.findIndex(item => item.id === selectedItem!.id) : -1
@@ -27,6 +34,22 @@
 
 	function selectCollection(collection: Collection) {
 		goto(`/app/${collection.slug}`);
+	}
+
+	async function handleCreateCollection() {
+		const trimmed = collectionName.trim();
+		if (!trimmed) return;
+		try {
+			const res = await api.post('/collections', { name: trimmed, is_public: collectionIsPublic });
+			const created: Collection = res.collection;
+			$collections = [...$collections, created];
+			showCreateCollectionModal = false;
+			collectionName = '';
+			collectionIsPublic = false;
+			goto(`/app/${created.slug}`);
+		} catch (e) {
+			console.error('Failed to create collection', e);
+		}
 	}
 
 	function selectPublication(publication?: Publication) {
@@ -82,6 +105,44 @@
 		return `${days}d ago`;
 	}
 
+	function isValidUrl(url: string): boolean {
+		const trimmed = url.trim();
+		try {
+			new URL(trimmed);
+			return true;
+		} catch (_) {
+			return false;
+		}
+	}
+
+	function handleAdd() {
+		const value = rssUrl.trim();
+		if (!isValidUrl(value)) return;
+		(async () => {
+			try {
+				const collectionSlug = $selectedCollection?.slug;
+				if (!collectionSlug) {
+					console.error('No collection selected');
+					return;
+				}
+				const res = await api.post('/publications', {
+					collection_slug: collectionSlug,
+					url: value,
+					title: publicationTitle.trim(),
+				});
+				const exists = $publications.find(p => p.slug === res.publication.slug);
+				if (!exists) {
+					publications.set([...$publications, res.publication]);
+				}
+				showAddPublicationModal = false;
+				rssUrl = '';
+				publicationTitle = '';
+			} catch (e) {
+				console.error('Failed to add publication', e);
+			}
+		})();
+	}
+
 	onMount(async () => {
 		$loadingInit = true;
 
@@ -122,6 +183,9 @@
 										{collection.name}
 									</ActionListItem>
 								{/each}
+								<ActionListItem on:select={() => { showCreateCollectionModal = true; showCollections = false; }}>
+									+ Create collection
+								</ActionListItem>
 							</ActionList>
 						{/snippet}
 					</Dropdown>
@@ -139,6 +203,7 @@
 
 		<div class="body">
 			<div class="publications hds-box">
+				<div class="publications-list">
 				{#if $loadingPublications}
 					<div class="loader-wrapper">
 						<Loader size="small" />
@@ -173,6 +238,15 @@
 						</button>
 					{/each}
 				{/if}
+				</div>
+				<div class="publications-footer">
+					<Button class="add-publication-button" on:click={() => { rssUrl = ''; publicationTitle = ''; showAddPublicationModal = true; }}>
+						{#snippet start()}
+							<IconPlus size={12} />
+						{/snippet}
+						Add publication
+					</Button>
+				</div>
 			</div>
 
 			<div class="feed hds-box">
@@ -264,6 +338,68 @@
 	</div>
 </main>
 
+<Modal bind:show={showCreateCollectionModal} size="small" title="Create Collection" closeOnOutsideClick={true} closeOnEscape={true}>
+    <div class="modal-body">
+        <TextInput
+            id="collectionName"
+            type="text"
+            placeholder="My collection"
+            autofocus
+            bind:value={collectionName}
+            on:keydown={(e: KeyboardEvent) => {
+                if (e.key === 'Enter' && collectionName.trim()) {
+                    handleCreateCollection();
+                }
+            }}
+        />
+        <Switch id="collectionPublic" bind:checked={collectionIsPublic}>
+            Public
+        </Switch>
+    </div>
+
+    {#snippet footer()}
+        <div class="modal-footer">
+            <Button disabled={!collectionName.trim()} on:click={handleCreateCollection}>Create</Button>
+            <Button color="input" on:click={() => { showCreateCollectionModal = false; }}>Cancel</Button>
+        </div>
+    {/snippet}
+</Modal>
+
+<Modal bind:show={showAddPublicationModal} size="small" title="Add Publication" closeOnOutsideClick={true} closeOnEscape={true}>
+	<div class="modal-body">
+		<TextInput
+			id="rssUrl"
+			type="url"
+			placeholder="https://example.com/feed.xml"
+			autofocus
+			bind:value={rssUrl}
+			on:keydown={(e: KeyboardEvent) => {
+				if (e.key === 'Enter' && isValidUrl(rssUrl)) {
+					handleAdd();
+				}
+			}}
+		/>
+		<TextInput
+			id="publicationTitle"
+			type="text"
+			placeholder="Publication Title"
+			bind:value={publicationTitle}
+			on:keydown={(e: KeyboardEvent) => {
+				if (e.key === 'Enter' && publicationTitle.trim()) {
+					handleAdd();
+				}
+			}}
+		/>
+	</div>
+
+	{#snippet footer()}
+		<div class="modal-footer">
+			<Button disabled={!isValidUrl(rssUrl) || !publicationTitle.trim()} on:click={handleAdd}>Add</Button>
+			<Button color="input" on:click={() => { showAddPublicationModal = false; }}>Cancel</Button>
+		</div>
+	{/snippet}
+</Modal>
+
 <slot />
 
 <style>
@@ -302,12 +438,61 @@
 
 	.body {
 		display: flex;
+		flex: 1;
+		min-height: 0;
+		margin-bottom: 15px;
 	}
 
 	.publications {
 		width: 350px;
-		padding: 25px 0;
+		padding: 0;
 		margin-right: 20px;
+		display: flex;
+		flex-direction: column;
+		height: 100%;
+	}
+
+	.publications-list {
+		padding: 25px 0 10px 0;
+		overflow: auto;
+		flex: 1;
+		min-height: 0;
+	}
+
+	.publications-footer {
+		border-top: 1px solid var(--border);
+		padding: 10px;
+		background: var(--surface);
+	}
+
+	.add-publication-button {
+		width: 100%;
+	}
+
+	.modal-body {
+		display: flex;
+		flex-direction: column;
+		gap: 8px;
+	}
+
+	.modal-input {
+		width: 100%;
+		padding: 10px 12px;
+		border: 1px solid var(--border);
+		border-radius: 8px;
+		background: var(--surface);
+		color: var(--text);
+	}
+
+	.modal-label {
+		font-size: 12px;
+		color: var(--text-light);
+	}
+
+	.modal-footer {
+		display: flex;
+		gap: 8px;
+		justify-content: flex-end;
 	}
 
 	.publication {
