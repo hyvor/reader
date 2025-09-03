@@ -338,7 +338,19 @@
 	</div>
 </main>
 
-<Modal bind:show={showCreateCollectionModal} size="small" title="Create Collection" closeOnOutsideClick={true} closeOnEscape={true}>
+<Modal
+    bind:show={showCreateCollectionModal}
+    size="small"
+    title="Create Collection"
+    closeOnOutsideClick={true}
+    closeOnEscape={true}
+    footer={{
+        cancel: { text: 'Cancel', props: { color: 'input' } },
+        confirm: { text: 'Create', props: { disabled: !collectionName.trim() } }
+    }}
+    on:cancel={() => { showCreateCollectionModal = false; }}
+    on:confirm={handleCreateCollection}
+>
     <div class="modal-body">
         <TextInput
             id="collectionName"
@@ -356,13 +368,6 @@
             Public
         </Switch>
     </div>
-
-    {#snippet footer()}
-        <div class="modal-footer">
-            <Button disabled={!collectionName.trim()} on:click={handleCreateCollection}>Create</Button>
-            <Button color="input" on:click={() => { showCreateCollectionModal = false; }}>Cancel</Button>
-        </div>
-    {/snippet}
 </Modal>
 
 <Modal bind:show={showAddPublicationModal} size="small" title="Add Publication" closeOnOutsideClick={true} closeOnEscape={true}>
