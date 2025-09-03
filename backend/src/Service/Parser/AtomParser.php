@@ -48,9 +48,6 @@ class AtomParser implements ParserInterface
         }
 
         $homepageUrl = $this->get_alternate_link($feedElement);
-        if (empty($homepageUrl)) {
-            throw new ParserException('Required field missing: link');
-        }
 
         $feed = new Feed(
             type: FeedType::ATOM, 

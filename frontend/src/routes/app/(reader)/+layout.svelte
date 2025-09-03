@@ -382,7 +382,8 @@
 	}
 
 	.publications {
-		width: 350px;
+		width: 250px;
+		flex: 0 0 250px;
 		padding: 0;
 		margin-right: 20px;
 		display: flex;
@@ -458,7 +459,8 @@
 	}
 
 	.feed {
-		width: 100%;
+		flex: 1;
+		min-width: 0;
 		display: flex;
 		flex-direction: column;
 	}
@@ -523,6 +525,8 @@
 		color: var(--text-light);
 		margin-top: 2px;
 		line-height: 1.4;
+		word-break: break-word;
+		overflow-wrap: anywhere;
 	}
 	.featured-image img {
 		max-width: 200px;

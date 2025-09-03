@@ -44,9 +44,6 @@ class RssParser implements ParserInterface
         }
 
         $homepageUrl = $channel->getElementsByTagName('link')->item(0)?->textContent ?? '';
-        if (empty($homepageUrl)) {
-            throw new ParserException('Required field missing: link');
-        }
 
         $feed = new Feed(
             type: FeedType::RSS, 

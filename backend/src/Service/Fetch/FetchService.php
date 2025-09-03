@@ -8,8 +8,13 @@ use App\Entity\Publication;
 use App\Entity\Item;
 use App\Service\Parser\Types\Feed;
 use App\Service\Parser\Types\Item as ParsedItem;
+use App\Service\Parser\Parser;
+use App\Service\Parser\ParserException;
+use App\Service\Fetch\Exception\UnexpectedStatusCodeException;
 use Doctrine\ORM\EntityManagerInterface;
 use App\Service\Item\ItemService;
+use Symfony\Contracts\HttpClient\HttpClientInterface;
+use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
 
 class FetchService
 {
@@ -18,6 +23,7 @@ class FetchService
         private ItemRepository $itemRepository,
         private EntityManagerInterface $entityManager,
         private ItemService $itemService,
+        private HttpClientInterface $httpClient,
     ) {
     }
 
@@ -103,6 +109,60 @@ class FetchService
         $nextFetchAt = (new \DateTimeImmutable())->modify("+{$interval} minutes");
         
         $publication->setNextFetchAt($nextFetchAt);
+    }
+
+    /**
+     * @param string $url
+     * @param array $options
+     * @return array{content: string, final_url: string, status_code: int, headers: array<string, array<int, string>>}
+     * @throws TransportExceptionInterface
+     */
+    public function fetchFeed(string $url, array $options = []): array
+    {
+        $response = $this->httpClient->request('GET', $url, array_merge([
+            'timeout' => 10,
+            'max_redirects' => 3,
+        ], $options));
+
+        $statusCode = $response->getStatusCode();
+        $content = $response->getContent(false); // do not throw on non-2xx
+        $finalUrl = $response->getInfo('url') ?? $url;
+        $headers = $response->getHeaders(false);
+
+        return [
+            'content' => $content,
+            'final_url' => $finalUrl,
+            'status_code' => $statusCode,
+            'headers' => $headers,
+        ];
+    }
+
+    /**
+     * Fetch, validate status, and parse feed in one step. Throws on non-2xx or parse errors.
+     *
+     * @param string $url
+     * @return array{final_url: string, feed: Feed, title: string, headers: array<string, array<int, string>>}
+     * @throws TransportExceptionInterface
+     * @throws UnexpectedStatusCodeException
+     * @throws ParserException
+     */
+    public function inspectFeed(string $url): array
+    {
+        $result = $this->fetchFeed($url);
+
+        if ($result['status_code'] < 200 || $result['status_code'] >= 300) {
+            throw new UnexpectedStatusCodeException($result['status_code']);
+        }
+
+        $feed = (new Parser($result['content']))->parse();
+        $title = $feed->title ?: (parse_url($result['final_url'], PHP_URL_HOST) ?: 'Untitled');
+
+        return [
+            'final_url' => $result['final_url'],
+            'feed' => $feed,
+            'title' => $title,
+            'headers' => $result['headers'],
+        ];
     }
 
     /**

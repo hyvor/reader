@@ -2,7 +2,6 @@
 
 namespace App\Service\Fetch\Handler;
 
-use App\Entity\Publication;
 use App\Entity\PublicationFetch;
 use App\Repository\PublicationRepository;
 use App\Service\Fetch\Message\ProcessFeedMessage;
@@ -56,13 +55,13 @@ class ProcessFeedHandler
             if ($lastModified = $publication->getConditionalGetLastModified()) {
                 $headers['If-Modified-Since'] = $lastModified;
             }
-            $response = $this->httpClient->request('GET', $publication->getUrl(), [
-                'headers'       => $headers,
-                'timeout'       => 30,
+            $fetchResponse = $this->fetchService->fetchFeed($publication->getUrl(), [
+                'headers' => $headers,
+                'timeout' => 30,
                 'max_redirects' => 5,
             ]);
 
-            $statusCode = $response->getStatusCode();
+            $statusCode = $fetchResponse['status_code'];
             $latencyMs = (int)((microtime(true) - $startTime) * 1000);
 
             if ($statusCode === 304) {
@@ -83,7 +82,7 @@ class ProcessFeedHandler
                 throw new UnexpectedStatusCodeException($statusCode);
             }
 
-            $feed = new Parser($response->getContent())->parse();
+            $feed = (new Parser($fetchResponse['content']))->parse();
             $result = $this->fetchService->processItems($publication, $feed);
 
             $fetch->setStatus(FetchStatusEnum::COMPLETED);
@@ -93,11 +92,11 @@ class ProcessFeedHandler
                   ->setUpdatedItemsCount($result['updated_items'] ?? 0);
 
             $publication->setLastFetchedAt($this->now());
-            if (isset($response->getHeaders()['etag'][0])) {
-                $publication->setConditionalGetEtag($response->getHeaders()['etag'][0]);
+            if (isset($fetchResponse['headers']['etag'][0])) {
+                $publication->setConditionalGetEtag($fetchResponse['headers']['etag'][0]);
             }
-            if (isset($response->getHeaders()['last-modified'][0])) {
-                $publication->setConditionalGetLastModified($response->getHeaders()['last-modified'][0]);
+            if (isset($fetchResponse['headers']['last-modified'][0])) {
+                $publication->setConditionalGetLastModified($fetchResponse['headers']['last-modified'][0]);
             }
             if ($feed->title && $publication->getTitle() !== $feed->title) {
                 $publication->setTitle($feed->title);
