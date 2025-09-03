@@ -16,6 +16,8 @@ use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Doctrine\ORM\EntityManagerInterface;
 use App\Service\Fetch\Message\ProcessFeedMessage;
+use Symfony\Component\HttpKernel\Attribute\MapRequestPayload;
+use App\Api\App\Input\AddPublicationInput;
 use App\Service\Parser\ParserException;
 use App\Service\Fetch\Exception\UnexpectedStatusCodeException;
 use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
@@ -53,28 +55,14 @@ class PublicationController extends AbstractController
     }
 
     #[Route('/publications', methods: ['POST'])]
-    public function addPublication(Request $request): JsonResponse
+    public function addPublication(#[MapRequestPayload] AddPublicationInput $payload): JsonResponse
     {
         $user = $this->getUser();
         if (!$user || !property_exists($user, 'id')) {
             throw new AccessDeniedHttpException('Authentication required');
         }
-
-        $data = json_decode($request->getContent() ?: 'null', true);
-        if (!is_array($data)) {
-            throw new BadRequestHttpException('Invalid JSON body');
-        }
-
-        $collectionSlug = trim(strval($data['collection_slug'] ?? ''));
-        $url = trim(strval($data['url'] ?? ''));
-
-        if ($collectionSlug === '' || $url === '') {
-            throw new BadRequestHttpException('collection_slug and url are required');
-        }
-
-        if (!filter_var($url, FILTER_VALIDATE_URL)) {
-            throw new BadRequestHttpException('Invalid url');
-        }
+        $collectionSlug = trim($payload->collection_slug);
+        $url = trim($payload->url);
 
         $collection = $this->collectionService->findBySlug($collectionSlug);
         if (!$collection) {
