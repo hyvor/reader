@@ -62,7 +62,6 @@ class PublicationController extends AbstractController
 
         $collectionSlug = trim(strval($data['collection_slug'] ?? ''));
         $url = trim(strval($data['url'] ?? ''));
-        $title = trim(strval($data['title'] ?? ''));
 
         if ($collectionSlug === '' || $url === '') {
             throw new BadRequestHttpException('collection_slug and url are required');
@@ -86,7 +85,7 @@ class PublicationController extends AbstractController
         $attached = false;
 
         if (!$publication) {
-            $publication = $this->publicationService->createPublication($collection, $url, $title ?: null);
+            $publication = $this->publicationService->createPublication($collection, $url, null);
             $created = true;
             $attached = true;
 

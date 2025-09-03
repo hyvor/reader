@@ -23,7 +23,6 @@
 	let showCollections = $state(false);
 	let showAddPublicationModal = $state(false);
 	let rssUrl = $state('');
-	let publicationTitle = $state('');
 	let selectedItem: Item | null = $state(null);
 	let currentItemIndex = $derived(
 		selectedItem ? $items.findIndex(item => item.id === selectedItem!.id) : -1
@@ -108,8 +107,7 @@
 				}
 				const res = await api.post('/publications', {
 					collection_slug: collectionSlug,
-					url: value,
-					title: publicationTitle.trim(),
+					url: value
 				});
 				const exists = $publications.find(p => p.slug === res.publication.slug);
 				if (!exists) {
@@ -117,7 +115,6 @@
 				}
 				showAddPublicationModal = false;
 				rssUrl = '';
-				publicationTitle = '';
 			} catch (e) {
 				console.error('Failed to add publication', e);
 			}
@@ -218,7 +215,7 @@
 				{/if}
 				</div>
 				<div class="publications-footer">
-					<Button class="add-publication-button" on:click={() => { rssUrl = ''; publicationTitle = ''; showAddPublicationModal = true; }}>
+					<Button class="add-publication-button" on:click={() => { rssUrl = ''; showAddPublicationModal = true; }}>
 						{#snippet start()}
 							<IconPlus size={12} />
 						{/snippet}
@@ -331,22 +328,11 @@
 				}
 			}}
 		/>
-		<TextInput
-			id="publicationTitle"
-			type="text"
-			placeholder="Publication Title"
-			bind:value={publicationTitle}
-			on:keydown={(e: KeyboardEvent) => {
-				if (e.key === 'Enter' && publicationTitle.trim()) {
-					handleAdd();
-				}
-			}}
-		/>
 	</div>
 
 	{#snippet footer()}
 		<div class="modal-footer">
-			<Button disabled={!isValidUrl(rssUrl) || !publicationTitle.trim()} on:click={handleAdd}>Add</Button>
+			<Button disabled={!isValidUrl(rssUrl)} on:click={handleAdd}>Add</Button>
 			<Button color="input" on:click={() => { showAddPublicationModal = false; }}>Cancel</Button>
 		</div>
 	{/snippet}
