@@ -314,7 +314,19 @@
 </main>
 
 
-<Modal bind:show={showAddPublicationModal} size="small" title="Add Publication" closeOnOutsideClick={true} closeOnEscape={true}>
+<Modal
+    bind:show={showAddPublicationModal}
+    size="small"
+    title="Add Publication"
+    closeOnOutsideClick={true}
+    closeOnEscape={true}
+    footer={{
+        cancel: { text: 'Cancel', props: { color: 'input' } },
+        confirm: { text: 'Add', props: { disabled: !isValidUrl(rssUrl) } }
+    }}
+    on:cancel={() => { showAddPublicationModal = false; }}
+    on:confirm={handleAdd}
+>
 	<div class="modal-body">
 		<TextInput
 			id="rssUrl"
@@ -330,12 +342,7 @@
 		/>
 	</div>
 
-	{#snippet footer()}
-		<div class="modal-footer">
-			<Button disabled={!isValidUrl(rssUrl)} on:click={handleAdd}>Add</Button>
-			<Button color="input" on:click={() => { showAddPublicationModal = false; }}>Cancel</Button>
-		</div>
-	{/snippet}
+
 </Modal>
 
 <slot />
