@@ -21,7 +21,9 @@ class FetchServiceTest extends KernelTestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->fetchService = $this->container->get(FetchService::class);
+        $service = $this->container->get(FetchService::class);
+        assert($service instanceof FetchService);
+        $this->fetchService = $service;
     }
 
     public function test_findDueForFetching_finds_due_publications(): void
@@ -76,6 +78,7 @@ class FetchServiceTest extends KernelTestCase
         $this->assertCount(1, $items);
         
         $item = $items->first();
+        $this->assertInstanceOf(Item::class, $item, 'First item should be an Item instance');
         
         $this->assertEquals('new-item', $item->getGuid());
         $this->assertEquals('Test Item Title', $item->getTitle());
@@ -87,12 +90,14 @@ class FetchServiceTest extends KernelTestCase
         $this->assertEquals('en', $item->getLanguage());
         
         $itemPublishedAt = $item->getPublishedAt();
+        $this->assertNotNull($itemPublishedAt, 'Published at should not be null');
         $this->assertEquals($publishedAt->getTimestamp(), $itemPublishedAt->getTimestamp());
         
         $this->assertEquals(['Test Author'], $item->getAuthors());
         $this->assertEquals(['test-tag'], $item->getTags());
         
         $itemPublication = $item->getPublication();
+        $this->assertNotNull($itemPublication, 'Item publication should not be null');
         $this->assertEquals($publication->getId(), $itemPublication->getId());
     }
 
@@ -141,6 +146,7 @@ class FetchServiceTest extends KernelTestCase
         $this->em->flush();
         
         $freshItem = $this->em->getRepository(Item::class)->find($existingItem->getId());
+        $this->assertInstanceOf(Item::class, $freshItem, 'Fresh item should be an Item instance');
         
         $this->assertEquals('Updated Title', $freshItem->getTitle());
         $this->assertEquals('https://example.com/updated-url', $freshItem->getUrl());
@@ -150,15 +156,20 @@ class FetchServiceTest extends KernelTestCase
         $this->assertEquals('fr', $freshItem->getLanguage());
         
         $freshPublishedAt = $freshItem->getPublishedAt();
+        $this->assertNotNull($freshPublishedAt, 'Published at should not be null');
         $this->assertEquals($newPublishedAt->getTimestamp(), $freshPublishedAt->getTimestamp());
         
         $this->assertEquals(['Updated Author'], $freshItem->getAuthors());
         $this->assertEquals(['updated-tag'], $freshItem->getTags());
         
         $itemPublication = $freshItem->getPublication();
+        $this->assertNotNull($itemPublication, 'Item publication should not be null');
         $this->assertEquals($publication->getId(), $itemPublication->getId());
     }
 
+    /**
+     * @param array<ParsedItem> $items
+     */
     private function createTestFeed(array $items): Feed
     {
         return new Feed(
@@ -172,6 +183,10 @@ class FetchServiceTest extends KernelTestCase
         );
     }
 
+    /**
+     * @param array<Author> $authors
+     * @param array<Tag> $tags
+     */
     private function createTestParsedItem(
         string $id,
         string $title,
