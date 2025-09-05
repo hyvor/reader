@@ -2,12 +2,14 @@
 
 namespace App\Api\App\Controller;
 
+use App\Api\App\Authorization\AuthorizationListener;
 use App\Service\Publication\PublicationService;
 use App\Service\Collection\CollectionService;
 use App\Service\Fetch\FetchService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
@@ -55,12 +57,12 @@ class PublicationController extends AbstractController
     }
 
     #[Route('/publications', methods: ['POST'])]
-    public function addPublication(#[MapRequestPayload] AddPublicationInput $payload): JsonResponse
+    public function addPublication(
+        #[MapRequestPayload] AddPublicationInput $payload,
+        Request $request
+    ): JsonResponse
     {
-        $user = $this->getUser();
-        if (!$user || !property_exists($user, 'id')) {
-            throw new AccessDeniedHttpException('Authentication required');
-        }
+        $user = AuthorizationListener::getUser($request);
         $collectionSlug = trim($payload->collection_slug);
         $url = trim($payload->url);
 

@@ -10,17 +10,6 @@ use Hyvor\Internal\InternalFake as BaseInternalFake;
  */
 class InternalFake extends BaseInternalFake
 {
-    public function user(): AuthUser
-    {
-        return AuthUser::fromArray([
-            'id' => 5,
-            'username' => 'sakithb',
-            'name' => 'Sakith B.',
-            'email' => 'sakith@hyvor.com',
-            'picture_url' => 'https://hyvor.com/avatar.jpg',
-        ]);
-    }
-
     /**
      * @return array<int, AuthUser|AuthUserArrayPartial>|null
      */
