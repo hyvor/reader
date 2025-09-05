@@ -8,6 +8,7 @@ use App\Factory\PublicationFactory;
 use App\Entity\CollectionUser;
 use App\InternalFake;
 use Doctrine\ORM\EntityManagerInterface;
+use Hyvor\Internal\Auth\AuthFake;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
@@ -40,7 +41,7 @@ class DevSeedCommand extends Command
             return Command::FAILURE;
         }
 
-        $this->collectionService->ensureUserHasDefaultCollection((new InternalFake())->user());
+        $this->collectionService->ensureUserHasDefaultCollection(AuthFake::generateUser());
 
         $createdCollections = CollectionFactory::createMany(3, function () {
             $publications = PublicationFactory::createMany(rand(2, 5));

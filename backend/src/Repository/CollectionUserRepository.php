@@ -32,4 +32,5 @@ class CollectionUserRepository extends ServiceEntityRepository
         assert($result instanceof CollectionUser || $result === null);
         return $result;
     }
+
 }
