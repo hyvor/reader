@@ -38,12 +38,15 @@ class RssParser implements ParserInterface
             throw new ParserException('Invalid RSS feed. <channel> element not found');
         }
 
-        $title = $channel->getElementsByTagName('title')->item(0)?->textContent ?? '';
+        $title = $channel->getElementsByTagName('title')->item(0)?->textContent ?: '';
         if (empty($title)) {
             throw new ParserException('Required field missing: title');
         }
 
-        $homepageUrl = $channel->getElementsByTagName('link')->item(0)?->textContent ?? '';
+        $homepageUrl = $channel->getElementsByTagName('link')->item(0)?->textContent ?: '';
+        if (empty($homepageUrl)) {
+            throw new ParserException('Required field missing: link');
+        }
 
         $feed = new Feed(
             type: FeedType::RSS, 
@@ -76,8 +79,8 @@ class RssParser implements ParserInterface
     private function parse_item(\DOMElement $item): Item
     {
         $id = $item->getElementsByTagName('guid')->item(0)?->textContent;
-        $url = $item->getElementsByTagName('link')->item(0)?->textContent ?? '';
-        $title = $item->getElementsByTagName('title')->item(0)?->textContent ?? '';
+        $url = $item->getElementsByTagName('link')->item(0)?->textContent ?: '';
+        $title = $item->getElementsByTagName('title')->item(0)?->textContent ?: '';
         $summary = $item->getElementsByTagName('description')->item(0)?->textContent;
 
         if ($id === null) {

@@ -20,6 +20,9 @@
 	import api from '$lib/api';
 	import ArticleView from '../ArticleView.svelte';
 
+    let { children } = $props();
+
+
 	let showCollections = $state(false);
 	let showAddPublicationModal = $state(false);
 	let rssUrl = $state('');
@@ -345,7 +348,7 @@
 
 </Modal>
 
-<slot />
+{@render children()}
 
 <style>
 	main {

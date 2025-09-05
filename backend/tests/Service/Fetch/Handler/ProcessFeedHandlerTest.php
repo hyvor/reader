@@ -154,7 +154,9 @@ class ProcessFeedHandlerTest extends KernelTestCase
         $this->assertEquals(FetchStatusEnum::FAILED, $fetch->getStatus());
         $this->assertEquals(0, $fetch->getStatusCode());
         $this->assertEquals('Connection timeout', $fetch->getError());
-        $this->assertStringContainsString('Connection timeout', $fetch->getErrorPrivate());
+        $errorPrivate = $fetch->getErrorPrivate();
+        $this->assertNotNull($errorPrivate, 'Error private should not be null');
+        $this->assertStringContainsString('Connection timeout', $errorPrivate);
     }
 
     public function test_process_feed_handler_with_conditional_get_headers(): void

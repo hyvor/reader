@@ -23,4 +23,22 @@ class CollectionUserRepository extends ServiceEntityRepository
             'collection' => $collectionId,
         ]);
     }
-} 
+
+    /**
+     * @return CollectionUser|null
+     */
+    public function findUserCollectionAccess(int $hyvorUserId, int $collectionId): ?CollectionUser
+    {
+        $result = $this->createQueryBuilder('cu')
+            ->andWhere('cu.hyvorUserId = :hyvorUserId')
+            ->andWhere('cu.collection = :collectionId')
+            ->setParameter('hyvorUserId', $hyvorUserId)
+            ->setParameter('collectionId', $collectionId)
+            ->getQuery()
+            ->getOneOrNullResult();
+
+        assert($result instanceof CollectionUser || $result === null);
+        return $result;
+    }
+
+}

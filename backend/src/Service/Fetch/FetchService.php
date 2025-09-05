@@ -33,7 +33,8 @@ class FetchService
      */
     public function findDueForFetching(\DateTimeImmutable $before): array
     {
-        return $this->publicationRepository
+        /** @var Publication[] $result */
+        $result = $this->publicationRepository
             ->createQueryBuilder('p')
             ->where('p.nextFetchAt <= :before')
             ->andWhere('p.isFetching = :isFetching')
@@ -43,6 +44,8 @@ class FetchService
             ->setMaxResults(250)
             ->getQuery()
             ->getResult();
+        
+        return $result;
     }
 
     /**

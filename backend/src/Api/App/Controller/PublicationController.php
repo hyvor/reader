@@ -8,7 +8,6 @@ use App\Service\Fetch\FetchService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
@@ -36,6 +35,7 @@ class PublicationController extends AbstractController
     #[Route('/publications', methods: ['GET'])]
     public function getPublications(Request $request): JsonResponse
     {
+        /** @var string|null $collectionSlug */
         $collectionSlug = $request->query->get('collection_slug');
         
         if (!$collectionSlug) {
@@ -134,4 +134,4 @@ class PublicationController extends AbstractController
             'attached' => $attached,
         ], $status);
     }
-} 
+}
