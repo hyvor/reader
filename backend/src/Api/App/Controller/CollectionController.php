@@ -5,12 +5,15 @@ namespace App\Api\App\Controller;
 use App\Api\App\Object\CollectionObject;
 use App\Api\App\Object\PublicationObject;
 use App\Service\Collection\CollectionService;
-use Hyvor\Internal\Auth\AuthUser;
+ 
+use Symfony\Component\HttpFoundation\Request;
+use App\Api\App\Authorization\AuthorizationListener;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
+ 
 
 class CollectionController extends AbstractController
 {
@@ -20,12 +23,9 @@ class CollectionController extends AbstractController
     }
 
     #[Route('/collections', methods: ['GET'])]
-    public function getCollections(): JsonResponse
+    public function getCollections(Request $request): JsonResponse
     {
-        $user = $this->getUser();
-        if (!$user instanceof AuthUser) {
-            throw new AccessDeniedHttpException('Authentication required');
-        }
+        $user = AuthorizationListener::getUser($request);
 
         $collections = $this->collectionService->getUserCollections($user->id);
 
@@ -35,12 +35,9 @@ class CollectionController extends AbstractController
     }
 
     #[Route('/collections/{slug}', methods: ['GET'])]
-    public function getCollection(string $slug): JsonResponse
+    public function getCollection(string $slug, Request $request): JsonResponse
     {
-        $user = $this->getUser();
-        if (!$user instanceof AuthUser) {
-            throw new AccessDeniedHttpException('Authentication required');
-        }
+        $user = AuthorizationListener::getUser($request);
 
         $collection = $this->collectionService->findBySlug($slug);
 
