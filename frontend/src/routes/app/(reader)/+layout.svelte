@@ -16,7 +16,7 @@
 	import { goto } from '$app/navigation';
 	import { page } from '$app/stores';
 	import type { Collection, Publication, Item } from '../types';
-	import { onMount } from 'svelte';
+	import { onMount, tick } from 'svelte';
 	import api from '$lib/api';
 	import ArticleView from '../ArticleView.svelte';
 
@@ -30,6 +30,8 @@
 	let currentItemIndex = $derived(
 		selectedItem ? $items.findIndex(item => item.id === selectedItem!.id) : -1
 	);
+
+	let addingPublication = $state(false);
 
 	function selectCollection(collection: Collection) {
 		goto(`/app/${collection.slug}`);
@@ -98,11 +100,24 @@
 		}
 	}
 
+	$effect(() => {
+		if (showAddPublicationModal) {
+			tick().then(() => {
+				const el = document.getElementById('rssUrl') as HTMLInputElement | null;
+				if (el) {
+					el.focus();
+					el.select();
+				}
+			});
+		}
+	});
+
 	function handleAdd() {
 		const value = rssUrl.trim();
 		if (!isValidUrl(value)) return;
 		(async () => {
 			try {
+				addingPublication = true;
 				const collectionSlug = $selectedCollection?.slug;
 				if (!collectionSlug) {
 					console.error('No collection selected');
@@ -120,6 +135,8 @@
 				rssUrl = '';
 			} catch (e) {
 				console.error('Failed to add publication', e);
+			} finally {
+				addingPublication = false;
 			}
 		})();
 	}
@@ -323,9 +340,10 @@
     title="Add Publication"
     closeOnOutsideClick={true}
     closeOnEscape={true}
+    loading={addingPublication ? 'Adding publication...' : false}
     footer={{
-        cancel: { text: 'Cancel', props: { color: 'input' } },
-        confirm: { text: 'Add', props: { disabled: !isValidUrl(rssUrl) } }
+        cancel: { text: 'Cancel', props: { color: 'input', disabled: addingPublication } },
+        confirm: { text: 'Add', props: { disabled: addingPublication || !isValidUrl(rssUrl) } }
     }}
     on:cancel={() => { showAddPublicationModal = false; }}
     on:confirm={handleAdd}
@@ -342,6 +360,7 @@
 					handleAdd();
 				}
 			}}
+			disabled={addingPublication}
 		/>
 	</div>
 
