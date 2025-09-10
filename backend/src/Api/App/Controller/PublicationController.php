@@ -15,6 +15,7 @@ use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Doctrine\ORM\EntityManagerInterface;
 use App\Service\Fetch\Message\ProcessFeedMessage;
+use App\Api\App\Authorization\AuthorizationListener;
 
 class PublicationController extends AbstractController
 {
@@ -50,7 +51,7 @@ class PublicationController extends AbstractController
     #[Route('/publications', methods: ['POST'])]
     public function addPublication(Request $request): JsonResponse
     {
-        $user = $this->getUser();
+        $user = AuthorizationListener::getUser($request);
         if (!$user || !property_exists($user, 'id')) {
             throw new AccessDeniedHttpException('Authentication required');
         }

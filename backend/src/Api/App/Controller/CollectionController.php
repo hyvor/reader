@@ -57,12 +57,9 @@ class CollectionController extends AbstractController
     }
 
     #[Route('/collections', methods: ['POST'])]
-    public function createCollection(#[MapRequestPayload] AddCollectionInput $payload): JsonResponse
+    public function createCollection(Request $request, #[MapRequestPayload] AddCollectionInput $payload): JsonResponse
     {
-        $user = $this->getUser();
-        if (!$user instanceof AuthUser) {
-            throw new AccessDeniedHttpException('Authentication required');
-        }
+        $user = AuthorizationListener::getUser($request);
 
         $name = trim($payload->name);
         $isPublic = $payload->is_public;
