@@ -7,10 +7,14 @@ use App\Entity\Collection;
 use App\Api\App\Object\PublicationObject;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\String\Slugger\AsciiSlugger;
+use App\Service\Fetch\FetchService;
 
 class PublicationService
 {
-    public function __construct(private EntityManagerInterface $em)
+    public function __construct(
+        private EntityManagerInterface $em,
+        private FetchService $fetchService,
+    )
     {
     }
 
@@ -37,16 +41,39 @@ class PublicationService
         return $publications;
     }
 
-    public function createPublication(Collection $collection, string $url, ?string $title = null, ?string $description = null): Publication
+    public function createPublication(Collection $collection, array $inspection): Publication
     {
+        $url = $inspection['final_url'];
+        $feed = $inspection['feed'];
+        $title = $inspection['title'] ?? null;
+        $headers = $inspection['headers'] ?? [];
+
         $publication = new Publication();
         $publication->setUrl($url);
         $publication->setTitle($title);
-        $publication->setDescription($description);
         $publication->addCollection($collection);
         $publication->setSlug($this->generateUniqueSlug($title ?: $url));
 
+        if (isset($headers['etag'][0])) {
+            $publication->setConditionalGetEtag($headers['etag'][0]);
+        }
+        if (isset($headers['last-modified'][0])) {
+            $publication->setConditionalGetLastModified($headers['last-modified'][0]);
+        }
+
         $this->em->persist($publication);
+        $this->em->flush();
+
+        $result = $this->fetchService->processItems($publication, $feed);
+        if ($feed->title && $publication->getTitle() !== $feed->title) {
+            $publication->setTitle($feed->title);
+        }
+        if ($feed->description && $publication->getDescription() !== $feed->description) {
+            $publication->setDescription($feed->description);
+        }
+        $publication->setLastFetchedAt(new \DateTimeImmutable());
+        $this->fetchService->updateNextFetchTime($publication);
+
         $this->em->flush();
 
         return $publication;

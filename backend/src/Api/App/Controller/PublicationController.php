@@ -86,36 +86,14 @@ class PublicationController extends AbstractController
         }
 
         $normalizedUrl = $inspection['final_url'];
-        $parsedTitle = $inspection['title'];
-        $fetchedHeaders = $inspection['headers'];
-
         $publication = $this->publicationService->findByUrl($normalizedUrl);
         $created = false;
         $attached = false;
 
         if (!$publication) {
-            $publication = $this->publicationService->createPublication($collection, $normalizedUrl, $parsedTitle);
+            $publication = $this->publicationService->createPublication($collection, $inspection);
             $created = true;
             $attached = true;
-
-            if (isset($fetchedHeaders['etag'][0])) {
-                $publication->setConditionalGetEtag($fetchedHeaders['etag'][0]);
-            }
-            if (isset($fetchedHeaders['last-modified'][0])) {
-                $publication->setConditionalGetLastModified($fetchedHeaders['last-modified'][0]);
-            }
-
-            $result = $this->fetchService->processItems($publication, $inspection['feed']);
-            if ($inspection['feed']->title && $publication->getTitle() !== $inspection['feed']->title) {
-                $publication->setTitle($inspection['feed']->title);
-            }
-            if ($inspection['feed']->description && $publication->getDescription() !== $inspection['feed']->description) {
-                $publication->setDescription($inspection['feed']->description);
-            }
-            $publication->setLastFetchedAt(new \DateTimeImmutable());
-            $this->fetchService->updateNextFetchTime($publication);
-
-            $this->em->flush();
 
             $status = Response::HTTP_CREATED;
         } else {
