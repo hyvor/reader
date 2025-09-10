@@ -32,6 +32,7 @@
 	);
 
 	let addingPublication = $state(false);
+	let addPublicationError: string | null = $state(null);
 
 	function selectCollection(collection: Collection) {
 		goto(`/app/${collection.slug}`);
@@ -118,6 +119,7 @@
 		(async () => {
 			try {
 				addingPublication = true;
+				addPublicationError = null;
 				const collectionSlug = $selectedCollection?.slug;
 				if (!collectionSlug) {
 					console.error('No collection selected');
@@ -135,6 +137,7 @@
 				rssUrl = '';
 			} catch (e) {
 				console.error('Failed to add publication', e);
+				addPublicationError = e instanceof Error ? e.message : 'Failed to add publication';
 			} finally {
 				addingPublication = false;
 			}
@@ -235,7 +238,7 @@
 				{/if}
 				</div>
 				<div class="publications-footer">
-					<Button class="add-publication-button" on:click={() => { rssUrl = ''; showAddPublicationModal = true; }}>
+					<Button class="add-publication-button" on:click={() => { rssUrl = ''; addPublicationError = null; showAddPublicationModal = true; }}>
 						{#snippet start()}
 							<IconPlus size={12} />
 						{/snippet}
@@ -349,6 +352,9 @@
     on:confirm={handleAdd}
 >
 	<div class="modal-body">
+		{#if addPublicationError}
+			<div class="error-text">{addPublicationError}</div>
+		{/if}
 		<TextInput
 			id="rssUrl"
 			type="url"
@@ -441,6 +447,14 @@
 		display: flex;
 		flex-direction: column;
 		gap: 8px;
+	}
+
+	.error-text {
+		color: var(--red);
+		font-size: 13px;
+		padding: 8px 10px;
+		border-radius: 8px;
+		background: color-mix(in oklab, var(--danger) 12%, transparent);
 	}
 
 	.modal-input {

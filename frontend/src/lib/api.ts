@@ -19,13 +19,14 @@ export default class api {
             body: method !== 'get' ? JSON.stringify(data) : undefined,
             headers: {
                 'Content-Type': 'application/json',
+                'Accept': 'application/json',
             },
             credentials: 'include',
         });
 
         if (!response.ok) {
             const json = await response.json();
-            throw new Error(json ? json.error : 'Unknown error');
+            throw new Error(json?.message ?? 'Unknown error');
         }
 
         return await response.json();
