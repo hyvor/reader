@@ -240,6 +240,7 @@
                             : ''}"
                         onclick={() => selectPublication()}
                     >
+                        <span class="pub-icon"></span>
                         <span>All publications</span>
                     </button>
 					{#each $publications as publication}
@@ -257,6 +258,8 @@
 									width="14"
 									height="14"
 								/>
+							{:else}
+								<span class="pub-icon">{publication.title?.charAt(0) || '?'}</span>
 							{/if}
 							<span>{publication.title}</span>
 						</button>
@@ -268,7 +271,7 @@
 						{#snippet start()}
 							<IconPlus size={12} />
 						{/snippet}
-						Add publication
+						<span class="add-publication-text">Add publication</span>
 					</Button>
 				</div>
 			</div>
@@ -648,5 +651,86 @@
 		margin: 0;
 		font-size: 14px;
 		line-height: 1.5;
+	}
+
+	@media (max-width: 768px) {
+		.content {
+			width: 100%;
+			margin: 0;
+			padding: 0 16px;
+		}
+		.header {
+			padding: 10px 0;
+			margin: 10px 0;
+		}
+		.collection-box {
+			font-size: 13px;
+			gap: 4px;
+		}
+		.body {
+			margin-bottom: 10px;
+		}
+		.publications {
+			width: 64px;
+			margin-right: 12px;
+		}
+		.publications-list {
+			padding: 12px 0 8px 0;
+		}
+		.publication {
+			justify-content: center;
+			padding: 10px 0;
+		}
+		.publication span {
+			display: none;
+		}
+		.publication img,
+		.pub-icon {
+			width: 24px;
+			height: 24px;
+		}
+		.pub-icon {
+			border-radius: 50%;
+			background: var(--hover);
+			color: var(--text);
+			font-size: 12px;
+			display: inline-flex;
+			align-items: center;
+			justify-content: center;
+			font-weight: 600;
+		}
+		.publications-footer {
+			padding: 8px;
+		}
+		.add-publication-button {
+			justify-content: center;
+		}
+		.add-publication-button svg {
+			width: 24px;
+			height: 24px;
+		}
+		.add-publication-text {
+			display: none;
+		}
+		.items {
+			padding: 0;
+		}
+		.item {
+			padding: 12px;
+			border-radius: 14px;
+			gap: 10px;
+		}
+		.title {
+			font-size: 15px;
+		}
+		.description {
+			font-size: 13px;
+			line-height: 1.4;
+		}
+		.featured-image img {
+			max-width: 120px;
+			max-height: 80px;
+			border-radius: 8px;
+		}
 	}
 </style>
