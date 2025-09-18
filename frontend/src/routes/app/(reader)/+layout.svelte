@@ -2,7 +2,7 @@
 	import IconChevronDown from '@hyvor/icons/IconChevronDown';
 	import IconBoxArrowUpRight from '@hyvor/icons/IconBoxArrowUpRight';
 	import IconPlus from '@hyvor/icons/IconPlus';
-	import { Button, Dropdown, ActionList, ActionListItem, Loader, Modal, TextInput, Switch } from '@hyvor/design/components';
+	import { Button, IconButton, Dropdown, ActionList, ActionListItem, Loader, Modal, TextInput, Switch } from '@hyvor/design/components';
 	import {
 		collections,
 		publications,
@@ -20,6 +20,7 @@
 	import { toast } from '@hyvor/design/components';
 	import api from '$lib/api';
 	import ArticleView from '../ArticleView.svelte';
+	import IconGridFill from '@hyvor/icons/IconGridFill';
 
     let { children } = $props();
 
@@ -195,7 +196,7 @@
 							</div>
 						{/snippet}
 						{#snippet content()}
-							<ActionList selection="single">
+							<ActionList selection="single" selectionAlign="end">
 								{#each $collections as collection}
 									<ActionListItem
 										selected={$selectedCollection?.slug === collection.slug}
@@ -240,7 +241,7 @@
                             : ''}"
                         onclick={() => selectPublication()}
                     >
-                        <span class="pub-icon"></span>
+                        <IconGridFill size={14} />
                         <span>All publications</span>
                     </button>
 					{#each $publications as publication}
@@ -258,8 +259,8 @@
 									width="14"
 									height="14"
 								/>
-							{:else}
-								<span class="pub-icon">{publication.title?.charAt(0) || '?'}</span>
+                            {:else}
+                                <IconGridFill size={14} />
 							{/if}
 							<span>{publication.title}</span>
 						</button>
@@ -269,10 +270,18 @@
 				<div class="publications-footer">
 					<Button class="add-publication-button" on:click={() => { rssUrl = ''; addPublicationError = null; showAddPublicationModal = true; }}>
 						{#snippet start()}
-							<IconPlus size={12} />
+							<IconPlus size={14} />
 						{/snippet}
 						<span class="add-publication-text">Add publication</span>
 					</Button>
+					<IconButton
+						class="add-publication-button add-publication-button-mobile"
+						size={24}
+						variant="fill"
+						on:click={() => { rssUrl = ''; publicationTitle = ''; showAddPublicationModal = true; }}
+					>
+						<IconPlus />
+					</IconButton>
 				</div>
 			</div>
 
@@ -505,6 +514,13 @@
 		min-height: 0;
 	}
 
+	.actionlist-divider {
+		margin: 6px 10px;
+		height: 1px;
+		background: var(--border);
+		border-radius: 1px;
+	}
+
 	.publications-footer {
 		border-top: 1px solid var(--border);
 		padding: 10px;
@@ -660,7 +676,7 @@
 			padding: 0 16px;
 		}
 		.header {
-			padding: 10px 0;
+			padding: 10px 10px;
 			margin: 10px 0;
 		}
 		.collection-box {
@@ -685,30 +701,24 @@
 			display: none;
 		}
 		.publication img,
-		.pub-icon {
+		.pub-icon,
+		.publication svg {
 			width: 24px;
 			height: 24px;
-		}
-		.pub-icon {
-			border-radius: 50%;
-			background: var(--hover);
-			color: var(--text);
-			font-size: 12px;
-			display: inline-flex;
-			align-items: center;
-			justify-content: center;
-			font-weight: 600;
 		}
 		.publications-footer {
 			padding: 8px;
 		}
-		.add-publication-button {
+		:global(.add-publication-button) {
 			justify-content: center;
 		}
-		.add-publication-button svg {
+		:global(.add-publication-button) svg {
 			width: 24px;
 			height: 24px;
 		}
+
+		:global(.add-publication-button-desktop) { display: none; }
+		:global(.add-publication-button-mobile) { display: inline-flex; }
 		.add-publication-text {
 			display: none;
 		}
@@ -719,18 +729,45 @@
 			padding: 12px;
 			border-radius: 14px;
 			gap: 10px;
+			flex-direction: column;
+			align-items: stretch;
+		}
+		.left {
+			display: flex;
+			flex-direction: column;
+		}
+		.featured-image {
+			order: -1;
+			margin-bottom: 8px;
 		}
 		.title {
 			font-size: 15px;
+		}
+		.publication-name,
+		.publish-time {
+			font-size: 11px;
 		}
 		.description {
 			font-size: 13px;
 			line-height: 1.4;
 		}
 		.featured-image img {
-			max-width: 120px;
-			max-height: 80px;
+			width: 100%;
+			height: auto;
+			max-width: 100%;
+			max-height: none;
 			border-radius: 8px;
+			object-fit: cover;
+		}
+
+		.open-button {
+			margin-top: 12px;
+			width: 100%;
+		}
+		:global(.open-button button),
+		:global(.open-button .hds-button) {
+			width: 100%;
+			justify-content: center;
 		}
 	}
 </style>
