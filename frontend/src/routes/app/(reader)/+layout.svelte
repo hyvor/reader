@@ -2,6 +2,7 @@
 	import IconChevronDown from '@hyvor/icons/IconChevronDown';
 	import IconBoxArrowUpRight from '@hyvor/icons/IconBoxArrowUpRight';
 	import IconPlus from '@hyvor/icons/IconPlus';
+	import IconList from '@hyvor/icons/IconList';
 	import { Button, IconButton, Dropdown, ActionList, ActionListItem, Loader, Modal, TextInput, Switch } from '@hyvor/design/components';
 	import {
 		collections,
@@ -32,6 +33,7 @@
 	let collectionName = $state('');
 	let collectionIsPublic = $state(false);
 	let selectedItem: Item | null = $state(null);
+	let showSidebarMobile = $state(false);
 	let currentItemIndex = $derived(
 		selectedItem ? $items.findIndex(item => item.id === selectedItem!.id) : -1
 	);
@@ -65,6 +67,7 @@
 		} else {
 			goto(`/app/${$page.params.collection_slug}`);
 		}
+		showSidebarMobile = false;
 	}
 
     function handleItemClick(item: Item) {
@@ -184,6 +187,11 @@
 <main>
 	<div class="content">
 		<div class="header hds-box">
+			<div class="mobile-hamburger">
+				<IconButton size={28} variant="ghost" onclick={() => { showSidebarMobile = true; }}>
+					<IconList />
+				</IconButton>
+			</div>
 			<div class="collection-wrap">
 				{#if $loadingInit}
 					<Loader size="small" />
@@ -227,7 +235,7 @@
 		</div>
 
 		<div class="body">
-			<div class="publications hds-box">
+			<div class="publications hds-box" class:drawer-open={showSidebarMobile}>
 				<div class="publications-list">
 				{#if $loadingPublications}
 					<div class="loader-wrapper">
@@ -278,7 +286,7 @@
 						class="add-publication-button add-publication-button-mobile"
 						size={24}
 						variant="fill"
-						on:click={() => { rssUrl = ''; publicationTitle = ''; showAddPublicationModal = true; }}
+						onclick={() => { rssUrl = ''; publicationTitle = ''; showAddPublicationModal = true; }}
 					>
 						<IconPlus />
 					</IconButton>
@@ -371,6 +379,8 @@
 				{/if}
 			</div>
 		</div>
+
+		<div class="drawer-backdrop {showSidebarMobile ? 'active' : ''}" onclick={() => { showSidebarMobile = false; }}></div>
 	</div>
 </main>
 
@@ -477,6 +487,8 @@
 		display: flex;
 		align-items: center;
 	}
+
+	.mobile-hamburger { display: none; }
 
 	.collection-box {
 		font-size: 14px;
@@ -678,6 +690,10 @@
 		.header {
 			padding: 10px 10px;
 			margin: 10px 0;
+			display: grid;
+			grid-template-columns: 40px 1fr 40px;
+			align-items: center;
+			gap: 10px;
 		}
 		.collection-box {
 			font-size: 13px;
@@ -687,24 +703,35 @@
 			margin-bottom: 10px;
 		}
 		.publications {
-			width: 64px;
-			margin-right: 12px;
+			position: fixed;
+			top: 0;
+			left: 0;
+			height: 100dvh;
+			width: min(80vw, 360px);
+			max-width: 360px;
+			transform: translateX(-100%);
+			transition: transform 0.25s ease;
+			margin: 0;
+			z-index: 999;
+			border-right: 1px solid var(--border);
+		}
+		.publications.drawer-open { transform: translateX(0); }
+
+		.drawer-backdrop {
+			position: fixed;
+			inset: 0;
+			background: rgba(0,0,0,0.3);
+			opacity: 0;
+			pointer-events: none;
+			transition: opacity 0.2s ease;
+			z-index: 998;
+		}
+		.drawer-backdrop.active {
+			opacity: 1;
+			pointer-events: auto;
 		}
 		.publications-list {
 			padding: 12px 0 8px 0;
-		}
-		.publication {
-			justify-content: center;
-			padding: 10px 0;
-		}
-		.publication span {
-			display: none;
-		}
-		.publication img,
-		.pub-icon,
-		.publication svg {
-			width: 24px;
-			height: 24px;
 		}
 		.publications-footer {
 			padding: 8px;
@@ -722,6 +749,10 @@
 		.add-publication-text {
 			display: none;
 		}
+
+		.mobile-hamburger { display: inline-flex; }
+		.collection-wrap { justify-self: center; }
+		.logo { justify-self: end; }
 		.items {
 			padding: 0;
 		}
