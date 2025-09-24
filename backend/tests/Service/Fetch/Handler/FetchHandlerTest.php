@@ -2,7 +2,6 @@
 
 namespace App\Tests\Service\Fetch\Handler;
 
-use App\Entity\Collection;
 use App\Service\Fetch\Message\FetchMessage;
 use App\Factory\PublicationFactory;
 use App\Factory\CollectionFactory;
@@ -13,10 +12,8 @@ use Zenstruck\Messenger\Test\Transport\TestTransport;
 class FetchHandlerTest extends KernelTestCase
 {
 
-    private Collection $collection;
     private TestTransport $schedulerTransport;
     private TestTransport $asyncTransport;
-    private PublicationFactory $publicationFactory;
 
     protected function setUp(): void
     {
