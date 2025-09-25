@@ -168,6 +168,18 @@
             "tests/bootstrap.php"
         ]
     },
+    "symfony/property-info": {
+        "version": "7.3",
+        "recipe": {
+            "repo": "github.com/symfony/recipes",
+            "branch": "main",
+            "version": "7.3",
+            "ref": "dae70df71978ae9226ae915ffd5fad817f5ca1f7"
+        },
+        "files": [
+            "config/packages/property_info.yaml"
+        ]
+    },
     "symfony/routing": {
         "version": "7.2",
         "recipe": {
@@ -191,19 +203,6 @@
         },
         "files": [
             "src/Schedule.php"
-        ]
-    },
-    "symfony/security-bundle": {
-        "version": "7.2",
-        "recipe": {
-            "repo": "github.com/symfony/recipes",
-            "branch": "main",
-            "version": "6.4",
-            "ref": "2ae08430db28c8eb4476605894296c82a642028f"
-        },
-        "files": [
-            "config/packages/security.yaml",
-            "config/routes/security.yaml"
         ]
     },
     "symfony/translation": {

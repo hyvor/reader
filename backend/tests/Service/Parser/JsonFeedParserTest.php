@@ -81,6 +81,7 @@ class JsonFeedParserTest extends TestCase
     public function test_empty_feed(): void
     {
         $emptyContent = json_encode([]);
+        $this->assertIsString($emptyContent, 'JSON encoding should succeed');
 
         $parser = new JsonFeedParser($emptyContent);
         $this->expectException(ParserException::class);
@@ -100,6 +101,7 @@ class JsonFeedParserTest extends TestCase
                 ['content_html' => '<p>Content</p>'] // Missing required url
             ]
         ]);
+        $this->assertIsString($contentWithInvalidItem, 'JSON encoding should succeed');
 
         $parser = new JsonFeedParser($contentWithInvalidItem);
         $feed = $parser->parse();

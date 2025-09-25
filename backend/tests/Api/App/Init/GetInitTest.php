@@ -20,14 +20,20 @@ class GetInitTest extends WebTestCase
         $response = $this->client->getResponse();
         $this->assertSame(200, $response->getStatusCode(), 'Expected 200 OK response');
 
-        $json = json_decode($response->getContent(), true, 512, JSON_THROW_ON_ERROR);
+        $content = $response->getContent();
+        $this->assertIsString($content, 'Response content should be a string');
+        $json = json_decode($content, true, 512, JSON_THROW_ON_ERROR);
 
-        $this->assertIsArray($json);
+        $this->assertIsArray($json, 'Decoded JSON should be an array');
+        /** @var array<string, mixed> $json */
         $this->assertArrayHasKey('collections', $json);
-        $this->assertIsArray($json['collections']);
-        $this->assertGreaterThanOrEqual(1, count($json['collections']), 'At least one collection should be returned');
+        $this->assertIsArray($json['collections'], 'Collections should be an array');
+        /** @var list<array<string, mixed>> $collections */
+        $collections = $json['collections'];
+        $this->assertGreaterThanOrEqual(1, count($collections), 'At least one collection should be returned');
 
-        $collection = $json['collections'][0];
+        /** @var array<string, mixed> $collection */
+        $collection = $collections[0];
         $this->assertArrayHasKey('id', $collection);
         $this->assertArrayHasKey('name', $collection);
         $this->assertArrayHasKey('slug', $collection);

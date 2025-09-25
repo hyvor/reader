@@ -20,6 +20,7 @@
 	import api from '$lib/api';
 	import ArticleView from '../ArticleView.svelte';
 
+    let { children } = $props();
 	let showCollections = $state(false);
 	let showAddPublicationModal = $state(false);
 	let rssUrl = $state('');
@@ -337,6 +338,72 @@
 		</div>
 	</div>
 </main>
+<Modal
+    bind:show={showCreateCollectionModal}
+    size="small"
+    title="Create Collection"
+    closeOnOutsideClick={true}
+    closeOnEscape={true}
+    footer={{
+        cancel: { text: 'Cancel', props: { color: 'input' } },
+        confirm: { text: 'Create', props: { disabled: !collectionName.trim() } }
+    }}
+    on:cancel={() => { showCreateCollectionModal = false; }}
+    on:confirm={handleCreateCollection}
+>
+    <div class="modal-body">
+        <TextInput
+            id="collectionName"
+            type="text"
+            placeholder="My collection"
+            autofocus
+            bind:value={collectionName}
+            on:keydown={(e: KeyboardEvent) => {
+                if (e.key === 'Enter' && collectionName.trim()) {
+                    handleCreateCollection();
+                }
+            }}
+        />
+        <Switch id="collectionPublic" bind:checked={collectionIsPublic}>
+            Public
+        </Switch>
+    </div>
+</Modal>
+
+<Modal bind:show={showAddPublicationModal} size="small" title="Add Publication" closeOnOutsideClick={true} closeOnEscape={true}>
+	<div class="modal-body">
+		<TextInput
+			id="rssUrl"
+			type="url"
+			placeholder="https://example.com/feed.xml"
+			autofocus
+			bind:value={rssUrl}
+			on:keydown={(e: KeyboardEvent) => {
+				if (e.key === 'Enter' && isValidUrl(rssUrl)) {
+					handleAdd();
+				}
+			}}
+		/>
+		<TextInput
+			id="publicationTitle"
+			type="text"
+			placeholder="Publication Title"
+			bind:value={publicationTitle}
+			on:keydown={(e: KeyboardEvent) => {
+				if (e.key === 'Enter' && publicationTitle.trim()) {
+					handleAdd();
+				}
+			}}
+		/>
+	</div>
+
+	{#snippet footer()}
+		<div class="modal-footer">
+			<Button disabled={!isValidUrl(rssUrl) || !publicationTitle.trim()} on:click={handleAdd}>Add</Button>
+			<Button color="input" on:click={() => { showAddPublicationModal = false; }}>Cancel</Button>
+		</div>
+	{/snippet}
+</Modal>
 
 <Modal
     bind:show={showCreateCollectionModal}

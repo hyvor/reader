@@ -4,13 +4,14 @@ namespace App\Api\App\Controller;
 
 use App\Api\App\Object\CollectionObject;
 use App\Service\Collection\CollectionService;
-use Hyvor\Internal\Auth\AuthUser;
+ 
+use App\Api\App\Authorization\AuthorizationListener;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\Security\Http\Attribute\CurrentUser;
-use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
+ 
+ 
 
 class InitController extends AbstractController
 {
@@ -20,12 +21,9 @@ class InitController extends AbstractController
     }
 
     #[Route('/init', methods: ['GET'])]
-    public function getInit(#[CurrentUser] AuthUser $user, Request $request): JsonResponse
+    public function getInit(Request $request): JsonResponse
     {
-        $user = $this->getUser();
-        if (!$user instanceof AuthUser) {
-            throw new AccessDeniedHttpException('Authentication required');
-        }
+        $user = AuthorizationListener::getUser($request);
 
         $this->collectionService->ensureUserHasDefaultCollection($user);
 

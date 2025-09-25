@@ -5,9 +5,12 @@ namespace App;
 use Hyvor\Internal\Auth\AuthUser;
 use Hyvor\Internal\InternalFake as BaseInternalFake;
 
+/**
+ * @phpstan-import-type AuthUserArrayPartial from AuthUser
+ */
 class InternalFake extends BaseInternalFake
 {
-    public function user(): ?AuthUser
+    public function user(): AuthUser
     {
         return AuthUser::fromArray([
             'id' => 5,
@@ -19,7 +22,7 @@ class InternalFake extends BaseInternalFake
     }
 
     /**
-     * @return array<int, AuthUser|array>|null
+     * @return array<int, AuthUser|AuthUserArrayPartial>|null
      */
     public function usersDatabase(): ?array
     {

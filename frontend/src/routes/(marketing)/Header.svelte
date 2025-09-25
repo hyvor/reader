@@ -1,6 +1,6 @@
 <script lang="ts">
 	import logo from '$lib/images/logo.svg';
-	import Button from '$lib/components/Button.svelte';
+	import { Button } from '@hyvor/design/components';
 	import { page } from "$app/stores";
 </script>
 
