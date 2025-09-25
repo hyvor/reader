@@ -18,6 +18,6 @@ class CollectionObject
         $this->name = $collection->getName();
         $this->slug = $collection->getSlug();
         $this->is_public = $collection->isPublic();
-        $this->is_owner = $currentUserId ? $collection->getHyvorUserId() === $currentUserId : false;
+        $this->is_owner = $currentUserId && $collection->getHyvorUserId() === $currentUserId;
     }
 } 

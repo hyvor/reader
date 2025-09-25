@@ -5,7 +5,6 @@ namespace App\Api\App\Controller;
 use App\Api\App\Object\CollectionObject;
 use App\Api\App\Object\PublicationObject;
 use App\Service\Collection\CollectionService;
-
 use Symfony\Component\HttpFoundation\Request;
 use App\Api\App\Authorization\AuthorizationListener;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -70,6 +69,4 @@ class CollectionController extends AbstractController
             'collection' => new CollectionObject($collection, $user->id),
         ]);
     }
-
-
 }

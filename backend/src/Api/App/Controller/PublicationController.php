@@ -2,6 +2,7 @@
 
 namespace App\Api\App\Controller;
 
+use App\Api\App\Object\PublicationObject;
 use App\Service\Publication\PublicationService;
 use App\Service\Collection\CollectionService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -53,9 +54,6 @@ class PublicationController extends AbstractController
     public function addPublication(Request $request): JsonResponse
     {
         $user = AuthorizationListener::getUser($request);
-        if (!$user || !property_exists($user, 'id')) {
-            throw new AccessDeniedHttpException('Authentication required');
-        }
 
         $data = json_decode($request->getContent() ?: 'null', true);
         if (!is_array($data)) {
@@ -85,32 +83,25 @@ class PublicationController extends AbstractController
 
         $publication = $this->publicationService->findByUrl($url);
         $created = false;
-        $attached = false;
 
         if (!$publication) {
-            $publication = $this->publicationService->createPublication($collection, $url, $title ?: null);
+            $publication = $this->publicationService->addPublication($collection, $url, $title ?: null);
             $created = true;
             $attached = true;
-
-            $publication->setIsFetching(true);
-            $this->em->flush();
-            $this->messageBus->dispatch(new ProcessFeedMessage($publication->getId()));
-
             $status = Response::HTTP_CREATED;
         } else {
             $attached = $this->publicationService->attachToCollectionIfMissing($publication, $collection);
-
-            if ($attached) {
-                $publication->setIsFetching(true);
-                $this->em->flush();
-                $this->messageBus->dispatch(new ProcessFeedMessage($publication->getId()));
-            }
-
             $status = Response::HTTP_OK;
         }
 
+        if ($created || $attached) {
+            $publication->setIsFetching(true);
+            $this->em->flush();
+            $this->messageBus->dispatch(new ProcessFeedMessage($publication->getId()));
+        }
+
         return $this->json([
-            'publication' => new \App\Api\App\Object\PublicationObject($publication),
+            'publication' => new PublicationObject($publication),
             'created' => $created,
             'attached' => $attached,
         ], $status);

@@ -37,7 +37,7 @@ class PublicationService
         return $publications;
     }
 
-    public function createPublication(Collection $collection, string $url, ?string $title = null, ?string $description = null): Publication
+    public function addPublication(Collection $collection, string $url, ?string $title = null, ?string $description = null): Publication
     {
         $publication = new Publication();
         $publication->setUrl($url);

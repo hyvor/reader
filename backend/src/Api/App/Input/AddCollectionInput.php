@@ -4,16 +4,11 @@ namespace App\Api\App\Input;
 
 use Symfony\Component\Validator\Constraints as Assert;
 
-final class AddCollectionInput
+class AddCollectionInput
 {
-    public function __construct(
-        #[Assert\NotBlank]
-        public readonly string $name = '',
+    #[Assert\NotBlank]
+    public string $name = '';
 
-        #[Assert\Type('bool')]
-        public readonly bool $is_public = false,
-    ) {
-    }
+    #[Assert\Type('bool')]
+    public bool $is_public = false;
 }
-
-

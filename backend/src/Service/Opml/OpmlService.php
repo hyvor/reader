@@ -27,7 +27,7 @@ class OpmlService
                     $publicationTitle = $child->getAttribute('title');
                     $publicationUrl = $child->getAttribute('xmlUrl');
 
-                    $this->publicationService->createPublication($collection, $publicationUrl, $publicationTitle);
+                    $this->publicationService->addPublication($collection, $publicationUrl, $publicationTitle);
                 }
             }
         }
