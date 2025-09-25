@@ -92,7 +92,7 @@ class PublicationController extends AbstractController
         $created = false;
 
         if (!$publication) {
-            $publication = $this->publicationService->createPublication($collection, $inspection);
+            $publication = $this->publicationService->addPublication($collection, $inspection);
             $created = true;
             $attached = true;
             $status = Response::HTTP_CREATED;
