@@ -400,12 +400,6 @@
     closeOnOutsideClick={true}
     closeOnEscape={true}
     loading={addingPublication ? 'Adding publication...' : false}
-    footer={{
-        cancel: { text: 'Cancel', props: { color: 'input', disabled: addingPublication } },
-        confirm: { text: 'Add', props: { disabled: addingPublication || !isValidUrl(rssUrl) } }
-    }}
-    on:cancel={() => { showAddPublicationModal = false; }}
-    on:confirm={handleAdd}
 >
 	<div class="modal-body">
 		{#if addPublicationError}
@@ -441,8 +435,19 @@
 
 	{#snippet footer()}
 		<div class="modal-footer">
-			<Button disabled={!isValidUrl(rssUrl) || !publicationTitle.trim()} on:click={handleAdd}>Add</Button>
-			<Button color="input" on:click={() => { showAddPublicationModal = false; }}>Cancel</Button>
+			<Button
+					on:click={handleAdd}
+					disabled={!isValidUrl(rssUrl) || !publicationTitle.trim() || addingPublication}
+			>
+				Add
+			</Button>
+			<Button
+					color="input"
+					on:click={() => { showAddPublicationModal = false; } }
+					disabled={addingPublication}
+			>
+				Cancel
+			</Button>
 		</div>
 	{/snippet}
 
