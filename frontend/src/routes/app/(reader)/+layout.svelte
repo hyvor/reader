@@ -16,11 +16,13 @@
 	import { goto } from '$app/navigation';
 	import { page } from '$app/stores';
 	import type { Collection, Publication, Item } from '../types';
-	import { onMount } from 'svelte';
+	import { onMount, tick } from 'svelte';
 	import api from '$lib/api';
 	import ArticleView from '../ArticleView.svelte';
 
     let { children } = $props();
+
+
 	let showCollections = $state(false);
 	let showAddPublicationModal = $state(false);
 	let rssUrl = $state('');
@@ -32,6 +34,9 @@
 	let currentItemIndex = $derived(
 		selectedItem ? $items.findIndex(item => item.id === selectedItem!.id) : -1
 	);
+
+	let addingPublication = $state(false);
+	let addPublicationError: string | null = $state(null);
 
 	function selectCollection(collection: Collection) {
 		goto(`/app/${collection.slug}`);
@@ -116,11 +121,25 @@
 		}
 	}
 
+	$effect(() => {
+		if (showAddPublicationModal) {
+			tick().then(() => {
+				const el = document.getElementById('rssUrl') as HTMLInputElement | null;
+				if (el) {
+					el.focus();
+					el.select();
+				}
+			});
+		}
+	});
+
 	function handleAdd() {
 		const value = rssUrl.trim();
 		if (!isValidUrl(value)) return;
 		(async () => {
 			try {
+				addingPublication = true;
+				addPublicationError = null;
 				const collectionSlug = $selectedCollection?.slug;
 				if (!collectionSlug) {
 					console.error('No collection selected');
@@ -140,6 +159,9 @@
 				publicationTitle = '';
 			} catch (e) {
 				console.error('Failed to add publication', e);
+				addPublicationError = e instanceof Error ? e.message : 'Failed to add publication';
+			} finally {
+				addingPublication = false;
 			}
 		})();
 	}
@@ -241,7 +263,7 @@
 				{/if}
 				</div>
 				<div class="publications-footer">
-					<Button class="add-publication-button" on:click={() => { rssUrl = ''; publicationTitle = ''; showAddPublicationModal = true; }}>
+					<Button class="add-publication-button" on:click={() => { rssUrl = ''; publicationTitle = ''; addPublicationError = null; showAddPublicationModal = true; }}>
 						{#snippet start()}
 							<IconPlus size={12} />
 						{/snippet}
@@ -371,8 +393,25 @@
     </div>
 </Modal>
 
-<Modal bind:show={showAddPublicationModal} size="small" title="Add Publication" closeOnOutsideClick={true} closeOnEscape={true}>
+<Modal
+    bind:show={showAddPublicationModal}
+    size="small"
+    title="Add Publication"
+    closeOnOutsideClick={true}
+    closeOnEscape={true}
+    loading={addingPublication ? 'Adding publication...' : false}
+    footer={{
+        cancel: { text: 'Cancel', props: { color: 'input', disabled: addingPublication } },
+        confirm: { text: 'Add', props: { disabled: addingPublication || !isValidUrl(rssUrl) } }
+    }}
+    on:cancel={() => { showAddPublicationModal = false; }}
+    on:confirm={handleAdd}
+>
 	<div class="modal-body">
+		{#if addPublicationError}
+			<div class="error-text">{addPublicationError}</div>
+		{/if}
+
 		<TextInput
 			id="rssUrl"
 			type="url"
@@ -384,7 +423,9 @@
 					handleAdd();
 				}
 			}}
+			disabled={addingPublication}
 		/>
+
 		<TextInput
 			id="publicationTitle"
 			type="text"
@@ -404,6 +445,7 @@
 			<Button color="input" on:click={() => { showAddPublicationModal = false; }}>Cancel</Button>
 		</div>
 	{/snippet}
+
 </Modal>
 
 {@render children()}
@@ -450,7 +492,8 @@
 	}
 
 	.publications {
-		width: 350px;
+		width: 250px;
+		flex: 0 0 250px;
 		padding: 0;
 		margin-right: 20px;
 		display: flex;
@@ -479,6 +522,14 @@
 		display: flex;
 		flex-direction: column;
 		gap: 8px;
+	}
+
+	.error-text {
+		color: var(--red);
+		font-size: 13px;
+		padding: 8px 10px;
+		border-radius: 8px;
+		background: color-mix(in oklab, var(--danger) 12%, transparent);
 	}
 
 	.modal-input {
@@ -526,7 +577,8 @@
 	}
 
 	.feed {
-		width: 100%;
+		flex: 1;
+		min-width: 0;
 		display: flex;
 		flex-direction: column;
 	}
@@ -591,6 +643,8 @@
 		color: var(--text-light);
 		margin-top: 2px;
 		line-height: 1.4;
+		word-break: break-word;
+		overflow-wrap: anywhere;
 	}
 	.featured-image img {
 		max-width: 200px;

@@ -6,7 +6,8 @@ class OpmlService
 {
     public function __construct(
         private readonly \App\Service\Collection\CollectionService $collectionService,
-        private readonly \App\Service\Publication\PublicationService $publicationService
+        private readonly \App\Service\Publication\PublicationService $publicationService,
+        private readonly \App\Service\Fetch\FetchService $fetchService,
     )
     {
     }
@@ -24,10 +25,9 @@ class OpmlService
 
             foreach ($outline->childNodes as $child) {
                 if ($child->nodeType === XML_ELEMENT_NODE && $child->tagName === 'outline') {
-                    $publicationTitle = $child->getAttribute('title');
                     $publicationUrl = $child->getAttribute('xmlUrl');
-
-                    $this->publicationService->addPublication($collection, $publicationUrl, $publicationTitle);
+                    $inspection = $this->fetchService->inspectFeed($publicationUrl);
+                    $this->publicationService->addPublication($collection, $inspection);
                 }
             }
         }

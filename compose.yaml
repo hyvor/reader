@@ -4,6 +4,7 @@ services:
     build:
       context: .
       target: frontend-dev
+      network: host
     volumes:
       - ./frontend/src:/app/frontend/src
       - ./frontend/static:/app/frontend/static
@@ -28,6 +29,7 @@ services:
     build:
       context: .
       target: backend-dev
+      network: host
     volumes:
       - ./backend:/app/backend
       # - ../internal:/app/backend/vendor/hyvor/internal:ro

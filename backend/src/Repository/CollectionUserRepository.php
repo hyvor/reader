@@ -23,4 +23,5 @@ class CollectionUserRepository extends ServiceEntityRepository
             'collection' => $collectionId,
         ]);
     }
+
 }
