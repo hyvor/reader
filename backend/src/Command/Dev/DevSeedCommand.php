@@ -6,7 +6,6 @@ use App\Factory\CollectionFactory;
 use App\Factory\ItemFactory;
 use App\Factory\PublicationFactory;
 use App\Entity\CollectionUser;
-use App\InternalFake;
 use Doctrine\ORM\EntityManagerInterface;
 use Hyvor\Internal\Auth\AuthFake;
 use Symfony\Component\Console\Attribute\AsCommand;

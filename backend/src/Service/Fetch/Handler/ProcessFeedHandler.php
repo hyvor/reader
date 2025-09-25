@@ -92,11 +92,12 @@ class ProcessFeedHandler
                   ->setUpdatedItemsCount($result['updated_items']);
 
             $publication->setLastFetchedAt($this->now());
-            if (isset($fetchResponse['headers']['etag'][0])) {
-                $publication->setConditionalGetEtag($fetchResponse['headers']['etag'][0]);
+            $headers = $fetchResponse['headers'];
+            if (isset($headers['etag'][0])) {
+                $publication->setConditionalGetEtag($headers['etag'][0]);
             }
-            if (isset($fetchResponse['headers']['last-modified'][0])) {
-                $publication->setConditionalGetLastModified($fetchResponse['headers']['last-modified'][0]);
+            if (isset($headers['last-modified'][0])) {
+                $publication->setConditionalGetLastModified($headers['last-modified'][0]);
             }
             if ($feed->title && $publication->getTitle() !== $feed->title) {
                 $publication->setTitle($feed->title);

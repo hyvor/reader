@@ -14,5 +14,3 @@ class ExceptionListener extends AbstractApiExceptionListener
         return '/api/app';
     }
 }
-
-

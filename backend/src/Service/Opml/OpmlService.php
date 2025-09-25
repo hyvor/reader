@@ -2,12 +2,16 @@
 
 namespace App\Service\Opml;
 
+use App\Service\Collection\CollectionService;
+use App\Service\Fetch\FetchService;
+use App\Service\Publication\PublicationService;
+
 class OpmlService
 {
     public function __construct(
-        private readonly \App\Service\Collection\CollectionService $collectionService,
-        private readonly \App\Service\Publication\PublicationService $publicationService,
-        private readonly \App\Service\Fetch\FetchService $fetchService,
+        private readonly CollectionService $collectionService,
+        private readonly PublicationService $publicationService,
+        private readonly FetchService $fetchService,
     )
     {
     }

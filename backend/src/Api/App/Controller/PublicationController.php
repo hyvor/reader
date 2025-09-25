@@ -83,7 +83,7 @@ class PublicationController extends AbstractController
             throw new BadRequestHttpException('Feed returned HTTP ' . $e->getHttpCode());
         } catch (ParserException $e) {
             throw new BadRequestHttpException($e->getMessage());
-        } catch (TransportExceptionInterface $e) {
+        } catch (TransportExceptionInterface) {
             throw new BadRequestHttpException('Could not fetch the URL');
         }
 

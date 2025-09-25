@@ -5,6 +5,7 @@ namespace App\Service\Publication;
 use App\Entity\Publication;
 use App\Entity\Collection;
 use App\Api\App\Object\PublicationObject;
+use App\Service\Parser\Types\Feed;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\String\Slugger\AsciiSlugger;
 use App\Service\Fetch\FetchService;
@@ -41,16 +42,23 @@ class PublicationService
         return $publications;
     }
 
+    /**
+     * @param array{
+     *     final_url: string,
+     *     feed: Feed,
+     *     title: string,
+     *     headers: array<string, array<int, string>>
+     * } $inspection
+     */
     public function addPublication(Collection $collection, array $inspection): Publication
     {
         $url = $inspection['final_url'];
         $feed = $inspection['feed'];
-        $title = $inspection['title'] ?? null;
+        $title = $inspection['title'];
         $headers = $inspection['headers'] ?? [];
 
         $publication = new Publication();
         $publication->setUrl($url);
-        $publication->setTitle($title);
         $publication->addCollection($collection);
         $publication->setSlug($this->generateUniqueSlug($title ?: $url));
 
@@ -61,11 +69,8 @@ class PublicationService
             $publication->setConditionalGetLastModified($headers['last-modified'][0]);
         }
 
-        $this->em->persist($publication);
-        $this->em->flush();
-
-        $result = $this->fetchService->processItems($publication, $feed);
-        if ($feed->title && $publication->getTitle() !== $feed->title) {
+        $this->fetchService->processItems($publication, $feed);
+        if ($title && $publication->getTitle() !== $title) {
             $publication->setTitle($feed->title);
         }
         if ($feed->description && $publication->getDescription() !== $feed->description) {
@@ -74,6 +79,7 @@ class PublicationService
         $publication->setLastFetchedAt(new \DateTimeImmutable());
         $this->fetchService->updateNextFetchTime($publication);
 
+        $this->em->persist($publication);
         $this->em->flush();
 
         return $publication;
