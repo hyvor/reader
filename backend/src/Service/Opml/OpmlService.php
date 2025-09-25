@@ -27,7 +27,7 @@ class OpmlService
                 if ($child->nodeType === XML_ELEMENT_NODE && $child->tagName === 'outline') {
                     $publicationUrl = $child->getAttribute('xmlUrl');
                     $inspection = $this->fetchService->inspectFeed($publicationUrl);
-                    $this->publicationService->createPublication($collection, $inspection);
+                    $this->publicationService->addPublication($collection, $inspection);
                 }
             }
         }

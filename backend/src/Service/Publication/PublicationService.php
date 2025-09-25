@@ -41,7 +41,7 @@ class PublicationService
         return $publications;
     }
 
-    public function createPublication(Collection $collection, array $inspection): Publication
+    public function addPublication(Collection $collection, array $inspection): Publication
     {
         $url = $inspection['final_url'];
         $feed = $inspection['feed'];

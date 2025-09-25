@@ -2,7 +2,7 @@
 	import IconChevronDown from '@hyvor/icons/IconChevronDown';
 	import IconBoxArrowUpRight from '@hyvor/icons/IconBoxArrowUpRight';
 	import IconPlus from '@hyvor/icons/IconPlus';
-	import { Button, Dropdown, ActionList, ActionListItem, Loader, Modal, TextInput } from '@hyvor/design/components';
+	import { Button, Dropdown, ActionList, ActionListItem, Loader, Modal, TextInput, Switch } from '@hyvor/design/components';
 	import {
 		collections,
 		publications,
@@ -26,6 +26,10 @@
 	let showCollections = $state(false);
 	let showAddPublicationModal = $state(false);
 	let rssUrl = $state('');
+	let publicationTitle = $state('');
+	let showCreateCollectionModal = $state(false);
+	let collectionName = $state('');
+	let collectionIsPublic = $state(false);
 	let selectedItem: Item | null = $state(null);
 	let currentItemIndex = $derived(
 		selectedItem ? $items.findIndex(item => item.id === selectedItem!.id) : -1
@@ -36,6 +40,22 @@
 
 	function selectCollection(collection: Collection) {
 		goto(`/app/${collection.slug}`);
+	}
+
+	async function handleCreateCollection() {
+		const trimmed = collectionName.trim();
+		if (!trimmed) return;
+		try {
+			const res = await api.post('/collections', { name: trimmed, is_public: collectionIsPublic });
+			const created: Collection = res.collection;
+			$collections = [...$collections, created];
+			showCreateCollectionModal = false;
+			collectionName = '';
+			collectionIsPublic = false;
+			goto(`/app/${created.slug}`);
+		} catch (e) {
+			console.error('Failed to create collection', e);
+		}
 	}
 
 	function selectPublication(publication?: Publication) {
@@ -127,7 +147,8 @@
 				}
 				const res = await api.post('/publications', {
 					collection_slug: collectionSlug,
-					url: value
+					url: value,
+					title: publicationTitle.trim(),
 				});
 				const exists = $publications.find(p => p.slug === res.publication.slug);
 				if (!exists) {
@@ -135,6 +156,7 @@
 				}
 				showAddPublicationModal = false;
 				rssUrl = '';
+				publicationTitle = '';
 			} catch (e) {
 				console.error('Failed to add publication', e);
 				addPublicationError = e instanceof Error ? e.message : 'Failed to add publication';
@@ -184,6 +206,9 @@
 										{collection.name}
 									</ActionListItem>
 								{/each}
+								<ActionListItem on:select={() => { showCreateCollectionModal = true; showCollections = false; }}>
+									+ Create collection
+								</ActionListItem>
 							</ActionList>
 						{/snippet}
 					</Dropdown>
@@ -238,7 +263,7 @@
 				{/if}
 				</div>
 				<div class="publications-footer">
-					<Button class="add-publication-button" on:click={() => { rssUrl = ''; addPublicationError = null; showAddPublicationModal = true; }}>
+					<Button class="add-publication-button" on:click={() => { rssUrl = ''; publicationTitle = ''; addPublicationError = null; showAddPublicationModal = true; }}>
 						{#snippet start()}
 							<IconPlus size={12} />
 						{/snippet}
@@ -336,6 +361,37 @@
 	</div>
 </main>
 
+<Modal
+    bind:show={showCreateCollectionModal}
+    size="small"
+    title="Create Collection"
+    closeOnOutsideClick={true}
+    closeOnEscape={true}
+    footer={{
+        cancel: { text: 'Cancel', props: { color: 'input' } },
+        confirm: { text: 'Create', props: { disabled: !collectionName.trim() } }
+    }}
+    on:cancel={() => { showCreateCollectionModal = false; }}
+    on:confirm={handleCreateCollection}
+>
+    <div class="modal-body">
+        <TextInput
+            id="collectionName"
+            type="text"
+            placeholder="My collection"
+            autofocus
+            bind:value={collectionName}
+            on:keydown={(e: KeyboardEvent) => {
+                if (e.key === 'Enter' && collectionName.trim()) {
+                    handleCreateCollection();
+                }
+            }}
+        />
+        <Switch id="collectionPublic" bind:checked={collectionIsPublic}>
+            Public
+        </Switch>
+    </div>
+</Modal>
 
 <Modal
     bind:show={showAddPublicationModal}
@@ -355,6 +411,7 @@
 		{#if addPublicationError}
 			<div class="error-text">{addPublicationError}</div>
 		{/if}
+
 		<TextInput
 			id="rssUrl"
 			type="url"
@@ -368,8 +425,26 @@
 			}}
 			disabled={addingPublication}
 		/>
+
+		<TextInput
+			id="publicationTitle"
+			type="text"
+			placeholder="Publication Title"
+			bind:value={publicationTitle}
+			on:keydown={(e: KeyboardEvent) => {
+				if (e.key === 'Enter' && publicationTitle.trim()) {
+					handleAdd();
+				}
+			}}
+		/>
 	</div>
 
+	{#snippet footer()}
+		<div class="modal-footer">
+			<Button disabled={!isValidUrl(rssUrl) || !publicationTitle.trim()} on:click={handleAdd}>Add</Button>
+			<Button color="input" on:click={() => { showAddPublicationModal = false; }}>Cancel</Button>
+		</div>
+	{/snippet}
 
 </Modal>
 
