@@ -12,6 +12,4 @@ class AddPublicationInput
     #[Assert\NotBlank]
     #[Assert\Url]
     public string $url = '';
-
-    public string $title = '';
 }

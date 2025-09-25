@@ -26,7 +26,6 @@
 	let showCollections = $state(false);
 	let showAddPublicationModal = $state(false);
 	let rssUrl = $state('');
-	let publicationTitle = $state('');
 	let showCreateCollectionModal = $state(false);
 	let collectionName = $state('');
 	let collectionIsPublic = $state(false);
@@ -148,7 +147,6 @@
 				const res = await api.post('/publications', {
 					collection_slug: collectionSlug,
 					url: value,
-					title: publicationTitle.trim(),
 				});
 				const exists = $publications.find(p => p.slug === res.publication.slug);
 				if (!exists) {
@@ -156,7 +154,6 @@
 				}
 				showAddPublicationModal = false;
 				rssUrl = '';
-				publicationTitle = '';
 			} catch (e) {
 				console.error('Failed to add publication', e);
 				addPublicationError = e instanceof Error ? e.message : 'Failed to add publication';
@@ -263,7 +260,7 @@
 				{/if}
 				</div>
 				<div class="publications-footer">
-					<Button class="add-publication-button" on:click={() => { rssUrl = ''; publicationTitle = ''; addPublicationError = null; showAddPublicationModal = true; }}>
+					<Button class="add-publication-button" on:click={() => { rssUrl = ''; addPublicationError = null; showAddPublicationModal = true; }}>
 						{#snippet start()}
 							<IconPlus size={12} />
 						{/snippet}
@@ -419,34 +416,22 @@
 			}}
 			disabled={addingPublication}
 		/>
-
-		<TextInput
-			id="publicationTitle"
-			type="text"
-			placeholder="Publication Title"
-			bind:value={publicationTitle}
-			on:keydown={(e: KeyboardEvent) => {
-				if (e.key === 'Enter' && publicationTitle.trim()) {
-					handleAdd();
-				}
-			}}
-		/>
 	</div>
 
 	{#snippet footer()}
 		<div class="modal-footer">
-			<Button
-					on:click={handleAdd}
-					disabled={!isValidUrl(rssUrl) || !publicationTitle.trim() || addingPublication}
-			>
-				Add
-			</Button>
 			<Button
 					color="input"
 					on:click={() => { showAddPublicationModal = false; } }
 					disabled={addingPublication}
 			>
 				Cancel
+			</Button>
+			<Button
+					on:click={handleAdd}
+					disabled={!isValidUrl(rssUrl) || addingPublication}
+			>
+				Add
 			</Button>
 		</div>
 	{/snippet}
@@ -519,10 +504,6 @@
 		background: var(--surface);
 	}
 
-	.add-publication-button {
-		width: 100%;
-	}
-
 	.modal-body {
 		display: flex;
 		flex-direction: column;
@@ -535,20 +516,6 @@
 		padding: 8px 10px;
 		border-radius: 8px;
 		background: color-mix(in oklab, var(--danger) 12%, transparent);
-	}
-
-	.modal-input {
-		width: 100%;
-		padding: 10px 12px;
-		border: 1px solid var(--border);
-		border-radius: 8px;
-		background: var(--surface);
-		color: var(--text);
-	}
-
-	.modal-label {
-		font-size: 12px;
-		color: var(--text-light);
 	}
 
 	.modal-footer {

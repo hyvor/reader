@@ -66,7 +66,6 @@ class PublicationController extends AbstractController
         $user = AuthorizationListener::getUser($request);
         $collectionSlug = trim($payload->collection_slug);
         $url = trim($payload->url);
-        $title = trim($payload->title);
 
         $collection = $this->collectionService->findBySlug($collectionSlug);
         if (!$collection) {
