@@ -7,6 +7,9 @@ use App\Tests\Case\KernelTestCase;
 use App\Factory\PublicationFactory;
 use PHPUnit\Framework\Attributes\CoversClass;
 use Psr\Log\LoggerInterface;
+use Symfony\Component\HttpClient\MockHttpClient;
+use Symfony\Component\HttpClient\Response\MockResponse;
+use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 #[CoversClass(OpmlService::class)]
 class OpmlServiceTest extends KernelTestCase
@@ -17,6 +20,30 @@ class OpmlServiceTest extends KernelTestCase
     protected function setUp(): void
     {
         parent::setUp();
+        $mockClient = new MockHttpClient(function (string $method, string $url, array $options = []) {
+            if (str_contains($url, 'example.com/pub1')) {
+                $body = json_encode([
+                    'version' => 'https://jsonfeed.org/version/1',
+                    'title' => 'Publication 1',
+                    'items' => [
+                        ['id' => 'i1', 'url' => $url.'/item', 'title' => 'Imported Item']
+                    ],
+                ]);
+                return new MockResponse($body, ['http_code' => 200]);
+            }
+            if (str_contains($url, 'example.com/pub2')) {
+                $body = json_encode([
+                    'version' => 'https://jsonfeed.org/version/1',
+                    'title' => 'Publication 2',
+                    'items' => [
+                        ['id' => 'i1', 'url' => $url.'/item', 'title' => 'Imported Item']
+                    ],
+                ]);
+                return new MockResponse($body, ['http_code' => 200]);
+            }
+            return new MockResponse('', ['http_code' => 200]);
+        });
+        static::getContainer()->set(HttpClientInterface::class, $mockClient);
         $service = $this->container->get(OpmlService::class);
         assert($service instanceof OpmlService);
         $this->opmlService = $service;

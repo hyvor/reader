@@ -50,7 +50,7 @@ class PublicationService
      *     headers: array<string, array<int, string>>
      * } $inspection
      */
-    public function addPublication(Collection $collection, array $inspection): Publication
+    public function addPublication(Collection $collection, array $inspection, bool $flush = true): Publication
     {
         $url = $inspection['final_url'];
         $feed = $inspection['feed'];
@@ -80,16 +80,20 @@ class PublicationService
         $this->fetchService->updateNextFetchTime($publication);
 
         $this->em->persist($publication);
-        $this->em->flush();
+        if ($flush) {
+            $this->em->flush();
+        }
 
         return $publication;
     }
 
-    public function attachToCollectionIfMissing(Publication $publication, Collection $collection): bool
+    public function attachToCollectionIfMissing(Publication $publication, Collection $collection, bool $flush = true): bool
     {
         if (!$publication->getCollections()->contains($collection)) {
             $publication->addCollection($collection);
-            $this->em->flush();
+            if ($flush) {
+                $this->em->flush();
+            }
             return true;
         }
         return false;

@@ -92,7 +92,7 @@ class CreateCollectionsTest extends WebTestCase
 
         $response = $this->client->getResponse();
 
-        $this->assertSame(Response::HTTP_BAD_REQUEST, $response->getStatusCode(), 'Expected 400 Bad Request');
+        $this->assertSame(Response::HTTP_UNPROCESSABLE_ENTITY, $response->getStatusCode(), 'Expected 422 Unprocessable Entity');
     }
 
     public function test_create_collection_requires_valid_json(): void

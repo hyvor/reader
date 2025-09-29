@@ -116,7 +116,7 @@
 		try {
 			new URL(trimmed);
 			return true;
-		} catch (_) {
+		} catch {
 			return false;
 		}
 	}
@@ -204,10 +204,13 @@
 										{collection.name}
 									</ActionListItem>
 								{/each}
-								<ActionListItem on:select={() => { showCreateCollectionModal = true; showCollections = false; }}>
-									+ Create collection
-								</ActionListItem>
-							</ActionList>
+						</ActionList>
+						<Button size="small" block on:click={() => { showCreateCollectionModal = true; showCollections = false; }}>
+							{#snippet start()}
+								<IconPlus size={12} />
+							{/snippet}
+							Create collection
+						</Button>
 						{/snippet}
 					</Dropdown>
 				{/if}

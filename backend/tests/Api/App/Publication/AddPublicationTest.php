@@ -11,12 +11,45 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use App\Factory\CollectionFactory;
 use App\Factory\PublicationFactory;
 use App\Service\Fetch\Message\ProcessFeedMessage;
+use Symfony\Component\HttpClient\MockHttpClient;
+use Symfony\Component\HttpClient\Response\MockResponse;
+use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 #[CoversClass(PublicationController::class)]
 #[CoversClass(PublicationService::class)]
 #[CoversClass(PublicationObject::class)]
 class AddPublicationTest extends WebTestCase
 {
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        $mockClient = new MockHttpClient(function (string $method, string $url, array $options = []) {
+            if (str_contains($url, 'example.com/feed.xml')) {
+                $body = json_encode([
+                    'version' => 'https://jsonfeed.org/version/1',
+                    'title' => 'Test Publication',
+                    'items' => [
+                        ['id' => '1', 'url' => 'https://example.com/1', 'title' => 'Item 1']
+                    ],
+                ]);
+                return new MockResponse($body, ['http_code' => 200, 'response_headers' => ['etag: W/"abc"']]);
+            }
+
+            if (str_contains($url, 'not-a-url')) {
+                return new MockResponse('', ['http_code' => 404]);
+            }
+
+            $default = json_encode([
+                'version' => 'https://jsonfeed.org/version/1',
+                'title' => 'Default Feed',
+                'items' => [],
+            ]);
+            return new MockResponse($default, ['http_code' => 200]);
+        });
+
+        static::getContainer()->set(HttpClientInterface::class, $mockClient);
+    }
     public function test_create_new_publication_and_queue_fetch(): void
     {
         $collection = CollectionFactory::createOne(['hyvorUserId' => 1])->_real();
@@ -129,7 +162,7 @@ class AddPublicationTest extends WebTestCase
         );
 
         $response = $this->client->getResponse();
-        $this->assertSame(Response::HTTP_BAD_REQUEST, $response->getStatusCode());
+        $this->assertSame(Response::HTTP_UNPROCESSABLE_ENTITY, $response->getStatusCode());
     }
 
     public function test_collection_not_found(): void
