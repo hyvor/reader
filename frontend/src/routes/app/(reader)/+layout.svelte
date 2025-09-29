@@ -15,8 +15,9 @@
 	} from '../appStore';
 	import { goto } from '$app/navigation';
 	import { page } from '$app/stores';
-	import type { Collection, Publication, Item } from '../types';
+	import type { Collection, Publication, Item } from '$lib/types';
 	import { onMount, tick } from 'svelte';
+	import { toast } from '@hyvor/design/components';
 	import api from '$lib/api';
 	import ArticleView from '../ArticleView.svelte';
 
@@ -52,9 +53,9 @@
 			collectionName = '';
 			collectionIsPublic = false;
 			goto(`/app/${created.slug}`);
-		} catch (e) {
-			console.error('Failed to create collection', e);
-		}
+        } catch (e) {
+            toast.error(e instanceof Error ? e.message : 'Failed to create collection');
+        }
 	}
 
 	function selectPublication(publication?: Publication) {
@@ -140,10 +141,10 @@
 				addingPublication = true;
 				addPublicationError = null;
 				const collectionSlug = $selectedCollection?.slug;
-				if (!collectionSlug) {
-					console.error('No collection selected');
-					return;
-				}
+                if (!collectionSlug) {
+                    toast.error('No collection selected');
+                    return;
+                }
 				const res = await api.post('/publications', {
 					collection_slug: collectionSlug,
 					url: value,
@@ -154,9 +155,9 @@
 				}
 				showAddPublicationModal = false;
 				rssUrl = '';
-			} catch (e) {
-				console.error('Failed to add publication', e);
-				addPublicationError = e instanceof Error ? e.message : 'Failed to add publication';
+            } catch (e) {
+                addPublicationError = e instanceof Error ? e.message : 'Failed to add publication';
+                toast.error(addPublicationError);
 			} finally {
 				addingPublication = false;
 			}
@@ -169,9 +170,9 @@
 		try {
 			const res = await api.get('/init');
 			$collections = res.collections;
-		} catch (e) {
-			console.error('Initialization failed', e);
-		} finally {
+        } catch (e) {
+            toast.error(e instanceof Error ? e.message : 'Initialization failed');
+        } finally {
 			$loadingInit = false;
 		}
 	});

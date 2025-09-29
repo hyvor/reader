@@ -9,6 +9,7 @@
         selectedPublication,
         loadingPublications 
     } from '../../appStore';
+    import { toast } from '@hyvor/design/components';
 
     let { children } = $props();
     let lastFetchedSlug: string | null = null;
@@ -26,7 +27,6 @@
             if (!collection || collection.slug === lastFetchedSlug) return;
             lastFetchedSlug = collection.slug;
 
-            console.log("Fetching publications for collection:", collection.slug);
             loadingPublications.set(true);
             
             try {
@@ -34,7 +34,7 @@
                 publications.set(res.publications);
                 selectedPublication.set(null);
             } catch (e) {
-                console.error('Failed to fetch publications:', e);
+                toast.error(e instanceof Error ? e.message : 'Failed to fetch publications');
             } finally {
                 loadingPublications.set(false);
             }

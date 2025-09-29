@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { page } from '$app/stores';
 	import api from '$lib/api';
+	import { toast } from '@hyvor/design/components';
 	import {
 		items,
 		loadingItems,
@@ -26,7 +27,7 @@
                 const res = await api.get('/items', params);
                 items.set(res.items);
             } catch (e) {
-                console.error('Failed to fetch items:', e);
+                toast.error(e instanceof Error ? e.message : 'Failed to fetch items');
             } finally {
                 loadingItems.set(false);
             }

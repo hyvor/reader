@@ -1,4 +1,3 @@
-
 export interface Collection {
     id: number;
     name: string;
@@ -38,4 +37,5 @@ export interface Item {
     reading_time?: number;
     word_count?: number;
 }
+
 

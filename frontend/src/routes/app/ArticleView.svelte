@@ -4,7 +4,7 @@
 	import IconChevronRight from '@hyvor/icons/IconChevronRight';
 	import IconBoxArrowUpRight from '@hyvor/icons/IconBoxArrowUpRight';
 	import IconArrowLeft from '@hyvor/icons/IconArrowLeft';
-	import type { Item } from './types';
+	import type { Item } from '$lib/types';
 
 	interface Props {
 		item: Item;

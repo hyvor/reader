@@ -1,5 +1,5 @@
 import { writable } from "svelte/store";
-import type { Collection, Publication, Item } from "./types";
+import type { Collection, Publication, Item } from "$lib/types";
 
 export const collections = writable<Collection[]>([]);
 export const selectedCollection = writable<Collection | null>(null);
