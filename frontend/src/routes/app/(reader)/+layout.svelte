@@ -9,6 +9,7 @@
 		Dropdown,
 		ActionList,
 		ActionListItem,
+		Divider,
 		Loader,
 		Modal,
 		TextInput,
@@ -242,6 +243,7 @@
 									</ActionListItem>
 								{/each}
 						</ActionList>
+						<Divider color="var(--border)" margin={10}/>
 						<Button size="small" block on:click={() => { showCreateCollectionModal = true; showCollections = false; }}>
 							{#snippet start()}
 								<IconPlus size={12} />
