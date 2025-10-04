@@ -73,9 +73,12 @@ CMD ["sh", "/app/run"]
 ###################################################
 FROM backend-base AS final
 
+ENV APP_ENV=prod \
+    APP_DEBUG=0
+
 COPY backend /app/backend
 
-RUN composer install --no-interaction --no-dev --optimize-autoloader --classmap-authoritative
+RUN composer install --no-interaction --no-dev --optimize-autoloader --classmap-authoritative --no-scripts
 
 COPY --from=frontend-prod /app/frontend/build /app/static
 
