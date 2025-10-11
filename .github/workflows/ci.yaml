@@ -36,7 +36,7 @@ jobs:
 
       -   name: Run PHPStan
           run: |
-            docker run -e APP_ENV=test backend-dev \
+            docker run -e APP_ENV=dev backend-dev \
               sh -c "bin/console cache:warmup && ./vendor/bin/phpstan analyse --memory-limit=1G --ansi"
 
   phpunit:
