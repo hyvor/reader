@@ -143,7 +143,7 @@
         <IconButton 
             aria-label="Previous article"
             disabled={!canGoToPrevious}
-            on:click={onPrevious}
+            on:click={(e) => { onPrevious?.(); }}
             class="nav-button nav-mobile"
         >
             <IconChevronLeft size={16} />
@@ -163,7 +163,7 @@
         <IconButton 
             aria-label="Next article"
             disabled={!canGoToNext}
-            on:click={onNext}
+            on:click={(e) => { onNext?.(); }}
             class="nav-button nav-mobile"
         >
             <IconChevronRight size={16} />

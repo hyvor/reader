@@ -398,8 +398,15 @@
 
 		<div
 			class="drawer-backdrop {showSidebarMobile ? 'active' : ''}"
+			role="button"
+			tabindex="0"
 			onclick={() => {
 				showSidebarMobile = false;
+			}}
+			onkeydown={(e: KeyboardEvent) => {
+				if (e.key === 'Enter' || e.key === ' ') {
+					showSidebarMobile = false;
+				}
 			}}
 		></div>
 	</div>
@@ -550,12 +557,7 @@
 		min-height: 0;
 	}
 
-	.actionlist-divider {
-		margin: 6px 10px;
-		height: 1px;
-		background: var(--border);
-		border-radius: 1px;
-	}
+    
 
 	.publications-footer {
 		border-top: 1px solid var(--border);
