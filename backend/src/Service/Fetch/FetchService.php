@@ -116,7 +116,7 @@ class FetchService
 
     /**
      * @param string $url
-     * @param array $options
+     * @param array<string, mixed> $options
      * @return array{content: string, final_url: string, status_code: int, headers: array<string, array<int, string>>}
      * @throws TransportExceptionInterface
      */
@@ -129,7 +129,9 @@ class FetchService
 
         $statusCode = $response->getStatusCode();
         $content = $response->getContent(false); // do not throw on non-2xx
-        $finalUrl = $response->getInfo('url') ?? $url;
+        $finalUrlInfo = $response->getInfo('url');
+        $finalUrl = is_string($finalUrlInfo) ? $finalUrlInfo : $url;
+        /** @var array<string, array<int, string>> $headers */
         $headers = $response->getHeaders(false);
 
         return [

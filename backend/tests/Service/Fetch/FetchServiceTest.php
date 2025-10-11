@@ -22,7 +22,7 @@ class FetchServiceTest extends KernelTestCase
     {
         parent::setUp();
         $service = $this->container->get(FetchService::class);
-        assert($service instanceof FetchService);
+        $this->assertInstanceOf(FetchService::class, $service);
         $this->fetchService = $service;
     }
 
@@ -97,7 +97,6 @@ class FetchServiceTest extends KernelTestCase
         $this->assertEquals(['test-tag'], $item->getTags());
         
         $itemPublication = $item->getPublication();
-        $this->assertNotNull($itemPublication, 'Item publication should not be null');
         $this->assertEquals($publication->getId(), $itemPublication->getId());
     }
 
@@ -163,7 +162,6 @@ class FetchServiceTest extends KernelTestCase
         $this->assertEquals(['updated-tag'], $freshItem->getTags());
         
         $itemPublication = $freshItem->getPublication();
-        $this->assertNotNull($itemPublication, 'Item publication should not be null');
         $this->assertEquals($publication->getId(), $itemPublication->getId());
     }
 

@@ -1,3 +1,7 @@
+includes:
+    - vendor/phpstan/phpstan-doctrine/extension.neon
+    - vendor/phpstan/phpstan-doctrine/rules.neon
+
 parameters:
     level: max
     paths:
@@ -6,3 +10,5 @@ parameters:
         - public/
         - src/
         - tests/
+    scanDirectories:
+        - var/cache/dev/Symfony/Config/
