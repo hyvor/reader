@@ -36,7 +36,7 @@ jobs:
 
       -   name: Run PHPStan
           run: |
-            docker run backend-dev \
+            docker run -e APP_ENV=test backend-dev \
               sh -c "bin/console cache:warmup && ./vendor/bin/phpstan analyse --memory-limit=1G --ansi"
 
   phpunit:
@@ -61,5 +61,6 @@ jobs:
             --network ci \
             -e APP_ENV=test \
             backend-dev sh -c "
+            php bin/console doctrine:database:create --if-not-exists &&
             php bin/console doctrine:migrations:migrate --no-interaction &&
             ./vendor/bin/phpunit"
