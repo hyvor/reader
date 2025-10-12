@@ -557,7 +557,12 @@
 		min-height: 0;
 	}
 
-    
+	.actionlist-divider {
+		margin: 6px 10px;
+		height: 1px;
+		background: var(--border);
+		border-radius: 1px;
+	}
 
 	.publications-footer {
 		border-top: 1px solid var(--border);
