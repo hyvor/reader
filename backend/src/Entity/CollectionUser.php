@@ -12,14 +12,14 @@ class CollectionUser
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
-    #[ORM\Column(type: 'bigint')]
+    #[ORM\Column(type: 'integer')]
     private int $id;
 
     #[ORM\ManyToOne(targetEntity: Collection::class, cascade: ['persist'])]
     #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')]
     private Collection $collection;
 
-    #[ORM\Column(name: 'hyvor_user_id', type: 'bigint')]
+    #[ORM\Column(name: 'hyvor_user_id', type: 'integer')]
     private int $hyvorUserId;
 
     #[ORM\Column(name: 'write_access', type: 'boolean', options: ['default' => false])]

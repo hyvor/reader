@@ -48,8 +48,8 @@ class ItemObject
         $this->language = $item->getLanguage();
 
         $publication = $item->getPublication();
-        $this->publication_id = $publication?->getId();
-        $this->publication_slug = $publication?->getSlug();
-        $this->publication_title = $publication?->getTitle() ?? 'Untitled';
+        $this->publication_id = $publication->getId();
+        $this->publication_slug = $publication->getSlug();
+        $this->publication_title = $publication->getTitle() ?? 'Untitled';
     }
 } 

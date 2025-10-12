@@ -398,8 +398,15 @@
 
 		<div
 			class="drawer-backdrop {showSidebarMobile ? 'active' : ''}"
+			role="button"
+			tabindex="0"
 			onclick={() => {
 				showSidebarMobile = false;
+			}}
+			onkeydown={(e: KeyboardEvent) => {
+				if (e.key === 'Enter' || e.key === ' ') {
+					showSidebarMobile = false;
+				}
 			}}
 		></div>
 	</div>

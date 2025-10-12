@@ -27,5 +27,3 @@ return static function (MonologConfig $monolog, ContainerConfigurator $container
             ->level('info');
     }
 };
-
-

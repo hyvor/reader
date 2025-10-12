@@ -24,9 +24,9 @@ class AddPublicationTest extends WebTestCase
     {
         parent::setUp();
 
-        $mockClient = new MockHttpClient(function (string $method, string $url, array $options = []) {
+        $mockClient = new MockHttpClient(function (string $method, string $url, array $options = []): MockResponse {
             if (str_contains($url, 'example.com/feed.xml')) {
-                $body = json_encode([
+                $body = (string) json_encode([
                     'version' => 'https://jsonfeed.org/version/1',
                     'title' => 'Test Publication',
                     'items' => [
@@ -40,7 +40,7 @@ class AddPublicationTest extends WebTestCase
                 return new MockResponse('', ['http_code' => 404]);
             }
 
-            $default = json_encode([
+            $default = (string) json_encode([
                 'version' => 'https://jsonfeed.org/version/1',
                 'title' => 'Default Feed',
                 'items' => [],
@@ -64,21 +64,25 @@ class AddPublicationTest extends WebTestCase
             'POST',
             '/api/app/publications',
             server: ['CONTENT_TYPE' => 'application/json'],
-            content: json_encode($payload)
+            content: (string) json_encode($payload)
         );
 
         $response = $this->client->getResponse();
         $this->assertSame(Response::HTTP_CREATED, $response->getStatusCode());
 
-        $json = json_decode($response->getContent(), true, 512, JSON_THROW_ON_ERROR);
+        $json = json_decode((string) $response->getContent(), true, 512, JSON_THROW_ON_ERROR);
+        $this->assertIsArray($json);
         $this->assertTrue($json['created']);
         $this->assertTrue($json['attached']);
         $this->assertArrayHasKey('publication', $json);
-        $this->assertSame('https://example.com/feed.xml', $json['publication']['url']);
-        $this->assertSame('Test Publication', $json['publication']['title']);
+        $publicationArr = $json['publication'];
+        $this->assertIsArray($publicationArr);
+        $this->assertSame('https://example.com/feed.xml', $publicationArr['url']);
+        $this->assertSame('Test Publication', $publicationArr['title']);
 
+        /** @var \Zenstruck\Messenger\Test\Transport\TestTransport $transport */
         $transport = static::getContainer()->get('messenger.transport.async');
-        $envelopes = $transport->get();
+        $envelopes = iterator_to_array($transport->get());
         $this->assertCount(1, $envelopes);
         $this->assertInstanceOf(ProcessFeedMessage::class, $envelopes[0]->getMessage());
     }
@@ -98,18 +102,20 @@ class AddPublicationTest extends WebTestCase
             'POST',
             '/api/app/publications',
             server: ['CONTENT_TYPE' => 'application/json'],
-            content: json_encode($payload)
+            content: (string) json_encode($payload)
         );
 
         $response = $this->client->getResponse();
         $this->assertSame(Response::HTTP_OK, $response->getStatusCode());
 
-        $json = json_decode($response->getContent(), true, 512, JSON_THROW_ON_ERROR);
+        $json = json_decode((string) $response->getContent(), true, 512, JSON_THROW_ON_ERROR);
+        $this->assertIsArray($json);
         $this->assertFalse($json['created']);
         $this->assertTrue($json['attached']);
 
+        /** @var \Zenstruck\Messenger\Test\Transport\TestTransport $transport */
         $transport = static::getContainer()->get('messenger.transport.async');
-        $envelopes = $transport->get();
+        $envelopes = iterator_to_array($transport->get());
         $this->assertCount(1, $envelopes);
         $this->assertInstanceOf(ProcessFeedMessage::class, $envelopes[0]->getMessage());
     }
@@ -129,18 +135,20 @@ class AddPublicationTest extends WebTestCase
             'POST',
             '/api/app/publications',
             server: ['CONTENT_TYPE' => 'application/json'],
-            content: json_encode($payload)
+            content: (string) json_encode($payload)
         );
 
         $response = $this->client->getResponse();
         $this->assertSame(Response::HTTP_OK, $response->getStatusCode());
 
-        $json = json_decode($response->getContent(), true, 512, JSON_THROW_ON_ERROR);
+        $json = json_decode((string) $response->getContent(), true, 512, JSON_THROW_ON_ERROR);
+        $this->assertIsArray($json);
         $this->assertFalse($json['created']);
         $this->assertFalse($json['attached']);
 
+        /** @var \Zenstruck\Messenger\Test\Transport\TestTransport $transport */
         $transport = static::getContainer()->get('messenger.transport.async');
-        $envelopes = $transport->get();
+        $envelopes = iterator_to_array($transport->get());
         $this->assertCount(0, $envelopes);
     }
 
@@ -158,7 +166,7 @@ class AddPublicationTest extends WebTestCase
             'POST',
             '/api/app/publications',
             server: ['CONTENT_TYPE' => 'application/json'],
-            content: json_encode($payload)
+            content: (string) json_encode($payload)
         );
 
         $response = $this->client->getResponse();
@@ -177,7 +185,7 @@ class AddPublicationTest extends WebTestCase
             'POST',
             '/api/app/publications',
             server: ['CONTENT_TYPE' => 'application/json'],
-            content: json_encode($payload)
+            content: (string) json_encode($payload)
         );
 
         $response = $this->client->getResponse();
@@ -198,7 +206,7 @@ class AddPublicationTest extends WebTestCase
             'POST',
             '/api/app/publications',
             server: ['CONTENT_TYPE' => 'application/json'],
-            content: json_encode($payload)
+            content: (string) json_encode($payload)
         );
 
         $response = $this->client->getResponse();

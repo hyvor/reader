@@ -55,7 +55,8 @@ class PublicationService
         $url = $inspection['final_url'];
         $feed = $inspection['feed'];
         $title = $inspection['title'];
-        $headers = $inspection['headers'] ?? [];
+        /** @var array<string, array<int, string>> $headers */
+        $headers = $inspection['headers'];
 
         $publication = new Publication();
         $publication->setUrl($url);

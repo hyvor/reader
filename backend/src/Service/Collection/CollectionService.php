@@ -20,8 +20,8 @@ class CollectionService
 
     private function getCollectionUserRepository(): CollectionUserRepository
     {
+        /** @var CollectionUserRepository $repository */
         $repository = $this->em->getRepository(CollectionUser::class);
-        assert($repository instanceof CollectionUserRepository);
         return $repository;
     }
 

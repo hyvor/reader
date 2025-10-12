@@ -13,7 +13,6 @@ use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Clock\ClockAwareTrait;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
-use Symfony\Contracts\HttpClient\HttpClientInterface;
 use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
 use App\Service\Fetch\Exception\UnexpectedStatusCodeException;
 
@@ -26,7 +25,6 @@ class ProcessFeedHandler
         private FetchService $fetchService,
         private PublicationRepository $publicationRepository,
         private EntityManagerInterface $entityManager,
-        private HttpClientInterface $httpClient,
         private LoggerInterface $logger,
     ) {
     }

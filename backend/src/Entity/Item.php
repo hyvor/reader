@@ -61,7 +61,7 @@ class Item
 
     #[ORM\ManyToOne(inversedBy: 'items')]
     #[ORM\JoinColumn(nullable: false)]
-    private ?Publication $publication = null;
+    private Publication $publication;
 
     public function __construct()
     {
@@ -228,12 +228,12 @@ class Item
         return $this;
     }
 
-    public function getPublication(): ?Publication
+    public function getPublication(): Publication
     {
         return $this->publication;
     }
 
-    public function setPublication(?Publication $publication): static
+    public function setPublication(Publication $publication): static
     {
         $this->publication = $publication;
 

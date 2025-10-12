@@ -26,7 +26,9 @@ class WebTestCase extends \Symfony\Bundle\FrameworkBundle\Test\WebTestCase
         $this->client = static::createClient();
         $this->container = static::getContainer();
 
-        $this->em = $this->container->get(EntityManagerInterface::class);
+        /** @var EntityManagerInterface $em */
+        $em = $this->container->get(EntityManagerInterface::class);
+        $this->em = $em;
 
         AuthFake::enableForSymfony($this->container, ['id' => 1]);
         $this->client->getCookieJar()->set(new Cookie('authsess', 'test'));

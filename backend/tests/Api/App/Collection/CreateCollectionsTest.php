@@ -18,7 +18,7 @@ class CreateCollectionsTest extends WebTestCase
     {
         $this->client->request('POST', '/api/app/collections', [], [], [
             'CONTENT_TYPE' => 'application/json',
-        ], json_encode([
+        ], (string) json_encode([
             'name' => 'My Private Collection',
             'is_public' => false,
         ]));
@@ -27,10 +27,12 @@ class CreateCollectionsTest extends WebTestCase
 
         $this->assertSame(Response::HTTP_OK, $response->getStatusCode(), 'Expected 200 OK');
 
-        $data = json_decode($response->getContent(), true, 512, JSON_THROW_ON_ERROR);
+        $data = json_decode((string) $response->getContent(), true, 512, JSON_THROW_ON_ERROR);
+        $this->assertIsArray($data);
         $this->assertArrayHasKey('collection', $data);
 
         $collection = $data['collection'];
+        $this->assertIsArray($collection);
         $this->assertSame('My Private Collection', $collection['name']);
         $this->assertFalse($collection['is_public']);
         $this->assertTrue($collection['is_owner']);
@@ -42,7 +44,7 @@ class CreateCollectionsTest extends WebTestCase
     {
         $this->client->request('POST', '/api/app/collections', [], [], [
             'CONTENT_TYPE' => 'application/json',
-        ], json_encode([
+        ], (string) json_encode([
             'name' => 'My Public Collection',
             'is_public' => true,
         ]));
@@ -51,10 +53,12 @@ class CreateCollectionsTest extends WebTestCase
 
         $this->assertSame(Response::HTTP_OK, $response->getStatusCode(), 'Expected 200 OK');
 
-        $data = json_decode($response->getContent(), true, 512, JSON_THROW_ON_ERROR);
+        $data = json_decode((string) $response->getContent(), true, 512, JSON_THROW_ON_ERROR);
+        $this->assertIsArray($data);
         $this->assertArrayHasKey('collection', $data);
 
         $collection = $data['collection'];
+        $this->assertIsArray($collection);
         $this->assertSame('My Public Collection', $collection['name']);
         $this->assertTrue($collection['is_public']);
         $this->assertTrue($collection['is_owner']);
@@ -66,7 +70,7 @@ class CreateCollectionsTest extends WebTestCase
     {
         $this->client->request('POST', '/api/app/collections', [], [], [
             'CONTENT_TYPE' => 'application/json',
-        ], json_encode([
+        ], (string) json_encode([
             'name' => '  Trimmed Collection Name  ',
             'is_public' => false,
         ]));
@@ -75,10 +79,12 @@ class CreateCollectionsTest extends WebTestCase
 
         $this->assertSame(Response::HTTP_OK, $response->getStatusCode(), 'Expected 200 OK');
 
-        $data = json_decode($response->getContent(), true, 512, JSON_THROW_ON_ERROR);
+        $data = json_decode((string) $response->getContent(), true, 512, JSON_THROW_ON_ERROR);
+        $this->assertIsArray($data);
         $this->assertArrayHasKey('collection', $data);
 
         $collection = $data['collection'];
+        $this->assertIsArray($collection);
         $this->assertSame('Trimmed Collection Name', $collection['name']);
     }
 
@@ -86,7 +92,7 @@ class CreateCollectionsTest extends WebTestCase
     {
         $this->client->request('POST', '/api/app/collections', [], [], [
             'CONTENT_TYPE' => 'application/json',
-        ], json_encode([
+        ], (string) json_encode([
             'is_public' => false,
         ]));
 
