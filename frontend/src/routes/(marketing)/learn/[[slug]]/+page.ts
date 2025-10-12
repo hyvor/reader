@@ -24,6 +24,6 @@ export async function load({ params }) {
 
     return {
         slug: params.slug,
-        content: nav[fileName],
+        content: nav[fileName] ?? Index,
     }
 }
