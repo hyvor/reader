@@ -243,12 +243,7 @@ class Publication
 
     public function removeItem(Item $item): static
     {
-        if ($this->items->removeElement($item)) {
-            // set the owning side to null (unless already changed)
-            if ($item->getPublication() === $this) {
-                $item->setPublication(null);
-            }
-        }
+        $this->items->removeElement($item);
 
         return $this;
     }

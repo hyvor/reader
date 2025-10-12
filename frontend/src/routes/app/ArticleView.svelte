@@ -1,10 +1,10 @@
 <script lang="ts">
-	import { Button } from '@hyvor/design/components';
+ 	import { Button, IconButton } from '@hyvor/design/components';
 	import IconChevronLeft from '@hyvor/icons/IconChevronLeft';
 	import IconChevronRight from '@hyvor/icons/IconChevronRight';
 	import IconBoxArrowUpRight from '@hyvor/icons/IconBoxArrowUpRight';
 	import IconArrowLeft from '@hyvor/icons/IconArrowLeft';
-	import type { Item } from './types';
+	import type { Item } from '$lib/types';
 
 	interface Props {
 		item: Item;
@@ -52,7 +52,7 @@
 	</header>
 
 	<header class="article-header">
-		<div class="article-meta">
+		<div class="article-meta desktop-only">
 			<img
 				src="https://picsum.photos/40?{item.publication_title}"
 				alt="Publication Logo"
@@ -65,6 +65,23 @@
 				<span class="separator">•</span>
 				<span class="reading-time">{estimateReadingTime(item.content_html)} min read</span>
 			{/if}
+		</div>
+		<div class="article-meta-mobile mobile-only">
+			<div class="row1">
+				<img
+					src="https://picsum.photos/40?{item.publication_title}"
+					alt="Publication Logo"
+					class="logo"
+				/>
+				<span class="publication">{item.publication_title}</span>
+			</div>
+			<div class="row2">
+				<span class="time">{getRelativeTime(item.published_at || item.updated_at || 0)}</span>
+				{#if item.content_html}
+					<span class="dot">•</span>
+					<span class="reading-time">{estimateReadingTime(item.content_html)} min read</span>
+				{/if}
+			</div>
 		</div>
 		<h1 class="article-title">{item.title}</h1>
 		{#if item.authors && item.authors.length > 0}
@@ -111,30 +128,46 @@
 		{/if}
 	</main>
 
-	<footer class="article-navigation">
-		<Button 
-			variant="invisible" 
-			disabled={!canGoToPrevious}
-			onclick={onPrevious}
-			class="nav-button"
-		>
+    <footer class="article-navigation">
+        <Button 
+            variant="invisible" 
+            disabled={!canGoToPrevious}
+            onclick={onPrevious}
+            class="nav-button nav-desktop"
+        >
 			{#snippet start()}
 				<IconChevronLeft size={16} />
 			{/snippet}
 			Previous Article
 		</Button>
+        <IconButton 
+            aria-label="Previous article"
+            disabled={!canGoToPrevious}
+            on:click={(e) => { onPrevious?.(); }}
+            class="nav-button nav-mobile"
+        >
+            <IconChevronLeft size={16} />
+        </IconButton>
 		
-		<Button 
-			variant="invisible" 
-			disabled={!canGoToNext}
-			onclick={onNext}
-			class="nav-button"
-		>
+        <Button 
+            variant="invisible" 
+            disabled={!canGoToNext}
+            onclick={onNext}
+            class="nav-button nav-desktop"
+        >
 			Next Article
 			{#snippet end()}
 				<IconChevronRight size={16} />
 			{/snippet}
 		</Button>
+        <IconButton 
+            aria-label="Next article"
+            disabled={!canGoToNext}
+            on:click={(e) => { onNext?.(); }}
+            class="nav-button nav-mobile"
+        >
+            <IconChevronRight size={16} />
+        </IconButton>
 	</footer>
 </div>
 
@@ -173,6 +206,9 @@
 		color: var(--text-light);
 		margin-bottom: 12px;
 	}
+
+	.desktop-only { display: flex; }
+	.mobile-only { display: none; }
 
 	.logo {
 		width: 15px;
@@ -365,6 +401,9 @@
 		transition: all 0.2s ease;
 	}
 
+	:global(.nav-desktop) { display: inline-flex; }
+	:global(.nav-mobile) { display: none; }
+
 	:global(.nav-button:disabled) {
 		opacity: 0.4;
 		cursor: not-allowed;
@@ -376,11 +415,11 @@
 
 	@media (max-width: 768px) {
 		.article-title {
-			font-size: 20px;
+			font-size: 16px;
 		}
 
 		.article-body {
-			font-size: 15px;
+			font-size: 14px;
 		}
 
 		.article-content {
@@ -391,11 +430,46 @@
 			padding: 15px 20px;
 		}
 
+		:global(.back-button) {
+			font-size: 12px;
+		}
+
+		:global(.article-actions .button) {
+			font-size: 12px;
+		}
+
+		.article-authors {
+			font-size: 12px;
+		}
+
+		.article-meta-mobile {
+			margin-bottom: 10px;
+		}
+
+		.desktop-only { display: none; }
+		.mobile-only { display: block; }
+		.article-meta-mobile .row1 {
+			display: flex;
+			align-items: center;
+			gap: 8px;
+			margin-bottom: 4px;
+		}
+		.article-meta-mobile .row2 {
+			display: flex;
+			align-items: center;
+			gap: 6px;
+			color: var(--text-light);
+			font-size: 11px;
+		}
+		.article-meta-mobile .dot { opacity: 0.5; }
+
 		.article-navigation {
 			padding: 15px 20px;
-			flex-direction: column;
 			gap: 12px;
 		}
+
+		:global(.nav-desktop) { display: none; }
+		:global(.nav-mobile) { display: inline-flex; justify-content: center; }
 
 		.article-hero-image {
 			margin-bottom: 16px;

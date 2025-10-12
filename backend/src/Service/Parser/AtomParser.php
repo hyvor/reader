@@ -14,7 +14,7 @@ class AtomParser implements ParserInterface
 
     public function __construct(string $content)
     {
-        if (empty($content)) {
+        if ($content === '') {
             throw new ParserException('Empty content');
         }
 
@@ -33,22 +33,22 @@ class AtomParser implements ParserInterface
         }
 
         $title = $this->get_text_content($feedElement, 'title');
-        if (empty($title)) {
+        if ($title === '') {
             throw new ParserException('Required field missing: title');
         }
 
         $id = $this->get_text_content($feedElement, 'id');
-        if (empty($id)) {
+        if ($id === '') {
             throw new ParserException('Required field missing: id');
         }
 
         $updated = $this->get_text_content($feedElement, 'updated');
-        if (empty($updated)) {
+        if ($updated === '') {
             throw new ParserException('Required field missing: updated');
         }
 
         $homepageUrl = $this->get_alternate_link($feedElement);
-        if (empty($homepageUrl)) {
+        if ($homepageUrl === '') {
             throw new ParserException('Required field missing: link');
         }
 
@@ -83,12 +83,12 @@ class AtomParser implements ParserInterface
     private function parse_entry(\DOMElement $entry): Item
     {
         $id = $this->get_text_content($entry, 'id');
-        if (empty($id)) {
+        if ($id === '') {
             throw new ParserException('Entry must have an id');
         }
 
         $url = $this->get_alternate_link($entry);
-        if (empty($url)) {
+        if ($url === '') {
             throw new ParserException('Entry must have an alternate link');
         }
 
@@ -97,7 +97,7 @@ class AtomParser implements ParserInterface
         $content = $this->get_content($entry);
         $language = $entry->getAttribute('xml:lang');
 
-        if (empty($language)) {
+        if ($language === '') {
             $language = null;
         }
 
@@ -185,7 +185,7 @@ class AtomParser implements ParserInterface
     private function get_date(\DOMElement $element, string $tagName): ?\DateTimeImmutable
     {
         $date = $this->get_text_content($element, $tagName);
-        if (empty($date)) {
+        if ($date === '') {
             return null;
         }
 
@@ -201,7 +201,7 @@ class AtomParser implements ParserInterface
         $links = $element->getElementsByTagName('link');
         foreach ($links as $link) {
             $rel = $link->getAttribute('rel');
-            if (empty($rel) || $rel === 'alternate') {
+            if ($rel === '' || $rel === 'alternate') {
                 return $link->getAttribute('href');
             }
         }
@@ -215,7 +215,7 @@ class AtomParser implements ParserInterface
             $rel = $link->getAttribute('rel');
             if ($rel === 'self') {
                 $href = $link->getAttribute('href');
-                return empty($href) ? null : $href;
+                return $href === '' ? null : $href;
             }
         }
         return null;

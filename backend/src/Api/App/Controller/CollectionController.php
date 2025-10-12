@@ -5,7 +5,6 @@ namespace App\Api\App\Controller;
 use App\Api\App\Object\CollectionObject;
 use App\Api\App\Object\PublicationObject;
 use App\Service\Collection\CollectionService;
- 
 use Symfony\Component\HttpFoundation\Request;
 use App\Api\App\Authorization\AuthorizationListener;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -13,7 +12,8 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
- 
+use Symfony\Component\HttpKernel\Attribute\MapRequestPayload;
+use App\Api\App\Input\AddCollectionInput;
 
 class CollectionController extends AbstractController
 {
@@ -55,5 +55,18 @@ class CollectionController extends AbstractController
         ]);
     }
 
+    #[Route('/collections', methods: ['POST'])]
+    public function createCollection(Request $request, #[MapRequestPayload] AddCollectionInput $payload): JsonResponse
+    {
+        $user = AuthorizationListener::getUser($request);
 
-} 
+        $name = trim($payload->name);
+        $isPublic = $payload->is_public;
+
+        $collection = $this->collectionService->createCollection($user->id, $name, $isPublic);
+
+        return $this->json([
+            'collection' => new CollectionObject($collection, $user->id),
+        ]);
+    }
+}

@@ -20,8 +20,8 @@ class CollectionService
 
     private function getCollectionUserRepository(): CollectionUserRepository
     {
+        /** @var CollectionUserRepository $repository */
         $repository = $this->em->getRepository(CollectionUser::class);
-        assert($repository instanceof CollectionUserRepository);
         return $repository;
     }
 
@@ -151,7 +151,7 @@ class CollectionService
             return true;
         }
 
-        $collectionUser = $this->getCollectionUserRepository()->findUserCollectionAccess(
+        $collectionUser = $this->getCollectionUserRepository()->getCollectionUserWithAccess(
             $hyvorUserId,
             $collection->getId()
         );
@@ -165,7 +165,7 @@ class CollectionService
             return true;
         }
 
-        $collectionUser = $this->getCollectionUserRepository()->findUserCollectionAccess(
+        $collectionUser = $this->getCollectionUserRepository()->getCollectionUserWithAccess(
             $hyvorUserId,
             $collection->getId()
         );

@@ -13,8 +13,10 @@
         "doctrine/doctrine-bundle": "^2.15",
         "doctrine/doctrine-migrations-bundle": "^3.4.2",
         "doctrine/orm": "^3.5.0",
-        "nesbot/carbon": "^3.10.1",
         "hyvor/internal": "^3.1.4",
+        "nesbot/carbon": "^3.10.1",
+        "phpdocumentor/reflection-docblock": "^5.6",
+        "phpstan/phpdoc-parser": "^2.3",
         "runtime/frankenphp-symfony": "^0.2.0",
         "symfony/console": "7.3.*",
         "symfony/doctrine-messenger": "7.3.*",
@@ -24,8 +26,12 @@
         "symfony/http-client": "7.3.*",
         "symfony/lock": "7.3.*",
         "symfony/messenger": "7.3.*",
+        "symfony/monolog-bundle": "^3.10",
+        "symfony/property-access": "7.3.*",
+        "symfony/property-info": "7.3.*",
         "symfony/runtime": "7.3.*",
         "symfony/scheduler": "7.3.*",
+        "symfony/serializer": "7.3.*",
         "symfony/uid": "7.3.*",
         "symfony/yaml": "7.3.*"
     },
@@ -62,13 +68,7 @@
         "auto-scripts": {
             "cache:clear": "symfony-cmd",
             "assets:install %PUBLIC_DIR%": "symfony-cmd"
-        },
-        "post-install-cmd": [
-            "@auto-scripts"
-        ],
-        "post-update-cmd": [
-            "@auto-scripts"
-        ]
+        }
     },
     "conflict": {
         "symfony/symfony": "*"
@@ -82,6 +82,7 @@
     "require-dev": {
         "dama/doctrine-test-bundle": "^8.3",
         "phpstan/phpstan": "^2.1.17",
+        "phpstan/phpstan-doctrine": "^2.0",
         "phpunit/phpunit": "^10.0",
         "symfony/browser-kit": "7.3.*",
         "symfony/css-selector": "7.3.*",

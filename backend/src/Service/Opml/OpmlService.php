@@ -2,11 +2,16 @@
 
 namespace App\Service\Opml;
 
+use App\Service\Collection\CollectionService;
+use App\Service\Fetch\FetchService;
+use App\Service\Publication\PublicationService;
+
 class OpmlService
 {
     public function __construct(
-        private readonly \App\Service\Collection\CollectionService $collectionService,
-        private readonly \App\Service\Publication\PublicationService $publicationService
+        private readonly CollectionService $collectionService,
+        private readonly PublicationService $publicationService,
+        private readonly FetchService $fetchService,
     )
     {
     }
@@ -18,16 +23,21 @@ class OpmlService
 
         $xpath = new \DOMXPath($dom);
         $outlines = $xpath->query('//outline[@title and @text and not(@type)]');
+        if ($outlines === false) {
+            return;
+        }
         foreach ($outlines as $outline) {
-            $collectionName = $outline->getAttribute('title');
+            if (!($outline instanceof \DOMElement)) {
+                continue;
+            }
+            $collectionName = (string) $outline->getAttribute('title');
             $collection = $this->collectionService->createCollection($hyvorUserId, $collectionName);
 
             foreach ($outline->childNodes as $child) {
-                if ($child->nodeType === XML_ELEMENT_NODE && $child->tagName === 'outline') {
-                    $publicationTitle = $child->getAttribute('title');
-                    $publicationUrl = $child->getAttribute('xmlUrl');
-
-                    $this->publicationService->createPublication($collection, $publicationUrl, $publicationTitle);
+                if ($child instanceof \DOMElement && $child->tagName === 'outline') {
+                    $publicationUrl = (string) $child->getAttribute('xmlUrl');
+                    $inspection = $this->fetchService->inspectFeed($publicationUrl);
+                    $this->publicationService->addPublication($collection, $inspection);
                 }
             }
         }
@@ -52,14 +62,14 @@ class OpmlService
         $collections = $this->collectionService->getUserCollections($hyvorUserId);
         foreach ($collections as $collection) {
             $outline = $dom->createElement('outline');
-            $outline->setAttribute('title', $collection->getName());
-            $outline->setAttribute('text', $collection->getName());
+            $outline->setAttribute('title', (string) $collection->getName());
+            $outline->setAttribute('text', (string) $collection->getName());
 
             foreach($collection->getPublications() as $publication) {
                 $pubOutline = $dom->createElement('outline');
                 $pubOutline->setAttribute('type', 'rss');
-                $pubOutline->setAttribute('text', $publication->getTitle());
-                $pubOutline->setAttribute('title', $publication->getTitle());
+                $pubOutline->setAttribute('text', (string) ($publication->getTitle() ?? ''));
+                $pubOutline->setAttribute('title', (string) ($publication->getTitle() ?? ''));
                 $pubOutline->setAttribute('xmlUrl', $publication->getUrl());
                 $outline->appendChild($pubOutline);
             }
@@ -69,6 +79,6 @@ class OpmlService
 
         $opml->appendChild($body);
 
-        return $dom->saveXML();
+        return (string) $dom->saveXML();
     }
 } 

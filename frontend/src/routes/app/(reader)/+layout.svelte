@@ -1,7 +1,20 @@
 <script lang="ts">
 	import IconChevronDown from '@hyvor/icons/IconChevronDown';
 	import IconBoxArrowUpRight from '@hyvor/icons/IconBoxArrowUpRight';
-	import { Button, Dropdown, ActionList, ActionListItem, Loader } from '@hyvor/design/components';
+	import IconPlus from '@hyvor/icons/IconPlus';
+	import IconList from '@hyvor/icons/IconList';
+	import {
+		Button,
+		IconButton,
+		Dropdown,
+		ActionList,
+		ActionListItem,
+		Divider,
+		Loader,
+		Modal,
+		TextInput,
+		Switch
+	} from '@hyvor/design/components';
 	import {
 		collections,
 		publications,
@@ -14,20 +27,53 @@
 	} from '../appStore';
 	import { goto } from '$app/navigation';
 	import { page } from '$app/stores';
-	import type { Collection, Publication, Item } from '../types';
-	import { onMount } from 'svelte';
+	import type { Collection, Publication, Item } from '$lib/types';
+	import { onMount, tick } from 'svelte';
+	import { toast } from '@hyvor/design/components';
 	import api from '$lib/api';
 	import ArticleView from '../ArticleView.svelte';
+	import IconGridFill from '@hyvor/icons/IconGridFill';
 
     let { children } = $props();
+
+
 	let showCollections = $state(false);
+	let showAddPublicationModal = $state(false);
+	let rssUrl = $state('');
+	let showCreateCollectionModal = $state(false);
+	let collectionName = $state('');
+	let collectionIsPublic = $state(false);
 	let selectedItem: Item | null = $state(null);
+	let showSidebarMobile = $state(false);
+	let isMobile = $state(false);
 	let currentItemIndex = $derived(
-		selectedItem ? $items.findIndex(item => item.id === selectedItem!.id) : -1
+		selectedItem ? $items.findIndex((item) => item.id === selectedItem!.id) : -1
 	);
+
+	let addingPublication = $state(false);
+	let addPublicationError: string | null = $state(null);
 
 	function selectCollection(collection: Collection) {
 		goto(`/app/${collection.slug}`);
+	}
+
+	async function handleCreateCollection() {
+		const trimmed = collectionName.trim();
+		if (!trimmed) return;
+		try {
+			const res = await api.post('/collections', {
+				name: trimmed,
+				is_public: collectionIsPublic
+			});
+			const created: Collection = res.collection;
+			$collections = [...$collections, created];
+			showCreateCollectionModal = false;
+			collectionName = '';
+			collectionIsPublic = false;
+			goto(`/app/${created.slug}`);
+        } catch (e) {
+            toast.error(e instanceof Error ? e.message : 'Failed to create collection');
+        }
 	}
 
 	function selectPublication(publication?: Publication) {
@@ -36,31 +82,32 @@
 		} else {
 			goto(`/app/${$page.params.collection_slug}`);
 		}
+		showSidebarMobile = false;
 	}
 
-    function handleItemClick(item: Item) {
-        selectedItem = item;
-    }
+	function handleItemClick(item: Item) {
+		selectedItem = item;
+	}
 
-    function handleOpenItem(item: Item) {
-        window.open(item.url, '_blank');
-    }
+	function handleOpenItem(item: Item) {
+		window.open(item.url, '_blank');
+	}
 
-    function handleBackToItems() {
-        selectedItem = null;
-    }
+	function handleBackToItems() {
+		selectedItem = null;
+	}
 
-    function handleNext() {
-        if (currentItemIndex < $items.length - 1) {
-            selectedItem = $items[currentItemIndex + 1];
-        }
-    }
+	function handleNext() {
+		if (currentItemIndex < $items.length - 1) {
+			selectedItem = $items[currentItemIndex + 1];
+		}
+	}
 
-    function handlePrevious() {
-        if (currentItemIndex > 0) {
-            selectedItem = $items[currentItemIndex - 1];
-        }
-    }
+	function handlePrevious() {
+		if (currentItemIndex > 0) {
+			selectedItem = $items[currentItemIndex - 1];
+		}
+	}
 
 	function getFavicon(url: string, size: number = 14) {
 		try {
@@ -83,17 +130,78 @@
 		return `${days}d ago`;
 	}
 
+	function isValidUrl(url: string): boolean {
+		const trimmed = url.trim();
+		try {
+			new URL(trimmed);
+			return true;
+		} catch {
+			return false;
+		}
+	}
+
+	$effect(() => {
+		if (showAddPublicationModal) {
+			tick().then(() => {
+				const el = document.getElementById('rssUrl') as HTMLInputElement | null;
+				if (el) {
+					el.focus();
+					el.select();
+				}
+			});
+		}
+	});
+
+	function handleAdd() {
+		const value = rssUrl.trim();
+		if (!isValidUrl(value)) return;
+		(async () => {
+			try {
+				addingPublication = true;
+				addPublicationError = null;
+				const collectionSlug = $selectedCollection?.slug;
+                if (!collectionSlug) {
+                    toast.error('No collection selected');
+                    return;
+                }
+				const res = await api.post('/publications', {
+					collection_slug: collectionSlug,
+					url: value,
+				});
+				const exists = $publications.find((p) => p.slug === res.publication.slug);
+				if (!exists) {
+					publications.set([...$publications, res.publication]);
+				}
+				showAddPublicationModal = false;
+				rssUrl = '';
+            } catch (e) {
+                addPublicationError = e instanceof Error ? e.message : 'Failed to add publication';
+                toast.error(addPublicationError);
+			} finally {
+				addingPublication = false;
+			}
+		})();
+	}
+
 	onMount(async () => {
 		$loadingInit = true;
 
 		try {
 			const res = await api.get('/init');
 			$collections = res.collections;
-		} catch (e) {
-			console.error('Initialization failed', e);
-		} finally {
+        } catch (e) {
+            toast.error(e instanceof Error ? e.message : 'Initialization failed');
+        } finally {
 			$loadingInit = false;
 		}
+
+		try {
+			const updateMobile = () => {
+				isMobile = window.matchMedia('(max-width: 768px)').matches;
+			};
+			updateMobile();
+			window.addEventListener('resize', updateMobile);
+		} catch (_) {}
 	});
 </script>
 
@@ -102,11 +210,22 @@
 <main>
 	<div class="content">
 		<div class="header hds-box">
+			<div class="mobile-hamburger">
+				<IconButton
+					size={28}
+					variant="invisible"
+					onclick={() => {
+						showSidebarMobile = true;
+					}}
+				>
+					<IconList />
+				</IconButton>
+			</div>
 			<div class="collection-wrap">
 				{#if $loadingInit}
 					<Loader size="small" />
 				{:else}
-					<Dropdown bind:show={showCollections}>
+					<Dropdown bind:show={showCollections} align={isMobile ? 'center' : 'start'}>
 						{#snippet trigger()}
 							<div class="collection-box">
 								{$selectedCollection?.name || 'Select Collection'}
@@ -114,7 +233,7 @@
 							</div>
 						{/snippet}
 						{#snippet content()}
-							<ActionList selection="single">
+							<ActionList selection="single" selectionAlign="end">
 								{#each $collections as collection}
 									<ActionListItem
 										selected={$selectedCollection?.slug === collection.slug}
@@ -123,7 +242,14 @@
 										{collection.name}
 									</ActionListItem>
 								{/each}
-							</ActionList>
+						</ActionList>
+						<Divider color="var(--border)" margin={10}/>
+						<Button size="small" block on:click={() => { showCreateCollectionModal = true; showCollections = false; }}>
+							{#snippet start()}
+								<IconPlus size={12} />
+							{/snippet}
+							Create collection
+						</Button>
 						{/snippet}
 					</Dropdown>
 				{/if}
@@ -139,47 +265,58 @@
 		</div>
 
 		<div class="body">
-			<div class="publications hds-box">
-				{#if $loadingPublications}
-					<div class="loader-wrapper">
-						<Loader size="small" />
-					</div>
-				{:else}
-                    <button
-                        type="button"
-                        class="publication {$selectedPublication == null
-                            ? 'active'
-                            : ''}"
-                        onclick={() => selectPublication()}
-                    >
-                        <span>All publications</span>
-                    </button>
-					{#each $publications as publication}
+			<div class="publications hds-box" class:drawer-open={showSidebarMobile}>
+				<div class="publications-list">
+					{#if $loadingPublications}
+						<div class="loader-wrapper">
+							<Loader size="small" />
+						</div>
+					{:else}
 						<button
 							type="button"
-							class="publication {$selectedPublication?.slug === publication.slug
-								? 'active'
-								: ''}"
-							onclick={() => selectPublication(publication)}
+							class="publication {$selectedPublication == null ? 'active' : ''}"
+							onclick={() => selectPublication()}
 						>
-							{#if publication.url}
-								<img
-									src={getFavicon(publication.url)}
-									alt={publication.title}
-									width="14"
-									height="14"
-								/>
-							{/if}
-							<span>{publication.title}</span>
+							<IconGridFill size={14} />
+							<span>All publications</span>
 						</button>
-					{/each}
-				{/if}
+						{#each $publications as publication}
+							<button
+								type="button"
+								class="publication {$selectedPublication?.slug === publication.slug
+									? 'active'
+									: ''}"
+								onclick={() => selectPublication(publication)}
+							>
+								{#if publication.url}
+									<img
+										src={getFavicon(publication.url)}
+										alt={publication.title}
+										width="14"
+										height="14"
+									/>
+								{:else}
+									<IconGridFill size={14} />
+								{/if}
+								<span>{publication.title}</span>
+							</button>
+						{/each}
+					{/if}
+				</div>
+				<div class="publications-footer">
+					<Button class="add-publication-button" on:click={() => { rssUrl = ''; addPublicationError = null; showAddPublicationModal = true; }}>
+						{#snippet start()}
+							<IconPlus size={14} />
+						{/snippet}
+						<span>Add publication</span>
+					</Button>
+				</div>
 			</div>
 
 			<div class="feed hds-box">
 				{#if selectedItem}
-					<ArticleView 
-						item={selectedItem} 
+					<ArticleView
+						item={selectedItem}
 						onBackToItems={handleBackToItems}
 						onNext={handleNext}
 						onPrevious={handlePrevious}
@@ -235,11 +372,7 @@
 									</div>
 									{#if item.image}
 										<div class="featured-image">
-											<img
-												src={item.image}
-												alt={item.title}
-												class="item-image"
-											/>
+											<img src={item.image} alt={item.title} />
 										</div>
 									{/if}
 								</button>
@@ -262,8 +395,102 @@
 				{/if}
 			</div>
 		</div>
+
+		<div
+			class="drawer-backdrop {showSidebarMobile ? 'active' : ''}"
+			role="button"
+			tabindex="0"
+			onclick={() => {
+				showSidebarMobile = false;
+			}}
+			onkeydown={(e: KeyboardEvent) => {
+				if (e.key === 'Enter' || e.key === ' ') {
+					showSidebarMobile = false;
+				}
+			}}
+		></div>
 	</div>
 </main>
+
+<Modal
+	bind:show={showCreateCollectionModal}
+	size="small"
+	title="Create Collection"
+	closeOnOutsideClick={true}
+	closeOnEscape={true}
+	footer={{
+		cancel: { text: 'Cancel', props: { color: 'input' } },
+		confirm: { text: 'Create', props: { disabled: !collectionName.trim() } }
+	}}
+	on:cancel={() => {
+		showCreateCollectionModal = false;
+	}}
+	on:confirm={handleCreateCollection}
+>
+	<div class="modal-body">
+		<TextInput
+			id="collectionName"
+			type="text"
+			placeholder="My collection"
+			autofocus
+			bind:value={collectionName}
+			on:keydown={(e: KeyboardEvent) => {
+				if (e.key === 'Enter' && collectionName.trim()) {
+					handleCreateCollection();
+				}
+			}}
+		/>
+		<Switch id="collectionPublic" bind:checked={collectionIsPublic}>Public</Switch>
+	</div>
+</Modal>
+
+<Modal
+    bind:show={showAddPublicationModal}
+    size="small"
+    title="Add Publication"
+    closeOnOutsideClick={true}
+    closeOnEscape={true}
+    loading={addingPublication ? 'Adding publication...' : false}
+>
+	<div class="modal-body">
+		{#if addPublicationError}
+			<div class="error-text">{addPublicationError}</div>
+		{/if}
+
+		<TextInput
+			id="rssUrl"
+			type="url"
+			placeholder="https://example.com/feed.xml"
+			autofocus
+			bind:value={rssUrl}
+			on:keydown={(e: KeyboardEvent) => {
+				if (e.key === 'Enter' && isValidUrl(rssUrl)) {
+					handleAdd();
+				}
+			}}
+			disabled={addingPublication}
+		/>
+	</div>
+
+	{#snippet footer()}
+		<div class="modal-footer">
+			<Button
+					color="input"
+					on:click={() => { showAddPublicationModal = false; } }
+					disabled={addingPublication}
+			>
+				Cancel
+			</Button>
+			<Button
+					on:click={handleAdd}
+					disabled={!isValidUrl(rssUrl) || addingPublication}
+			>
+				Add
+			</Button>
+		</div>
+	{/snippet}
+
+</Modal>
 
 {@render children()}
 
@@ -278,7 +505,8 @@
 		display: flex;
 		flex-direction: column;
 		min-height: 0;
-		width: 1000px;
+		width: 100%;
+		max-width: 1000px;
 		margin: 0 auto;
 	}
 
@@ -287,6 +515,10 @@
 		margin: 15px 0;
 		display: flex;
 		align-items: center;
+	}
+
+	.mobile-hamburger {
+		display: none;
 	}
 
 	.collection-box {
@@ -303,12 +535,54 @@
 
 	.body {
 		display: flex;
+		flex: 1;
+		min-height: 0;
+		margin-bottom: 15px;
 	}
 
 	.publications {
-		width: 350px;
-		padding: 25px 0;
+		width: 250px;
+		flex: 0 0 250px;
+		padding: 0;
 		margin-right: 20px;
+		display: flex;
+		flex-direction: column;
+		height: 100%;
+	}
+
+	.publications-list {
+		padding: 25px 0 10px 0;
+		overflow: auto;
+		flex: 1;
+		min-height: 0;
+	}
+
+    
+
+	.publications-footer {
+		border-top: 1px solid var(--border);
+		padding: 10px;
+		background: var(--surface);
+	}
+
+	.modal-body {
+		display: flex;
+		flex-direction: column;
+		gap: 8px;
+	}
+
+	.error-text {
+		color: var(--red);
+		font-size: 13px;
+		padding: 8px 10px;
+		border-radius: 8px;
+		background: color-mix(in oklab, var(--danger) 12%, transparent);
+	}
+
+	.modal-footer {
+		display: flex;
+		gap: 8px;
+		justify-content: flex-end;
 	}
 
 	.publication {
@@ -336,7 +610,8 @@
 	}
 
 	.feed {
-		width: 100%;
+		flex: 1;
+		min-width: 0;
 		display: flex;
 		flex-direction: column;
 	}
@@ -401,6 +676,8 @@
 		color: var(--text-light);
 		margin-top: 2px;
 		line-height: 1.4;
+		word-break: break-word;
+		overflow-wrap: anywhere;
 	}
 	.featured-image img {
 		max-width: 200px;
@@ -428,5 +705,123 @@
 		margin: 0;
 		font-size: 14px;
 		line-height: 1.5;
+	}
+
+	@media (max-width: 1024px) {
+		.content {
+			width: 100%;
+			margin: 0;
+			padding: 0 16px;
+		}
+		.header {
+			padding: 10px 10px;
+			margin: 10px 0;
+			display: grid;
+			grid-template-columns: 40px 1fr 40px;
+			align-items: center;
+			gap: 10px;
+		}
+		.collection-box {
+			font-size: 13px;
+			gap: 4px;
+		}
+		.body {
+			margin-bottom: 10px;
+		}
+		.publications {
+			position: fixed;
+			top: 0;
+			left: 0;
+			height: 100dvh;
+			width: clamp(260px, 35vw, 360px);
+			max-width: 360px;
+			transform: translateX(-100%);
+			transition: transform 0.25s ease;
+			margin: 0;
+			z-index: 999;
+			border-right: 1px solid var(--border);
+			border-top-left-radius: 0px;
+			border-bottom-left-radius: 0px;
+		}
+		.publications.drawer-open {
+			transform: translateX(0);
+		}
+
+		.drawer-backdrop {
+			position: fixed;
+			inset: 0;
+			background: rgba(0, 0, 0, 0.3);
+			opacity: 0;
+			pointer-events: none;
+			transition: opacity 0.2s ease;
+			z-index: 998;
+		}
+		.drawer-backdrop.active {
+			opacity: 1;
+			pointer-events: auto;
+		}
+		.publications-list {
+			padding: 12px 0 8px 0;
+		}
+		.publications-footer {
+			padding: 8px;
+		}
+
+		.mobile-hamburger {
+			display: inline-flex;
+		}
+		.collection-wrap {
+			justify-self: center;
+		}
+		.logo {
+			justify-self: end;
+		}
+		.items {
+			padding: 0;
+		}
+		.item {
+			padding: 12px;
+			border-radius: 14px;
+			gap: 10px;
+			flex-direction: column;
+			align-items: stretch;
+		}
+		.left {
+			display: flex;
+			flex-direction: column;
+		}
+		.featured-image {
+			order: -1;
+			margin-bottom: 8px;
+		}
+		.title {
+			font-size: 15px;
+		}
+		.publication-name,
+		.publish-time {
+			font-size: 11px;
+		}
+		.description {
+			font-size: 13px;
+			line-height: 1.4;
+		}
+		.featured-image img {
+			width: 100%;
+			height: auto;
+			max-width: 100%;
+			max-height: none;
+			border-radius: 8px;
+			object-fit: cover;
+		}
+
+		.open-button {
+			margin-top: 12px;
+			width: 100%;
+		}
+		:global(.open-button button),
+		:global(.open-button .hds-button) {
+			width: 100%;
+			justify-content: center;
+		}
 	}
 </style>

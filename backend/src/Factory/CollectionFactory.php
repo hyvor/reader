@@ -32,10 +32,12 @@ final class CollectionFactory extends PersistentProxyObjectFactory
      */
     protected function defaults(): array
     {
+        $user = (new InternalFake())->user();
+        $hyvorUserId = is_object($user) && isset($user->id) ? (int) $user->id : 1;
         return [
             'name' => self::faker()->words(2, true),
             'slug' => self::faker()->unique()->slug(),
-            'hyvorUserId' => (new InternalFake())->user()->id,
+            'hyvorUserId' => $hyvorUserId,
         ];
     }
 
@@ -49,6 +51,9 @@ final class CollectionFactory extends PersistentProxyObjectFactory
         ;
     }
 
+    /**
+     * @return array{collection: Collection, collectionUser: \App\Entity\CollectionUser}
+     */
     public static function createWithCollectionUser(int $hyvorUserId, string $name, bool $isPublic = false): array
     {
 
@@ -58,12 +63,14 @@ final class CollectionFactory extends PersistentProxyObjectFactory
             'hyvorUserId' => $hyvorUserId,
         ]);
 
-        // TODO: add collection user factory
-        $collectionUser = CollectionUserFactory::createOne([
+        $collectionUser = \App\Factory\CollectionUserFactory::createOne([
             'hyvorUserId' => $hyvorUserId,
             'collection' => $collection,
             'writeAccess' => true,
         ]);
-
+        return [
+            'collection' => $collection->_real(),
+            'collectionUser' => $collectionUser->_real(),
+        ];
     }
 }
