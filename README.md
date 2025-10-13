@@ -1,6 +1,25 @@
 Hyvor Reader ([reader.hyvor.com](https://reader.hyvor.com)) is a free & open-source RSS reader. It supports RSS, Atom,
-and JSON feeds. While open-source, it is not meant to be self-hosted as it depends on the HYVOR internal services for
-authentication. Developers can run the project locally with mocked authentication.
+and JSON feeds.
+
+<p align="center">
+  <a href="https://reader.hyvor.com">
+    <img src="https://hyvor.com/img/logo.png" alt="Hyvor Reader Logo" width="130"/>
+  </a>
+</p>
+
+<p align="center">
+  <a href="https://reader.hyvor.com">
+    Free RSS Reader
+  </a>
+    <span> | </span>
+    <a href="https://reader.hyvor.com/docs">
+    Docs
+  </a>
+  <span> | </span>
+    <a href="https://reader.hyvor.com/learn">
+    Learn RSS
+  </a>
+</p>
 
 ## Features
 
@@ -8,62 +27,25 @@ authentication. Developers can run the project locally with mocked authenticatio
 - Organize feeds into groups
 - Easy web-based reader
 
-## Development
+## Architecture
 
-Hyvor Reader is built with [Laravel](https://laravel.com) for the backend (API only, no views)
-and [SvelteKit](https://kit.svelte.dev/) + [Hyvor Design System](https://github.com/hyvor/design)
-for the frontend. If you
-wish to contribute, follow the steps below to
-set up
-the development environment.
+- **PHP + Symfony** for the API backend.
+- **SvelteKit** and [**Hyvor Design System**](https://github.com/hyvor/design) for the frontend.
+- **PGSQL** as the database.
 
-> **Note**: You only need to set up the front-end to work on landing pages and documentation pages.
+## Contributing
 
-### Prerequisites
+Visit [hyvor/dev](https://github.com/hyvor/dev) to set up the HYVOR development environment. Then, run `./run reader` to start Hyvor Reader at `https://reader.hyvor.localhost`.
 
-- Caddy
-- PHP 8.3
-- [PHP Extensions required by Laravel](https://laravel.com/docs/10.x/deployment#server-requirements)
-- Composer
-- PostgreSQL
-- Bun.js
+Directory structure:
 
-### Environment
+- `/backend`: Symfony API backend
+- `/frontend`: SvelteKit frontend
 
-Copy the `.env.example` file to `.env` and fill in the required environment variables.
+## License
 
-```sh
-cp .env.example .env
-```
+Hyvor Reader is licensed under the [AGPL-3.0 License](https://github.com/hyvor/reader/blob/main/LICENSE). For use cases that cannot comply with AGPLv3, contact HYVOR for an [Enterprise License](https://hyvor.com/enterprise).
 
-### Installation
+![HYVOR Banner](https://raw.githubusercontent.com/hyvor/relay/refs/heads/main/meta/assets/hyvor-banner.svg)
 
-(Run all the following commands in the project root directory)
-
-Install the dependencies.
-
-```sh
-cd frontend && bun install
-cd backend && composer install
-```
-
-Run the migrations and seed the database.
-
-```sh
-cd backend && php artisan migrate --seed
-```
-
-Start the development servers.
-
-```
-meta/dev/dev
-```
-
-Then, visit `http://localhost:13458` in your browser.
-
->
-> `meta/dev/dev` runs the following processes:
->
->- Frontend server (`bun run dev`) at `http://localhost:13456`
->- Backend server (`php artisan serve`) at `http://localhost:13457`
->- Caddy server proxy at `http://localhost:13458`
+Copyright © HYVOR. HYVOR name and logo are trademarks of HYVOR, SARL.

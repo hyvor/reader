@@ -18,7 +18,6 @@ COPY frontend/package.json frontend/package-lock.json \
 # copy code
 COPY frontend/src ./src
 COPY frontend/static ./static
-COPY shared /app/shared
 
 ###################################################
 FROM frontend-base AS frontend-dev
