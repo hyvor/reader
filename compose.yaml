@@ -13,7 +13,6 @@ services:
       - ./frontend/package-lock.json:/app/frontend/package-lock.json
       - ./frontend/tsconfig.json:/app/frontend/tsconfig.json
       - ./frontend/svelte.config.js:/app/frontend/svelte.config.js
-      - ./shared:/app/shared
     labels:
       traefik.enable: true
       traefik.http.routers.hyvor-reader-frontend.rule: Host(`reader.hyvor.localhost`)
@@ -33,7 +32,6 @@ services:
     volumes:
       - ./backend:/app/backend
       # - ../internal:/app/backend/vendor/hyvor/internal:ro
-      - ./shared:/app/shared
     labels:
       traefik.enable: true
       traefik.http.routers.hyvor-reader-backend.rule: Host(`reader.hyvor.localhost`) && PathPrefix(`/api`)
