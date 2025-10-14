@@ -26,8 +26,15 @@
                 const params = pub ? { publication_slug: pub.slug } : { collection_slug: col.slug };
                 const res = await api.get('/items', params);
                 items.set(res.items);
-            } catch (e) {
-                toast.error(e instanceof Error ? e.message : 'Failed to fetch items');
+			} catch (e) {
+				if ((e as any)?.code === 401) {
+					const toPage = $page.url.searchParams.has('signup') ? 'signup' : 'login';
+					const url = new URL((e as any)?.data?.[toPage + '_url'], location.origin);
+					url.searchParams.set('redirect', location.href);
+					location.href = url.toString();
+				} else {
+					toast.error(e instanceof Error ? e.message : 'Failed to fetch items');
+				}
             } finally {
                 loadingItems.set(false);
             }

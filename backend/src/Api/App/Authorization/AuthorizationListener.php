@@ -7,7 +7,7 @@ use Hyvor\Internal\Auth\AuthUser;
 use Symfony\Component\EventDispatcher\Attribute\AsEventListener;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Event\ControllerEvent;
-use Symfony\Component\HttpKernel\Exception\HttpException;
+use Hyvor\Internal\Bundle\Api\DataCarryingHttpException;
 use Symfony\Component\HttpKernel\KernelEvents;
 
 #[AsEventListener(event: KernelEvents::CONTROLLER, priority: 200)]
@@ -40,7 +40,14 @@ class AuthorizationListener
         $user = $this->auth->check($request);
 
         if ($user === false) {
-            throw new HttpException(401, 'Unauthorized');
+            throw new DataCarryingHttpException(
+                401,
+                [
+                    'login_url' => $this->auth->authUrl('login'),
+                    'signup_url' => $this->auth->authUrl('signup'),
+                ],
+                'Unauthorized'
+            );
         }
 
         $request->attributes->set(self::RESOLVED_USER_ATTRIBUTE_KEY, $user);

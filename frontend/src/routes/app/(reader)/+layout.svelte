@@ -30,7 +30,7 @@
 	import type { Collection, Publication, Item } from '$lib/types';
 	import { onMount, tick } from 'svelte';
 	import { toast } from '@hyvor/design/components';
-	import api from '$lib/api';
+import api from '$lib/api';
 	import ArticleView from '../ArticleView.svelte';
 	import IconGridFill from '@hyvor/icons/IconGridFill';
 
@@ -71,9 +71,16 @@
 			collectionName = '';
 			collectionIsPublic = false;
 			goto(`/app/${created.slug}`);
-        } catch (e) {
-            toast.error(e instanceof Error ? e.message : 'Failed to create collection');
-        }
+       } catch (e) {
+           if ((e as any)?.code === 401) {
+               const toPage = $page.url.searchParams.has('signup') ? 'signup' : 'login';
+               const url = new URL((e as any)?.data?.[toPage + '_url'], location.origin);
+               url.searchParams.set('redirect', location.href);
+               location.href = url.toString();
+           } else {
+               toast.error(e instanceof Error ? e.message : 'Failed to create collection');
+           }
+       }
 	}
 
 	function selectPublication(publication?: Publication) {
@@ -174,9 +181,16 @@
 				}
 				showAddPublicationModal = false;
 				rssUrl = '';
-            } catch (e) {
-                addPublicationError = e instanceof Error ? e.message : 'Failed to add publication';
-                toast.error(addPublicationError);
+           } catch (e) {
+               if ((e as any)?.code === 401) {
+                   const toPage = $page.url.searchParams.has('signup') ? 'signup' : 'login';
+                   const url = new URL((e as any)?.data?.[toPage + '_url'], location.origin);
+                   url.searchParams.set('redirect', location.href);
+                   location.href = url.toString();
+               } else {
+                   addPublicationError = e instanceof Error ? e.message : 'Failed to add publication';
+                   toast.error(addPublicationError);
+               }
 			} finally {
 				addingPublication = false;
 			}
@@ -189,9 +203,16 @@
 		try {
 			const res = await api.get('/init');
 			$collections = res.collections;
-        } catch (e) {
-            toast.error(e instanceof Error ? e.message : 'Initialization failed');
-        } finally {
+       } catch (e) {
+           if ((e as any)?.code === 401) {
+               const toPage = $page.url.searchParams.has('signup') ? 'signup' : 'login';
+               const url = new URL((e as any)?.data?.[toPage + '_url'], location.origin);
+               url.searchParams.set('redirect', location.href);
+               location.href = url.toString();
+           } else {
+               toast.error(e instanceof Error ? e.message : 'Initialization failed');
+           }
+       } finally {
 			$loadingInit = false;
 		}
 

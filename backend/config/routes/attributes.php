@@ -9,6 +9,9 @@ return static function (RoutingConfigurator $routes): void {
         ->prefix('/api/app')
         ->namePrefix('api_app_');
 
-    //
+    // OIDC routes
+    $routes->import('@InternalBundle/src/Controller/OidcController.php', 'attribute')
+        ->prefix('/api/oidc')
+        ->namePrefix('api_oidc_');
 
 };

@@ -25,8 +25,14 @@ export default class api {
         });
 
         if (!response.ok) {
-            const json = await response.json();
-            throw new Error(json?.message ?? 'Unknown error');
+            let json: any = null;
+            try {
+                json = await response.json();
+            } catch {}
+            const err: any = new Error(json?.message ?? 'Unknown error');
+            err.code = response.status;
+            err.data = json?.data ?? null;
+            throw err;
         }
 
         return await response.json();

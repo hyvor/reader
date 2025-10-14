@@ -34,7 +34,14 @@
                 publications.set(res.publications);
                 selectedPublication.set(null);
             } catch (e) {
-                toast.error(e instanceof Error ? e.message : 'Failed to fetch publications');
+                if ((e as any)?.code === 401) {
+                    const toPage = $page.url.searchParams.has('signup') ? 'signup' : 'login';
+                    const url = new URL((e as any)?.data?.[toPage + '_url'], location.origin);
+                    url.searchParams.set('redirect', location.href);
+                    location.href = url.toString();
+                } else {
+                    toast.error(e instanceof Error ? e.message : 'Failed to fetch publications');
+                }
             } finally {
                 loadingPublications.set(false);
             }
